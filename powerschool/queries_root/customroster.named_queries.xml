@@ -1,0 +1,228 @@
+<queries>
+    <query name="com.lsc.roster.get_staff_list" coreTable="SchoolStaff" flattened="true">
+        <description>Get a list of active staff by school</description>
+        <args>
+			<arg name="schoolid" 
+				required="true" 
+				description="The ID of the school."
+				type="primitive"
+			/>
+			<arg name="staffstatus" 
+				required="false" 
+				description="The IDs of the staff you want to return."
+				type="array"
+			/>
+        </args>
+        <columns>
+			<column column="Users.homeschoolid">homeschool_id</column>
+			<column column="Users.lastfirst">fullname</column>
+			<column column="Users.Email_Addr">email</column>
+ 		</columns>
+        <sql>
+			<![CDATA[
+			SELECT 
+				Users.homeschoolid, 
+				Users.lastfirst,
+				Users.Email_Addr
+			FROM
+    			Users
+			JOIN
+				SchoolStaff 
+			ON 
+				Users.DCID = SchoolStaff.users_dcid AND Users.homeschoolid = SchoolStaff.schoolid
+			WHERE
+				Users.homeschoolid = :schoolid
+			AND
+				SchoolStaff.Status = 1
+			AND
+				SchoolStaff.StaffStatus IN (:staffstatus)
+			ORDER BY
+				Users.lastfirst
+			]]>
+        </sql>
+    </query>
+    <query name="com.lsc.roster.get_staff_info" coreTable="Users" flattened="true">
+        <description>Get info for user via e-mail lookup</description>
+        <args>
+			<arg name="email" 
+				required="true" 
+				description="The Email Address of the User"
+				type="primitive"
+			/>
+        </args>
+        <columns>
+			<column>Users.lastfirst</column>
+			<column>Users.homeschoolid</column>
+			<column column="Users.psaccess">ps_admin</column>
+			<column column="Users.DCID">psuser_id</column>
+			<column column="Users.canchangeschool">schoolaccess_list</column>
+			<column>SchoolStaff.StaffStatus</column>
+			<column column="SchoolStaff.id">SchoolStaff.psstaff_id</column>
+			<column column="Gen.value">access_level</column>
+ 		</columns>
+        <sql>
+			<![CDATA[
+			SELECT 
+				Users.lastfirst,
+				Users.homeschoolid, 
+				Users.psaccess,
+				Users.DCID,
+				Users.canchangeschool,
+				SchoolStaff.StaffStatus,
+				SchoolStaff.id as psstaff_id,
+				Gen.value
+			FROM
+    			Users
+			JOIN
+				SchoolStaff 
+			ON 
+				Users.DCID = SchoolStaff.users_dcid AND users.homeschoolid = schoolstaff.schoolid
+			LEFT JOIN
+				Gen
+			ON
+				Users.groupvalue = Gen.id AND Gen.cat = 'groups'
+			WHERE
+				users.email_addr = :email
+			AND
+				SchoolStaff.Status = 1
+			]]>
+        </sql>
+    </query>
+    <query name="com.lsc.roster.get_schools_list" coreTable="Schools" flattened="true">
+        <description>Get schools associated with user</description>
+        <args>
+			<arg name="school_number" 
+				required="true" 
+				description="List of school numbers to look up"
+				type="array"
+			/>
+        </args>
+        <columns>
+			<column>Schools.school_number</column>
+			<column>Schools.name</column>
+ 		</columns>
+        <sql>
+			<![CDATA[
+			SELECT 
+				Schools.school_number,
+				Schools.name
+			FROM
+				Schools 
+			WHERE
+				Schools.school_number IN (:school_number)
+			]]>
+        </sql>
+    </query>
+	<query name="com.lsc.roster.get_current_term" coreTable="Terms" flattened="true">
+        <description>Get the currently active term for a specific school</description>
+		<args>
+			<arg name="school_id" 
+				required="true" 
+				description="The ID of the school"
+				type="primitive"
+			/>
+			<arg name="term_date" 
+				required="true" 
+				description="The date for which you need term ( in YYYY-mm-dd format)"
+				type="primitive"
+			/>
+			<arg name="year_rec" 
+				required="false" 
+				description="Indicates whether the year term should be used. If school has a term for each quarter, this should be set to 0"
+				type="primitive"
+				default="1"
+			/>
+        </args>
+        <columns>
+			<column>Terms.ID</column>
+			<column>Terms.firstday</column>
+			<column>Terms.lastday</column>
+ 		</columns>
+        <sql>
+			<![CDATA[
+			SELECT
+				Terms.ID,
+				Terms.firstday,
+				Terms.lastday
+			FROM
+				Terms
+			WHERE
+				Terms.schoolid = :school_id
+			AND
+				(TO_DATE(:term_date, 'YYYY-MM-DD') BETWEEN Terms.firstday AND Terms.lastday)
+			AND
+				Terms.isyearrec = :year_rec
+			]]>
+        </sql>
+    </query>
+	<query name="com.lsc.roster.get_class_roster" coreTable="CC" flattened="true">
+        <description>Get roster of a specific teacher's class</description>
+		<args>
+			<arg name="school_id" 
+				required="true" 
+				description="The ID of the school"
+				type="primitive"
+			/>
+			<arg name="teacher_id" 
+				required="true" 
+				description="The ID of the teacher. (ID on SchoolStaff table, not DCID/ID of Users table.)"
+				type="primitive"
+			/>
+			<arg name="term_id" 
+				required="true" 
+				description="The term of the class roster being searched."
+				type="primitive"
+			/>
+			<arg name="roster_date" 
+				required="true" 
+				description="The day in time for which you are grabbing the roster( in YYYY-mm-dd format)"
+				type="primitive"
+			/>
+			<arg name="period" 
+				required="false" 
+				description="The period of the roster you are wanting to grab. Defaults to 1 (Homeroom)."
+				type="primitive"
+				default="1"
+			/>
+        </args>
+        <columns>
+			<column>Students.LastFirst</column>
+			<column>Students.Student_Number</column>
+			<column>Students.Lunch_ID</column>
+			<column column="Users.lastfirst">Teacher</column>
+			<column column="Schools.name">School</column>
+ 		</columns>
+        <sql>
+			<![CDATA[
+			SELECT
+				Students.LastFirst,
+				Students.Student_Number,
+				Students.Lunch_ID,
+				Users.lastfirst as Teacher,
+                Schools.name as School
+			FROM
+				CC
+			JOIN
+				Students ON Students.ID = CC.StudentID
+			JOIN
+				SchoolStaff ON CC.teacherid = SchoolStaff.ID
+			JOIN
+				Users ON SchoolStaff.USERS_DCID = Users.DCID
+			JOIN
+				Schools ON CC.schoolid = Schools.school_number
+			WHERE
+				(TO_DATE(:roster_date, 'YYYY-MM-DD') BETWEEN CC.DateEnrolled AND CC.DateLeft)
+			AND
+				CC.schoolid = :school_id
+			AND
+				CC.teacherid = :teacher_id
+			AND
+				CC.termid = :term_id
+			AND
+				SUBSTR(CC.Expression, 0, 1) = :period
+			ORDER BY
+				Students.LastFirst
+			]]>
+        </sql>
+    </query>
+</queries>

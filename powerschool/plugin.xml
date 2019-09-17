@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://plugin.powerschool.pearson.com"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://plugin.powerschool.pearson.com plugin.xsd"
+        name="Custom Class Roster Plugin"
+        version="1.01"
+        description="Give the ability to grab teacher information via e-mail address">
+	<oauth />
+    <openid host="34-48552.lsc.k12.in.us" port="3000">
+        <links>
+            <link title="LSC Teacher Portal" display-text="myApp" path="/auth/testlogin">
+                <ui_contexts>
+                    <ui_context id="admin.header" />
+                    <ui_context id="admin.left_nav" />
+                </ui_contexts>
+            </link>
+        </links>
+    </openid>
+	<access_request>
+        <field table="Users" field="homeschoolid" access="ViewOnly" />
+        <field table="Users" field="email_addr" access="ViewOnly" />
+        <field table="Users" field="DCID" access="ViewOnly" />
+        <field table="Users" field="lastfirst" access="ViewOnly" />
+        <field table="Users" field="psaccess" access="ViewOnly" />
+        <field table="Users" field="canchangeschool" access="ViewOnly" />
+        <field table="Users" field="groupvalue" access="ViewOnly" />
+        <field table="Gen" field="id" access="ViewOnly" />
+        <field table="Gen" field="cat" access="ViewOnly" />
+        <field table="Gen" field="value" access="ViewOnly" />
+        <field table="Schools" field="name" access="ViewOnly" />
+        <field table="Schools" field="school_number" access="ViewOnly" />
+        <field table="SchoolStaff" field="DCID" access="ViewOnly" />
+        <field table="SchoolStaff" field="ID" access="ViewOnly" />
+        <field table="SchoolStaff" field="schoolid" access="ViewOnly" />
+        <field table="SchoolStaff" field="Status" access="ViewOnly" />
+        <field table="SchoolStaff" field="StaffStatus" access="ViewOnly" />
+        <field table="SchoolStaff" field="users_dcid" access="ViewOnly" />
+        <field table="CC" field="DateEnrolled" access="ViewOnly" />
+        <field table="CC" field="DateLeft" access="ViewOnly" />
+        <field table="CC" field="StudentID" access="ViewOnly" />
+        <field table="CC" field="schoolID" access="ViewOnly" />
+        <field table="CC" field="teacherID" access="ViewOnly" />
+        <field table="CC" field="termID" access="ViewOnly" />
+        <field table="CC" field="expression" access="ViewOnly" />
+        <field table="Students" field="DCID" access="ViewOnly" />
+        <field table="Students" field="Enroll_Status" access="ViewOnly" />
+        <field table="Students" field="LastFirst" access="ViewOnly" />
+        <field table="Students" field="Student_Number" access="ViewOnly" />
+        <field table="Students" field="Lunch_ID" access="ViewOnly" />
+        <field table="Students" field="ID" access="ViewOnly" />
+        <field table="Terms" field="ID" access="ViewOnly" />
+        <field table="Terms" field="firstday" access="ViewOnly" />
+        <field table="Terms" field="lastday" access="ViewOnly" />
+        <field table="Terms" field="schoolid" access="ViewOnly" />
+        <field table="Terms" field="isyearrec" access="ViewOnly" />
+	</access_request>
+ 
+    <publisher name="Patrick Mulligan">
+        <contact email="pmulligan@lsc.k12.in.us"/>
+    </publisher>
+</plugin>
