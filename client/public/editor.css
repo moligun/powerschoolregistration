@@ -1,0 +1,12 @@
+.info-box h2 {
+    font-size: 1em;
+    font-style: italic;
+}
+
+.info-box dl > dt {
+    flex: 0 0 30%;
+}
+
+.info-box dl > dd {
+    flex: 0 0 70%;
+}
