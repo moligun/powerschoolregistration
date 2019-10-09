@@ -69,9 +69,10 @@ const verifySameState = (req) => {
 const verifyFields = (req) => {
 	const requiredFields = [
 		'openid.ext1.value.dcid',
-		'openid.ext1.value.lastName',
+		'openid.ext1.value.studentids',
 		'openid.ext1.value.usertype'
 	];
+	console.log(req.query);
 	let fieldsObj = {};
 
 	const allFieldsPresent = requiredFields.every(function(field) {

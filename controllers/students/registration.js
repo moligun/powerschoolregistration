@@ -1,6 +1,5 @@
 const express = require('express')
 	, powerSchoolApi = require('../../services/powerschoolapi')
-	, azureQueue = require('../../services/azurequeue')
 	, dateFormat = require('dateformat')
 	, auth = require('../../middleware/auth')
 	, router = express.Router();

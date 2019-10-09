@@ -73,6 +73,7 @@ app.use(expressSession({
 	cookie: {secure: secureCookie, maxAge: 3600000}
 }));
 
+app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended : true }));
 
 app.use(passport.initialize());
@@ -92,8 +93,8 @@ app.get('/', (req, res) => {
 if (process.env.ENVIRONMENT == 'DEVELOPMENT') {
 	process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 	https.createServer({
-		key: fs.readFileSync('server.key'),
-		cert: fs.readFileSync('server.cert')
+		key: fs.readFileSync('../server.key'),
+		cert: fs.readFileSync('../server.cert')
 	}, app).listen(3000);
 } else {
 	module.exports = app;

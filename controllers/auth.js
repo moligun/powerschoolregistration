@@ -2,9 +2,9 @@ const express = require('express')
 	, router = express.Router()
 	, passport = require('passport')
 	, powerSchoolAPI = require('../services/powerschoolapi')
-	, powerSchoolSSO = require('../services/powershoolsso');
+	, powerSchoolSSO = require('../services/powerschoolsso');
 
-router.get('/testlogin', (req, res, next) => {
+router.get('/return', (req, res, next) => {
 	const identifier = req.query.openid_identifier;
 	if (identifier === undefined && 
 		req.session.powerschool &&
@@ -21,11 +21,6 @@ router.get('/testlogin', (req, res, next) => {
 		return;
 	}
 	res.status('500').send('Cannot process.');
-});
-
-router.get('/return', passport.authenticate('oauth2'), (req, res) => {
-	let redirectUrl = req.session.originalUrl ? req.session.originalUrl : '/';
-	res.redirect(redirectUrl);
 });
 
 // 'logout' route, logout from passport, and destroy the session with AAD.

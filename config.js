@@ -27,21 +27,23 @@ exports.powerSchoolSSO = {
 	URL: powerSchoolURL + '/openid',
 	config: {
 		'openid.ns': 'http://specs.openid.net/auth/2.0',
-		'openid.return_to': hostURL + '/auth/testlogin',
+		'openid.return_to': hostURL + '/auth/return',
 		'openid.mode': 'checkid_setup',
 		'openid.ns.ext1': 'http://openid.net/srv/ax/1.0',
 		'openid.ext1.mode': 'fetch_request',
 		'openid.ext1.type.lastName': 'http://powerschool.com/entity/lastName',
 		'openid.ext1.type.dcid': 'http://powerschool.com/entity/id',
 		'openid.ext1.type.usertype': 'http://powerschool.com/entity/type',
-		'openid.ext1.required': 'dcid,lastName,usertype'
+		'openid.ext1.type.studentids': 'http://powerschool.com/guardian/student-ids',
+		'openid.ext1.required': 'dcid,usertype,studentids'
 	}
 }
 
-exports.queueCreds = {
-	accountName: process.env.QUEUE_ACCOUNT_NAME,
-	accountKey: process.env.QUEUE_ACCOUNT_KEY
-}
+exports.azureSqlString = (sqlPassword) => `
+	Driver={ODBC Driver 13 for SQL Server};
+	Server=tcp:lsc-db.database.windows.net,1433;
+	Database=lsc-jhs;Uid=lsc_admin@lsc-db;
+	Pwd={${sqlPassword}};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;`;
 
 // The url you need to go to destroy the session with
 exports.destroySessionUrl = hostURL + '/.auth/logout';
