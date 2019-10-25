@@ -1,19 +1,27 @@
 import { observer, inject } from 'mobx-react';
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import Tickets from './registration/components/ticketlist';
-import Editor from './registration/components/editor';
+import UserPortal from './registration/components/userportal'
+import GuestPortal from './registration/components/guestportal'
+import AdminPortal from './registration/components/adminportal'
 
 function App(props) {
-  if (!props.rootStore.authStore.authorized) {
+  if (props.authStore.isAdmin && props.editorStore.displayAdmin) {
     return (
-        <React.Fragment>
-            <Tickets />
-            <Editor />
-        </React.Fragment>
-    );
+      <AdminPortal />
+    )
+  }
+  if (props.authStore.authorized) {
+    return (
+      <UserPortal />
+    )
+  } else {
+    return (
+      <GuestPortal />
+    )
   }
 }
-
-export default inject('rootStore')(observer(App));
+export default inject(stores => ({
+  authStore: stores.rootStore.authStore,
+  editorStore: stores.rootStore.editorStore
+}))(observer(App));

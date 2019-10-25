@@ -5,11 +5,15 @@ class TicketComments extends AzureSql {
 		this.table = 'TACTicket_Comments'
 	}
 
-	all(ticket_id, limit = 100, offset = 0) {
-		const filter = { ticket_id }
-		return super
-			.all(limit, offset)
-			.where(filter)
+	applySelect(item) {
+		return item
+			.select('TACTicket_Comments.*', 'U.lastfirst AS author')
+	}
+
+	applyJoins(item) {
+		item
+			.leftOuterJoin('TACTicket_Users AS U', this.table + '.created_by', 'U.id')
+		return item
 	}
 }
 

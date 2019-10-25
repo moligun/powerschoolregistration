@@ -1,60 +1,110 @@
 import React from 'react'
-import DescriptionList from './descriptionlist.jsx'
+import DescriptionList from './descriptionlist'
+import NewEditor from './neweditor'
+import Loading from './loading'
 import { inject, observer} from 'mobx-react'
 class EditTicketForm extends React.Component {
-    handleDescription = (event) => {
-      this.props.ticket.description = event.target.value
+    handleComment = (event) => {
+        const { editorStore } = this.props
+        editorStore.comment = event.target.value
     }
-    render() {
-      const studentInfo = {
-          "name": "Aaba, Fake",
-          "student ID": "867532",
-          "device ID": "867532"
+
+    handleStatus = (event) => {
+        const { editorStore } = this.props
+        editorStore.status = event.target.value
+    }
+
+    handleClose = () => {
+        const { editorStore } = this.props
+        editorStore.displayEditor = false
+        editorStore.reset()
+    }
+
+    handleSubmit = () => {
+      const { editorStore } = this.props
+      const data = editorStore.validateComments()
+      if (data) {
+        editorStore.addComment(data)
+        editorStore.reset()
       }
-      const ticketInfo = {
-          "Created": "10/03/2019 @ 10:00AM",
-          "Updated": "10/03/2019 @ 10:00AM",
-          "Status": "WIP"
+    }
+
+    render() {
+      const { editorStore, ticketStore } = this.props
+      const { ticket, ticketInfo, student, studentInfo, status } = editorStore
+      const { ticketStatus } = ticketStore
+      const handleClose = {
+          name: "Close",
+          fn: this.handleClose
+      }
+      const handleSubmit = {
+          name: "Save",
+          fn: this.handleSubmit
+      }
+      if (!ticket || !student) {
+        return (
+            <Loading />
+        )
       }
       return (
-        <React.Fragment>
+          <NewEditor title={'Edit Ticket ' +  ticket.id} handleClose={handleClose} handleSubmit={handleSubmit}>
             <div className="row">
                 <div className="info-box col-sm-12">
+                    <h2>Title</h2>
+                    {ticket ? <p>{ticket.title}</p> : <Loading />}
+                </div>
+                <div className="info-box col-sm-12">
                     <h2>Issue</h2>
-                    <p>{this.props.editorStore.description}</p>
+                    {ticket ? <p>{ticket.description}</p> : <Loading />}
                 </div>
             </div>
             <div className="row">
-                <div className="info-box col-sm-12 col-md-6">
-                    <h2>Student Info</h2>
-                    <DescriptionList list={studentInfo} />
-                </div>
-                <div className="info-box col-sm-12 col-md-6">
-                    <h2>Ticket Info</h2>
-                    <DescriptionList list={ticketInfo} />
-                </div>
+                {studentInfo && <DescriptionList list={studentInfo}  title="Student Info" />}
+                {ticketInfo && <DescriptionList list={ticketInfo} title="Ticket Info" />}
             </div>
             <div className="row">
                 <div className="col-sm-12">
-                    {[...this.props.editorStore.comments].map(comment => <p key={comment.id}>{comment.comment}</p>)}
+                    <ul className="list-group">
+                        {editorStore.comments.map((comment, index) => 
+                            <li key={'comment.' + index} className="list-group-item">
+                                <article>
+                                    <header className="d-flex justify-content-between">
+                                        <div><em>Status: {comment.status ? comment.status : 'OPEN'}</em></div>
+                                        <div><em>{comment.author} @ {new Date(comment.created).toLocaleString('en-US')}</em></div>
+                                    </header>
+                                    <section className="commentBox">
+                                        <header><strong>Comment</strong></header>
+                                        {comment.comment}
+                                    </section>
+                                </article>
+                            </li>
+                        )}
+                    </ul>
                 </div>
                 <div className="col-sm-12">
                     <div className="comment-form">
                         <div className="form-group">
                             <label htmlFor="commentText">Comment</label>
-                            <textarea className="form-control" onChange={this.handleDescription} id="commentText" />
+                            <textarea className="form-control" onChange={this.handleComment} id="commentText" value={editorStore.comment} />
                         </div>
                         <div className="form-group">
                             <label>Status</label>
-                            <select className="form-control">
-                                <option>WIP</option>
+                            <select className="form-control" value={status} onChange={this.handleStatus}>
+                                {Object.keys(ticketStatus).map((value) => 
+                                    <option key={'status.' + value} value={value}>{ticketStatus[value]}</option>
+                                )}
                             </select>
                         </div>
                     </div>
                 </div>
             </div>
-        </React.Fragment>
+          </NewEditor>
       )
     }
 }
-export default inject("editorStore")(observer(EditTicketForm))
+export default inject(stores => ({
+    editorStore: stores.rootStore.editorStore,
+    ticketStore: stores.rootStore.ticketStore,
+    studentStore: stores.rootStore.studentStore,
+    authStore: stores.rootStore.authStore
+}))(observer(EditTicketForm))

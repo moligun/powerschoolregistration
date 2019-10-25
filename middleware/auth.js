@@ -3,16 +3,15 @@ module.exports = {
 		if (req.isAuthenticated()) {
 			return next();
 		} else {
-			const url = req.originalUrl;
-			req.session.originalUrl = url !== undefined ? url : '/';
+			req.session.originalUrl = '/';
 			res.redirect('/auth/login');
 		}
 	},
-	requirePsAdmin: (req, res, next) => {
-		if (req.user.psAdmin === true) {
+	requireAdmin: (req, res, next) => {
+		if (req.user.access_level === 2) {
 			return next();
 		} else {
-			res.send('error');
+			res.status(403).send('Not permitted access');
 		}
 	},
 	applyUserGlobals: (req, res, next) => {

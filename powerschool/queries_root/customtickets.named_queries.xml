@@ -1,0 +1,39 @@
+<queries>
+    <query name="com.lsc.ljhs.get_student_by_studentnumber" coreTable="Students" flattened="true">
+        <description>Get Student Info by Ticket ID</description>
+        <args>
+			<arg name="student_number" 
+				required="true" 
+				description="The Student Number of the student"
+				type="primitive"
+			/>
+        </args>
+        <columns>
+			<column>first_name</column>
+			<column>last_name</column>
+            <column>lastfirst</column>
+            <column>student_number</column>
+			<column column="u_def_ext_students9.lsc_device_id">device_id</column>
+ 		</columns>
+        <sql>
+			<![CDATA[
+			SELECT 
+                Students.first_name,
+                Students.last_name,
+                Students.lastfirst,
+				Students.student_number,
+                u_def_ext_students9.LSC_DEVICE_ID as device_id
+			FROM
+    			Students
+			LEFT JOIN
+		        u_def_ext_students9
+			ON 
+				Students.DCID = u_def_ext_students9.studentsdcid
+			WHERE
+				Students.Student_Number = :student_number
+			AND
+				Students.Enroll_Status = 0
+			]]>
+        </sql>
+    </query>
+</queries>

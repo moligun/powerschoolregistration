@@ -23,9 +23,6 @@ class Editor extends React.Component {
         const { editorStore } = this.props
         const existingTicket = editorStore.ticketId > 0 ? true : false
         const ticketTitle = existingTicket ? `Edit Ticket #${editorStore.ticketId}` : 'New Ticket'
-        if (editorStore.displayEditor === false) {
-            return null
-        }
         return (
             <div className="editTicket mt-2 border rounded shadow px-3 pt-2">
                 <div className="d-flex w-100 justify-content-between align-items-start">
@@ -48,4 +45,7 @@ class Editor extends React.Component {
       );
     }
 }
-export default inject("editorStore")(observer(Editor))
+export default inject(stores => ({
+    editorStore: stores.rootStore.editorStore,
+    studentStore: stores.rootStore.studentStore
+}))(observer(Editor))

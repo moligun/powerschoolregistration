@@ -2,32 +2,20 @@
 <plugin xmlns="http://plugin.powerschool.pearson.com"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://plugin.powerschool.pearson.com plugin.xsd"
-        name="LSC Registration"
+        name="LSC Ticket System"
         version="1.0"
-        description="Queries for a student registration app.">
+        description="Queries for student submitted tickets in the TAC Shop.">
 	<oauth />
-    <openid host="34-48552.lsc.k12.in.us" port="3000">
-        <links>
-            <link title="LSC-Registration" display-text="Registration" path="/auth/return">
-                <ui_contexts>
-                    <ui_context id="admin.header" />
-                    <ui_context id="guardian.header" />
-                    <ui_context id="admin.left_nav" />
-                </ui_contexts>
-            </link>
-        </links>
-    </openid>
 	<access_request>
-        <field table="Person" field="firstname" access="FullAccess" />
-        <field table="Person" field="middlename" access="FullAccess" />
-        <field table="Person" field="lastname" access="FullAccess" />
-        <field table="Person" field="DCID" access="FullAccess" />
-        <field table="Person" field="ID" access="FullAccess" />
-        <field table="Students" field="first_name" access="FullAccess" />
-        <field table="Students" field="middle_name" access="FullAccess" />
-        <field table="Students" field="last_name" access="FullAccess" />
-        <field table="Students" field="DCID" access="FullAccess" />
-        <field table="Personaddress" field="street" access="FullAccess" />
+        <field table="Students" field="first_name" access="ViewOnly" />
+        <field table="Students" field="middle_name" access="ViewOnly" />
+        <field table="Students" field="last_name" access="ViewOnly" />
+        <field table="Students" field="lastfirst" access="ViewOnly" />
+        <field table="Students" field="Student_Number" access="ViewOnly" />
+        <field table="Students" field="DCID" access="ViewOnly" />
+        <field table="Students" field="Enroll_Status" access="ViewOnly" />
+        <field table="u_def_ext_students9" field="LSC_DEVICE_ID" access="ViewOnly" />
+        <field table="u_def_ext_students9" field="studentsdcid" access="ViewOnly" />
 	</access_request>
     <publisher name="Patrick Mulligan">
         <contact email="pmulligan@lsc.k12.in.us"/>

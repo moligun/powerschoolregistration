@@ -5,12 +5,13 @@ const express = require('express')
 	, loginApi = require('../services/loginapi')
 	, passport = require('passport');
 
-router.get('/login', passport.authenticate('oauth2'), (req, res) => {
+router.get('/login', passport.authenticate('oauth2', {successRedirect: '/'}), (req, res) => {
 	res.send('logged in');
 });
 
-router.get('/return', passport.authenticate('oauth2'), (req, res) => {
-	let redirectUrl = req.session.originalUrl ? req.session.originalUrl : '/';
+router.get('/return', passport.authenticate('oauth2', {successRedirect:'/'}), (req, res) => {
+	let redirectUrl = '/';
+	console.log(redirectUrl)
 	res.redirect(redirectUrl);
 });
 

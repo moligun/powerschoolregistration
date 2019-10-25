@@ -79,8 +79,10 @@ app.use(bodyParser.urlencoded({ extended : true }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/static', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(require('./controllers'));
 app.get('/', (req, res) => {
+	/*
 	const groupId = config.adminGroup;
 	const errors = [];
 	let sess = req.session;
@@ -88,7 +90,10 @@ app.get('/', (req, res) => {
 		errors.push(sess.error);
 		sess.error = null;
 	}
+	console.log(req.user)
 	res.render('index', { user: req.user, errors: errors });
+	*/
+	res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
 if (process.env.ENVIRONMENT == 'DEVELOPMENT') {
 	process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;

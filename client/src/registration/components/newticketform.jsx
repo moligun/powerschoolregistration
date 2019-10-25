@@ -1,25 +1,81 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+import StudentLookupForm from './studentlookupform'
+import NewEditor from './neweditor'
+import Loading from './loading'
+import { observer, inject } from 'mobx-react'
+import DescriptionList from './descriptionlist'
+import CategorySelector from './categoryselector'
 class NewTicketForm extends React.Component {
     handleDescription = (event) => {
-      this.props.ticket.description = event.target.value
+      this.props.editorStore.description = event.target.value
+    }
+
+    handleTitle = (event) => {
+      const { editorStore } = this.props
+      editorStore.title = event.target.value
+    }
+
+    handleCategoryChange = (event) => {
+      const { editorStore } = this.props
+      if (event.target.name === 'category') {
+        editorStore.setCategory(event.target.value)
+      } else if (event.target.name === 'subcategory') {
+        editorStore.setSubcategory(event.target.value)
+      }
+    }
+
+    handleSubmit = () => {
+      const { editorStore } = this.props
+      const data = editorStore.validateFields()
+      if (data) {
+        editorStore.submit(data)
+        editorStore.reset()
+      }
+    }
+
+    handleClose = () => {
+      const { editorStore } = this.props
+      editorStore.displayEditor = false
+      editorStore.reset()
     }
     render() {
-      const { ticket } = this.props
+      const { editorStore, categoryStore } = this.props
+      const handleClose = {
+          name: "Close",
+          fn: this.handleClose
+      }
+      const handleSubmit = {
+          name: "Submit",
+          fn: this.handleSubmit
+      }
+      if (!categoryStore.categories) {
+        return (
+          <Loading />
+        )
+      }
       return (
-        <div className="row">
-            <div className="form-group col-sm-12">
-                <label htmlFor="descriptionText">Description</label>
-                <textarea className="form-control" onChange={this.handleDescription} id="descriptionText" />
-            </div>
-            <div className="form-group col-sm-12">
-                <label>Status</label>
-                <select className="form-control">
-                    <option>WIP</option>
-                </select>
-            </div>
-        </div>
+        <NewEditor title="New Ticket" handleClose={handleClose} handleSubmit={handleSubmit}>
+          <div className="row">
+              <div className="col-sm-12">
+                {editorStore.student ? <DescriptionList list={editorStore.studentInfo} title="Student Info" /> : <StudentLookupForm />}
+              </div>
+              <div className="col-sm-12">
+                <CategorySelector category={editorStore.category} subcategory={editorStore.subcategory} handleCategory={this.handleCategoryChange} />
+              </div>
+              <div className="form-group col-sm-12">
+                  <label htmlFor="titleText">Title</label>
+                  <input type="text" className="form-control" onChange={this.handleTitle} id="titleText" value={editorStore.title} />
+              </div>
+              <div className="form-group col-sm-12">
+                  <label htmlFor="descriptionText">Description</label>
+                  <textarea className="form-control" onChange={this.handleDescription} id="descriptionText" value={editorStore.description} />
+              </div>
+          </div>
+        </NewEditor>
       )
     }
 }
-export default observer(NewTicketForm)
+export default inject(stores => ({
+  editorStore: stores.rootStore.editorStore,
+  categoryStore: stores.rootStore.categoryStore
+}))(observer(NewTicketForm))

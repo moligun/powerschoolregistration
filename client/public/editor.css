@@ -4,9 +4,37 @@
 }
 
 .info-box dl > dt {
-    flex: 0 0 30%;
+    flex: 0 0 50%;
 }
 
 .info-box dl > dd {
-    flex: 0 0 70%;
+    flex: 0 0 50%;
+}
+
+.ticketTextBox {
+    max-height: 150px;
+    overflow: hidden;
+}
+
+.center-container {
+    height: 80vh;
+}
+
+#root .filters {
+    position: absolute;
+    z-index: 10;
+    background: white;
+    border: 1px red solid;
+    padding: .5em 1em;
+    max-width: 400px;
+}
+
+#commentText {
+    height: 200px;
+}
+
+@media print {
+    .container > footer.mastfoot, .print-view-buttons > button {
+        display: none;
+    }
 }

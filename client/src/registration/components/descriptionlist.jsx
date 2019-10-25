@@ -1,16 +1,18 @@
 import React from 'react'
 const DescriptionList = (props) => {
     return (
-        <dl className="d-flex justify-content-start flex-wrap">
-            {
-                Object.keys(props.list).map((key, id) => (
-                    <React.Fragment key={key + `.${id}`}>
-                        <dt>{key.charAt(0).toUpperCase() + key.slice(1)}</dt>
-                        <dd>{props.list[key]}</dd>
+        <div className="info-box col-sm-12 col-md-6">
+            <h2>{props.title}</h2>
+            <dl className="d-flex justify-content-start flex-wrap">
+                {Object.keys(props.list).map((value, index) =>
+                    <React.Fragment key={`${value}.${index}`}>
+                        <dt>{value}</dt>
+                        <dd>{props.list[value]}</dd>
                     </React.Fragment>
-                ))
-            }
-        </dl>
+                )}
+            </dl>
+            {props.children}
+        </div>
     )
 }
 

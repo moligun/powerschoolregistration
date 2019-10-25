@@ -14,34 +14,142 @@ class AzureSql {
 		})
 		this.table = ''
 	}
-	all(limit = 100, offset = 0) {
+
+	getOffset(limit, activePage) {
+		return (activePage - 1) * limit
+	}
+
+	allWithCount(filters = '', limit = 100, activePage = 1) {
+		let promises = []
+		let countPromise = this.count(filters)
+		let resultPromise = this.all(filters, limit, activePage)
+		promises.push(countPromise)
+		promises.push(resultPromise)
+		return Promise.all(promises)
+			.then((data) => {
+				const firstObj = data.shift()
+				if (firstObj[0].count !== 'undefined') {
+					const count = firstObj[0].count
+					const dataArray = data.shift()
+					return {
+						count,
+						data: dataArray
+					}
+				}
+				return firstObj
+
+			})
+	}
+
+	count(filters = '') {
+		let countPromise
+		if (typeof filters === 'object') {
+			countPromise = this.db(this.table)
+			if (typeof this.applyJoins !== 'undefined') {
+				countPromise = this.applyJoins(countPromise)
+			}
+
+			if (typeof this.applyFilters !== 'undefined') {
+				countPromise = this.applyFilters(countPromise, filters)
+			}
+			countPromise
+				.count('* as count')
+				.then((data) => {
+					return data[0]
+				})
+		} else {
+			countPromise = this.db(this.table)
+			if (typeof this.applyJoins !== 'undefined') {
+				countPromise = this.applyJoins(countPromise)
+			}
+			countPromise
+				.count('* as count')
+				.then((data) => {
+					return data[0]
+				})
+		}
+		return countPromise
+
+	}
+
+	all(filters = '', limit = 100, activePage = 1) {
 		let items = []
-		items = this.db.select()
-			.from(this.table)
-			.limit(limit)
+		let offset = this.getOffset(limit, activePage)
+		items = this.db(this.table)
+		if (typeof this.applyJoins !== 'undefined') {
+			items = this.applyJoins(items)
+		}
+		if (typeof this.applySelect !== 'undefined') {
+			items = this.applySelect(items)
+		}
+			items
+				.limit(limit)
+				.offset(offset)
+				.orderBy(this.table + '.created', 'DESC')
+		if (typeof filters === 'object' && typeof this.applyFilters !== 'undefined') {
+			items = this.applyFilters(items, filters)
+		}
 		return items
 	}
 
-	find(itemId) {
-		let item = []
-		item = this.db
-			.from(this.table)
-			.where('id', itemId)
-			.limit(1)
+	applyFilters(obj, filters) {
+		if (typeof filters !== 'object') {
+			return obj
+		}
+		return obj.where(filters)
+	}
+
+	find(obj) {
+		let filter = obj
+		if (typeof obj !== 'object') {
+			filter = {
+				id: obj
+			}	
+		}
+		let item = this.db(this.table)
+		if (typeof this.applyJoins !== 'undefined') {
+			item = this.applyJoins(item)
+		}
+
+		if (typeof this.applySelect !== 'undefined') {
+			item = this.applySelect(item)
+		}
+
+		if (typeof filter === 'object') {
+			item = this.applyFilters(item, filter)
+		}
+
 		return item
+			.then((response) => {
+				if (response && response.length > 0) {
+					return response.shift()
+				}
+				return response
+			})
 	}
 
 	create(obj) {
-		let newItem = this.db(this.table)
+		return this.db(this.table)
 			.insert(obj)
 			.returning('*')
-		return newItem
+			.then((response) => {
+				if (response && response.length > 0) {
+					return response.shift()
+				}
+				return response
+			})
 	}
 
 	save(obj, filters) {
 		let item = this.db(this.table)
 			.where(filters)
-			.update(obj, ['id', 'description'])
+			.update(obj, '*')
+			.then((response) => {
+				if (response && response.length > 0) {
+					return response.shift()
+				}
+				return response
+			})
 		return item
 	}
 }
