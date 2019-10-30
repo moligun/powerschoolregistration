@@ -34,7 +34,7 @@ router.get('/ticket/:id', async (req, res) => {
 			console.log(error);
 		}
 		if (ticket && ticket.status !== 'OPEN') {
-			if (!req.isAuthenticated()) {
+			if (!req.isAuthenticated() || req.user.access_level == 0) {
 				res.status(403).send('You do not have permission')
 				return
 			}
@@ -61,6 +61,9 @@ router.post('/ticket/:id/comment', Auth.requireAuthentication, async (req, res) 
 		const created_by = req.body.created_by
 		const status = req.body.status
 		const data = { ticket_id, comment, created_by, status }
+		if (req.body.history) {
+			data.history = req.body.history
+		}
 		let newComment = {};
 		try {
 			newComment = await TicketComments.create(data);
@@ -98,9 +101,13 @@ router.post('/ticket', async (req, res) => {
 router.put('/ticket/:id', Auth.requireAuthentication, async (req, res) => {
 		const ticketId = req.params.id
 		const filterObj = {id: ticketId}
-		const description = req.body.description
+		const data = {
+			category_id: req.body.category_id,
+			subcategory_id: req.body.subcategory_id,
+			device_id: req.body.device_id
+		}
 		try { 
-			updateTicket = await Tickets.save({ description }, filterObj)			
+			updateTicket = await Tickets.save(data, filterObj)			
 		} catch(error) {
 			console.log(error)
 			console.log(updateTicket)

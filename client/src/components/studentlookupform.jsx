@@ -3,7 +3,8 @@ import Loading from './loading'
 import { observer, inject } from 'mobx-react'
 class StudentLookupForm extends React.Component {
     handleClick = () => {
-        const { studentStore } = this.props
+        const { studentStore, editorStore } = this.props
+        editorStore.loading = true
         studentStore.setStudentId('student_number')
     } 
 
@@ -30,7 +31,7 @@ class StudentLookupForm extends React.Component {
                 {editorStore.errors.student.map((message, index) => (<div key={'error.' + index} className="alert alert-danger align-self-stretch">{message}</div>))}
                 <div className="form-group">
                     <label htmlFor="student_number">Student ID</label>
-                    <input type="text" autoFocus id="student_number" className="form-control" onChange={this.handleStudentIDChange} onKeyPress={this.detectEnterKey} value={editorStore.studentId} />
+                    <input type="text" autoFocus autocomplete="off" id="student_number" className="form-control" onChange={this.handleStudentIDChange} onKeyPress={this.detectEnterKey} value={editorStore.studentId} />
                     <button onClick={this.handleClick} className="btn btn-primary m-2">Lookup</button>
                 </div>
             </div>

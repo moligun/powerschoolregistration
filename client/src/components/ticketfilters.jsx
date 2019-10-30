@@ -1,6 +1,9 @@
 import React from 'react';
 import { observer, inject } from 'mobx-react';
 import CategorySelector from './categoryselector'
+import DatePicker from 'react-datepicker'
+import "react-datepicker/dist/react-datepicker.css"
+import ticket from './ticket';
 class TicketFilters extends React.Component {
     handleCategoryChange = (event) => {
       const { ticketStore } = this.props
@@ -10,6 +13,20 @@ class TicketFilters extends React.Component {
       } else if (event.target.name === 'subcategory') {
         ticketStore.setFilters('subcategory_id', event.target.value)
       }
+    }
+
+    handleStartDateChange = (date) => {
+      const { ticketStore } = this.props
+      const dateRange = ticketStore.activeFilters.get('daterange')
+      dateRange['startdate'] = date
+      ticketStore.setFilters('daterange', dateRange)
+    }
+
+    handleEndDateChange = (date) => {
+      const { ticketStore } = this.props
+      const dateRange = ticketStore.activeFilters.get('daterange')
+      dateRange['enddate'] = date
+      ticketStore.setFilters('daterange', dateRange)
     }
 
     handleSearch = (event) => {
@@ -52,7 +69,12 @@ class TicketFilters extends React.Component {
     }
 
     render() {
-      const { ticketStatus, filterSearch, filterStatus, filterCategory, filterSubcategory } = this.props.ticketStore
+      const { 
+        ticketStatus, filterSearch, 
+        filterStatus, filterCategory, 
+        filterSubcategory, filterStartDate, 
+        filterEndDate 
+      } = this.props.ticketStore
       return (
           <div className="filters d-flex flex-column align-items-stretch justify-content-between w-100">
               <div className="d-flex w-100 align-items-baseline justify-content-between">
@@ -60,6 +82,13 @@ class TicketFilters extends React.Component {
                   <button type="button" className="close btn-large" data-dismiss="modal" onClick={this.handleFilterClose} aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                   </button>
+              </div>
+              <div className="form-group">
+                <legend>Date Range</legend>
+                <label className="d-block">Start Date</label>
+                <DatePicker selected={filterStartDate} name="startdate" onChange={this.handleStartDateChange} className="form-control" />
+                <label className="d-block">End Date</label>
+                <DatePicker selected={filterEndDate} name="enddate" onChange={this.handleEndDateChange} className="form-control" />
               </div>
               <div className="form-group">
                 <legend>Category</legend>

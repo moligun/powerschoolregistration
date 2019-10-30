@@ -1,7 +1,7 @@
 import { observer, inject } from 'mobx-react';
 import React from 'react';
 import './App.css';
-import AdminToggle from './registration/components/admintoggle'
+import AdminToggle from './components/admintoggle'
 
 function Login(props) {
   return (

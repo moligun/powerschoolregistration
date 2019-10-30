@@ -13,6 +13,8 @@
         <field table="Students" field="lastfirst" access="ViewOnly" />
         <field table="Students" field="Student_Number" access="ViewOnly" />
         <field table="Students" field="DCID" access="ViewOnly" />
+        <field table="Students" field="ID" access="ViewOnly" />
+        <field table="Students" field="SchoolID" access="ViewOnly" />
         <field table="Students" field="Enroll_Status" access="ViewOnly" />
         <field table="u_def_ext_students9" field="LSC_DEVICE_ID" access="ViewOnly" />
         <field table="u_def_ext_students9" field="studentsdcid" access="ViewOnly" />

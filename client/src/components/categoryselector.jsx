@@ -19,7 +19,7 @@ class CategorySelector extends React.Component {
 
   render() {
     const { categoryStore, category, subcategory } = this.props
-    if (!categoryStore.categories) {
+    if (!categoryStore.parentCategories || !categoryStore.parentCategories.size === 0) {
       return (
         <Loading />
       )
@@ -29,16 +29,16 @@ class CategorySelector extends React.Component {
         <div className="form-group col-sm-12">
             <select className="form-control" name="category" onChange={this.handleCategoryChange} value={category}>
               <option key="category.none" value="">Select Category...</option>
-              {categoryStore.categories.map((category) =>
+              {[...categoryStore.parentCategories.values()].map((category) =>
                 <option key={'category.' + category.id} value={category.id}>{category.title}</option>
               )}
             </select>
         </div>
-        {categoryStore.subcategories && 
+        {categoryStore.subCategories && categoryStore.subCategories.size > 0 && 
           <div className="form-group col-sm-12">
             <select className="form-control" name="subcategory" value={subcategory} onChange={this.handleCategoryChange}>
                 <option value="">Select Sub-Category...</option>
-                {(categoryStore.subcategories).map((subcategory) =>
+                {[...categoryStore.subCategories.values()].map((subcategory) =>
                         <option key={'subcategory.' + subcategory.id} value={subcategory.id}>{subcategory.title}</option>
                 )}
             </select>

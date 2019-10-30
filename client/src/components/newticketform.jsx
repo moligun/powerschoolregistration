@@ -38,6 +38,7 @@ class NewTicketForm extends React.Component {
       editorStore.displayEditor = false
       editorStore.reset()
     }
+
     render() {
       const { editorStore, categoryStore } = this.props
       const handleClose = {
@@ -48,7 +49,7 @@ class NewTicketForm extends React.Component {
           name: "Submit",
           fn: this.handleSubmit
       }
-      if (!categoryStore.categories) {
+      if (!categoryStore.parentCategories) {
         return (
           <Loading />
         )
@@ -64,7 +65,7 @@ class NewTicketForm extends React.Component {
               </div>
               <div className="form-group col-sm-12">
                   <label htmlFor="titleText">Title</label>
-                  <input type="text" className="form-control" onChange={this.handleTitle} id="titleText" value={editorStore.title} />
+                  <input type="text" className="form-control" autocomplete="off" onChange={this.handleTitle} id="titleText" value={editorStore.title} />
               </div>
               <div className="form-group col-sm-12">
                   <label htmlFor="descriptionText">Description</label>

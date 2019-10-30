@@ -15,6 +15,11 @@ class TicketComments extends AzureSql {
 			.leftOuterJoin('TACTicket_Users AS U', this.table + '.created_by', 'U.id')
 		return item
 	}
+
+	applyOrder(obj) {
+		obj.orderBy(this.table + '.created', 'ASC')
+		return obj
+	}
 }
 
 module.exports = new TicketComments()

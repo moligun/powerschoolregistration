@@ -2,6 +2,7 @@ import React from 'react'
 import DescriptionList from './descriptionlist'
 import NewEditor from './neweditor'
 import Loading from './loading'
+import CategorySelector from './categoryselector'
 import { inject, observer} from 'mobx-react'
 class EditTicketForm extends React.Component {
     handleComment = (event) => {
@@ -14,24 +15,40 @@ class EditTicketForm extends React.Component {
         editorStore.status = event.target.value
     }
 
+    handleDeviceId = (event) => {
+        const { editorStore } = this.props
+        editorStore.deviceId = event.target.value
+    }
+
     handleClose = () => {
         const { editorStore } = this.props
         editorStore.displayEditor = false
         editorStore.reset()
     }
 
-    handleSubmit = () => {
+    handleSubmit = async () => {
       const { editorStore } = this.props
       const data = editorStore.validateComments()
       if (data) {
-        editorStore.addComment(data)
-        editorStore.reset()
+        const response = await editorStore.updateTicket(data)
+        if (response === true) {
+            editorStore.comment = ''
+        }
+      }
+    }
+
+    handleCategoryChange = (event) => {
+      const { editorStore } = this.props
+      if (event.target.name === 'category') {
+        editorStore.setCategory(event.target.value)
+      } else if (event.target.name === 'subcategory') {
+        editorStore.setSubcategory(event.target.value)
       }
     }
 
     render() {
       const { editorStore, ticketStore } = this.props
-      const { ticket, ticketInfo, student, studentInfo, status } = editorStore
+      const { ticket, ticketInfo, student, studentInfo, status, deviceId } = editorStore
       const { ticketStatus } = ticketStore
       const handleClose = {
           name: "Close",
@@ -76,6 +93,12 @@ class EditTicketForm extends React.Component {
                                         <header><strong>Comment</strong></header>
                                         {comment.comment}
                                     </section>
+                                    {comment.history && 
+                                        <section className="changesBox">
+                                            <header><strong>Changes</strong></header>
+                                            {comment.history}
+                                        </section>
+                                    }
                                 </article>
                             </li>
                         )}
@@ -87,6 +110,12 @@ class EditTicketForm extends React.Component {
                             <label htmlFor="commentText">Comment</label>
                             <textarea className="form-control" onChange={this.handleComment} id="commentText" value={editorStore.comment} />
                         </div>
+                        <div className="form-group">
+                            <label>Device ID</label>
+                            <input type="text" autocomplete="off" className="form-control" value={deviceId} onChange={this.handleDeviceId} />
+                        </div>
+                        <label>Categories</label>
+                        <CategorySelector category={editorStore.category} subcategory={editorStore.subcategory} handleCategory={this.handleCategoryChange} />
                         <div className="form-group">
                             <label>Status</label>
                             <select className="form-control" value={status} onChange={this.handleStatus}>

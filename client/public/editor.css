@@ -26,11 +26,15 @@
     background: white;
     border: 1px red solid;
     padding: .5em 1em;
-    max-width: 400px;
+    max-width: 385px;
 }
 
-#commentText {
+#commentText, #descriptionText {
     height: 200px;
+}
+
+.items-per-page .items-count-selector {
+    width: 75px;
 }
 
 @media print {

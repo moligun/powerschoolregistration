@@ -2,11 +2,13 @@ import { observable, computed, action, decorate, flow } from "mobx"
 class EditorStore {
     displayEditor = false
     displayAdmin = false
+    adminPage = 'users'
     printView = false
     ticketId = null
     loading = false
     description = ''
     studentId = ''
+    deviceId = ''
     title = ''
     category = ''
     subcategory = ''
@@ -33,6 +35,7 @@ class EditorStore {
         this.category = ''
         this.title = ''
         this.studentId = ''
+        this.deviceId = ''
         this.comment = ''
         this.errors = {
             student: [],
@@ -183,10 +186,71 @@ class EditorStore {
         return data
     }
 
-    addComment = flow(function * (data) {
+    checkForTicketChange() {
+        const { ticketService } = this.rootStore.ticketStore
+        const currentCategory = this.ticket.category_id ? this.ticket.category_id.toString() : 0
+        const currentSubcategory = this.ticket.subcategory_id ? this.ticket.subcategory_id.toString() : 0
+        const newCategory = this.category && this.category > 0 ? this.category.toString() : 0
+        const newSubcategory = this.subcategory && this.subcategory > 0 ? this.subcategory.toString() : 0
+        const newDeviceId = this.deviceId && this.deviceId > 0 ? this.deviceId.toString() : 0
+        const oldDeviceId = this.ticket.device_id && this.ticket.device_id > 0 ? this.ticket.device_id.toString() : 0
+        if (newDeviceId === 0) {
+            this.errors.form.push('Must provide a device ID')
+            return false
+        }
+        if (newCategory === 0) {
+            this.errors.form.push('Must select a main category.')
+            return false
+        }
+        if (currentCategory !== newCategory 
+            || currentSubcategory !== newSubcategory
+            || newDeviceId !== oldDeviceId) {
+            let categoryIds = [currentCategory, newCategory, currentSubcategory, newSubcategory]
+            let updateData = {
+                id: this.ticketId,
+                category_id: newCategory,
+                subcategory_id: newSubcategory,
+                device_id: newDeviceId
+            }
+            return ticketService.updateTicket(updateData)
+                .then(({data}) => {
+                    if (data && data.id) {
+                        return ticketService.categories({id: categoryIds})
+                            .then(({data}) => {
+                                let filteredCategories = {}
+                                if (data && data.length > 0) {
+                                    for (const obj of data) {
+                                        filteredCategories[obj.id] = obj
+                                    }
+                                    let newCategoryTitle = filteredCategories[newCategory] ? filteredCategories[newCategory]['title'] : 'None'
+                                    let oldCategoryTitle = filteredCategories[currentCategory] ? filteredCategories[currentCategory]['title'] : 'None'
+                                    let newSubcategoryTitle = filteredCategories[newSubcategory] ? filteredCategories[newSubcategory]['title'] : 'None'
+                                    let oldSubcategoryTitle = filteredCategories[currentSubcategory] ? filteredCategories[currentSubcategory]['title'] : 'None'
+                                    let message = currentCategory !== newCategory ? `Changed From Category: "${oldCategoryTitle}" to "${newCategoryTitle}".  ` : ''
+                                    message += currentSubcategory !== newSubcategory ? `Changed From Subcategory: "${oldSubcategoryTitle}" to "${newSubcategoryTitle}".  ` : ''
+                                    message += oldDeviceId !== newDeviceId ? `Changed Device ID from ${oldDeviceId} to ${newDeviceId}.` : ''
+                                    return message
+                                }
+                            })
+                    }
+                })
+        }
+        return true
+    }
+
+    updateTicket = flow(function * (commentData) {
         const { ticketStore } = this.rootStore
         this.loading = true
-        yield ticketStore.addComment(data)
+        let message = yield this.checkForTicketChange()
+        if (typeof message === 'string') {
+            commentData.history = message
+        }
+        if (message) {
+            yield ticketStore.addComment(commentData)
+            return true
+        }
+        this.loading = false
+        return false
     })
 
     submit = flow(function * (data) {
@@ -196,8 +260,8 @@ class EditorStore {
             result = yield ticketStore.updateTicket(data)
         } else {
             result = yield ticketStore.createTicket(data)
-            if (result.id && result.id > 0) {
-                this.setTicketId(result.id)
+            if (result.data.id && result.data.id > 0) {
+                this.setTicketId(result.data.id)
                 this.printView = true
                 this.displayEditor = false
             }
@@ -208,6 +272,7 @@ decorate(EditorStore, {
     status: observable,
     displayEditor: observable,
     displayAdmin: observable,
+    adminPage: observable,
     ticketId: observable,
     description: observable,
     comment: observable,
@@ -215,11 +280,12 @@ decorate(EditorStore, {
     reset: action,
     setTicketId: action,
     submit: action,
-    addComment: action,
+    updateTicket: action,
     comments: computed,
     ticket: computed,
     ticketInfo: computed,
     studentId: observable,
+    deviceId: observable,
     errors: observable,
     loading: observable,
     category: observable,

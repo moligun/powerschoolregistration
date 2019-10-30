@@ -7,12 +7,19 @@ class Pagination extends React.Component {
       const { updatePage } = this.props
       updatePage(pageNum)
     }
+
+    handleItemsPerPage = (event) => {
+      const numOfItems = parseInt(event.target.value)
+      const { updateItemsPerPage } = this.props
+      updateItemsPerPage(numOfItems)
+    }
+
     render() {
-      const { totalPages, activePage } = this.props
+      const { totalPages, activePage, itemsPerPage } = this.props
       const firstPageDisabledClass = activePage === 1 ? ' disabled' : ''
       const lastPageDisabledClass = activePage === totalPages ? ' disabled' : ''
       return (
-        <nav aria-label="...">
+        <nav aria-label="..." className="d-flex justify-content-between">
           <ul className="pagination">
             <li className={'page-item' + firstPageDisabledClass}>
               <button className="page-link" data-pagenum={activePage - 1} onClick={this.handleClick}>Previous</button>
@@ -43,6 +50,15 @@ class Pagination extends React.Component {
             <button className="page-link" data-pagenum={activePage + 1} onClick={this.handleClick}>Next</button>
           </li>
           </ul>
+          <div className="items-per-page form-group d-flex align-items-baseline">
+            <label className="mr-2">Per Page:</label>
+            <select value={itemsPerPage} className="items-count-selector form-control" onChange={this.handleItemsPerPage}>
+              <option>10</option>
+              <option>50</option>
+              <option>100</option>
+              <option>500</option>
+            </select>
+          </div>
         </nav>
       )
     }

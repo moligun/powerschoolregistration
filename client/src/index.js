@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import LoginNav from './Login';
 import * as serviceWorker from './serviceWorker';
-import RootStore from './registration/stores/rootstore';
+import RootStore from './stores/rootstore';
 import { Provider } from 'mobx-react';
 
 ReactDOM.render(

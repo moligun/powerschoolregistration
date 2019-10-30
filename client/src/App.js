@@ -1,9 +1,9 @@
 import { observer, inject } from 'mobx-react';
 import React from 'react';
 import './App.css';
-import UserPortal from './registration/components/userportal'
-import GuestPortal from './registration/components/guestportal'
-import AdminPortal from './registration/components/adminportal'
+import UserPortal from './components/userportal'
+import GuestPortal from './components/guestportal'
+import AdminPortal from './components/adminportal'
 
 function App(props) {
   if (props.authStore.isAdmin && props.editorStore.displayAdmin) {

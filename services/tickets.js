@@ -39,7 +39,24 @@ class Tickets extends AzureSql {
 		}
 		let queryFilters = filters
 		for (let key in queryFilters) {
-			if (key === 'status') {
+			if (key === 'daterange') {
+				const dateRange = queryFilters[key]
+				if (typeof dateRange === 'object') {
+					const isEmpty = Object.values(dateRange).every(x => (x === null || x === ''))
+					if (isEmpty) {
+						continue
+					}
+					item.where((builder) => {
+						if (dateRange.startdate) {
+							builder.where('TACTickets.created', '>=', dateRange.startdate)
+						}
+						if (dateRange.enddate) {
+							builder.where('TACTickets.created', '<=', dateRange.enddate)
+						}
+						return builder
+					})
+				}
+			} else if (key === 'status') {
 				if (queryFilters[key] === undefined || queryFilters[key].length === 0) {
 					continue
 				}

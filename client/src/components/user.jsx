@@ -18,7 +18,7 @@ class User extends React.Component {
                 <td>{user.id}</td>
                 <td>{user.lastname}</td>
                 <td>{user.firstname}</td>
-                <td>E-mail</td>
+                <td>{user.email}</td>
                 <td>{user.access_level}</td>
                 <td>
                     {prevLevel >= 0 && 

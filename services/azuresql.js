@@ -85,18 +85,30 @@ class AzureSql {
 			items
 				.limit(limit)
 				.offset(offset)
-				.orderBy(this.table + '.created', 'DESC')
+		items = this.applyOrder(items)
 		if (typeof filters === 'object' && typeof this.applyFilters !== 'undefined') {
 			items = this.applyFilters(items, filters)
 		}
 		return items
 	}
 
+	applyOrder(obj) {
+		obj.orderBy(this.table + '.created', 'DESC')
+		return obj
+	}
+
 	applyFilters(obj, filters) {
 		if (typeof filters !== 'object') {
 			return obj
 		}
-		return obj.where(filters)
+		for (let key in filters) {
+			if (Array.isArray(filters[key])) {
+				obj.whereIn(key, filters[key])
+			} else {
+				obj.where(key, filters[key])
+			}
+		}
+		return obj
 	}
 
 	find(obj) {
@@ -141,7 +153,7 @@ class AzureSql {
 	}
 
 	save(obj, filters) {
-		let item = this.db(this.table)
+		return this.db(this.table)
 			.where(filters)
 			.update(obj, '*')
 			.then((response) => {
@@ -150,7 +162,6 @@ class AzureSql {
 				}
 				return response
 			})
-		return item
 	}
 }
 

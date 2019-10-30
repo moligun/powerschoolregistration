@@ -1,13 +1,29 @@
 const axios = require('axios')
 class TicketService {
-    categories() {
-        return axios('/categories')
+    categories(filters) {
+        let config = {
+            method: "GET",
+            url: '/categories'
+        }
+        if (filters !== undefined) {
+            config.params = { filters }
+        }
+        return axios(config)
     }
 
     subCategories(id) {
         const config = {
             method: "GET",
             url: `/categories/category/${id}/subcategories`
+        }
+        return axios(config)
+    }
+
+    updateCategory(id, data) {
+        const config = {
+            method: "PUT",
+            url: `/categories/category/${id}`,
+            data
         }
         return axios(config)
     }
@@ -25,7 +41,6 @@ class TicketService {
             method: "GET",
             url: `/students/student/${student_id}/${id_type}`
         }
-        console.log(config.url)
         return axios(config)
     }
 
@@ -80,6 +95,15 @@ class TicketService {
             method: "POST",
             data,
             url: `/tickets/ticket/${ticket_id}/comment`
+        }
+        return axios(config)
+    }
+
+    createCategory(data) {
+        const config = {
+            method: "POST",
+            data,
+            url: "/categories/category/"
         }
         return axios(config)
     }

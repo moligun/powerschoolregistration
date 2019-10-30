@@ -1,6 +1,6 @@
 module.exports = {
 	requireAuthentication: (req, res, next) => {
-		if (req.isAuthenticated()) {
+		if (req.isAuthenticated() && req.user.access_level > 0) {
 			return next();
 		} else {
 			req.session.originalUrl = '/';

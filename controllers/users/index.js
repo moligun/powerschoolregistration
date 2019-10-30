@@ -24,7 +24,12 @@ router.get('/', Auth.requireAuthentication, async (req, res) => {
 )
 
 router.get('/me', (req, res) => {
-	res.send(req.user);
+	if (req.user) {
+		res.send(req.user);
+		return
+	}
+	res.send('')
+
 })
 
 router.put('/user/:id', Auth.requireAuthentication, Auth.requireAdmin, async (req, res) => {

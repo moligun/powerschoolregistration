@@ -11,7 +11,7 @@ class UserStore {
     totalPages = 1
     activePage = 1
     activeFilters = {}
-    itemsPerPage = 100
+    itemsPerPage = 50
     refreshInterval = 30000
     interval
     constructor(root) {
@@ -45,6 +45,12 @@ class UserStore {
         }
     })
 
+    updateItemsPerPage = (pageCount) => {
+        this.itemsPerPage = pageCount
+        this.activePage = 1
+        this.loadUsers()
+    }
+
     updatePage = (pageNum) => {
         this.activePage = pageNum
         this.loadUsers()
@@ -55,7 +61,7 @@ class UserStore {
     }
 
     cancelRegistryObserve = () => {
-        this.userRegistry = undefined
+        this.userRegistry = observable.map()
     }
 
     setPageTotal(itemCount) {
@@ -78,8 +84,10 @@ decorate(UserStore, {
     activePage: observable,
     totalPages: observable,
     activeFilters: observable,
+    itemsPerPage: observable,
+    updateItemsPerPage: action,
     loadUsers: action,
-    setPageTotal: action,
+    updatePage: action,
     updateAccess: action
 })
 export default UserStore

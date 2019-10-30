@@ -4,18 +4,21 @@ import { observable,
         flow, 
         onBecomeObserved,
         onBecomeUnobserved,
-        computed
+        computed,
+        runInAction
     } from "mobx"
 import TicketService from "../services/ticketservice"
 class TicketStore {
     ticketRegistry = observable.map()
     activeTicket
+    totalRecords
     activeFilters = observable.map()
     activeTicketId
     showFilters = false
+    loadingFile = false
     totalPages = 1
     activePage = 1
-    itemsPerPage = 100
+    itemsPerPage = 50
     refreshInterval = 30000
     timers = []
     interval
@@ -35,8 +38,13 @@ class TicketStore {
     }
 
     updatePage = (pageNum) => {
-        console.log('inside ' + pageNum)
         this.activePage = pageNum
+        this.loadTickets()
+    }
+
+    updateItemsPerPage = (pageCount) => {
+        this.itemsPerPage = pageCount
+        this.activePage = 1
         this.loadTickets()
     }
 
@@ -66,6 +74,7 @@ class TicketStore {
         this.activeFilters.set('category_id', '')
         this.activeFilters.set('subcategory_id', '')
         this.activeFilters.set('search', '')
+        this.activeFilters.set('daterange', {})
         this.activeFilters.set('status', ['WIP', 'OPEN'])
     }
 
@@ -83,6 +92,18 @@ class TicketStore {
 
     get filterSubcategory() {
         return this.activeFilters.get('subcategory_id')
+    }
+
+    get filterStartDate() {
+        const dateRange = this.activeFilters.get('daterange')
+        const startdate = dateRange.startdate !== undefined ? dateRange.startdate : ''
+        return startdate
+    }
+
+    get filterEndDate() {
+        const dateRange = this.activeFilters.get('daterange')
+        const enddate = dateRange.enddate !== undefined ? dateRange.enddate : ''
+        return enddate
     }
 
     setFilters(name, value) {
@@ -119,7 +140,51 @@ class TicketStore {
         this.rootStore.editorStore.loading = false
     })
 
+    addCsvRow(values) {
+        let csvString = ''
+        for (const value of values) {
+            let cleanedValue = value
+            cleanedValue = typeof cleanedValue === 'number' ? cleanedValue.toString() : cleanedValue
+            cleanedValue = !cleanedValue ? '' : cleanedValue
+            cleanedValue = cleanedValue && cleanedValue.includes('"') ? cleanedValue.replace(/"/g, '\""') : cleanedValue
+            cleanedValue = '"' + cleanedValue + '"'
+            csvString += csvString.length > 0 ? ',' + cleanedValue : cleanedValue
+        }
+        return csvString + '\r\n'
+    }
+
+    getCsvString() {
+        this.loadingFile = true
+        const itemsPerPage = 1
+        const totalPages = Math.ceil(this.totalRecords / itemsPerPage)
+        const promises = []
+        for (const num of Array(totalPages).keys()) {
+            let pageNum = num + 1
+            let promise = this.ticketService.allTickets(this.activeFilters, itemsPerPage, pageNum)
+                .then((response) => { 
+                        return response.data.data
+                })
+            promises.push(promise)
+        }
+        return Promise.all(promises)
+            .then((pages) => {
+                const firstItem = pages[0].shift()
+                let csvString = this.addCsvRow(Object.keys(firstItem))
+                csvString += this.addCsvRow(Object.values(firstItem))
+                for (const page of pages) {
+                    for (const item of page) {
+                        csvString += this.addCsvRow(Object.values(item))                        
+                    }
+                }
+                runInAction(() => {
+                    this.loadingFile = false
+                })
+                return csvString
+            })
+    }
+
     setPageTotal(itemCount) {
+        this.totalRecords = itemCount
         this.totalPages = Math.ceil(itemCount / this.itemsPerPage) 
     }
 
@@ -137,17 +202,10 @@ class TicketStore {
 
     updateTicket(data) {
         return this.ticketService.updateTicket(data)
-            .then(action(({data}) => {
-                this.ticketRegistry.set(data.id, data)
-            }))
     }
 
     createTicket(data) {
         return this.ticketService.createTicket(data)
-            .then(action(({data}) => {
-                this.ticketRegistry.set(data.id, data)
-                return data
-            }))
     }
 
     addComment(data) {
@@ -168,9 +226,14 @@ decorate(TicketStore, {
     totalPages: observable,
     activeFilters: observable,
     showFilters: observable,
+    itemsPerPage: observable,
+    totalRecords: observable,
+    loadingFile: observable,
     loadTickets: action,
     loadTicket: action,
     updatePage: action,
+    getCsvString: action,
+    updateItemsPerPage: action,
     updateTicket: action.bound,
     createTicket: action.bound,
     addComment: action.bound,
@@ -179,6 +242,8 @@ decorate(TicketStore, {
     setInitialFilters: action,
     filterStatus: computed,
     filterCategory: computed,
-    filterSubcategory: computed
+    filterSubcategory: computed,
+    filterStartDate: computed,
+    filterEndDate: computed
 })
 export default TicketStore

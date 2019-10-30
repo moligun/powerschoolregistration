@@ -13,6 +13,8 @@
 			<column>last_name</column>
             <column>lastfirst</column>
             <column>student_number</column>
+			<column column="Students.id">ps_studentid</column>
+			<column>schoolid</column>
 			<column column="u_def_ext_students9.lsc_device_id">device_id</column>
  		</columns>
         <sql>
@@ -22,6 +24,8 @@
                 Students.last_name,
                 Students.lastfirst,
 				Students.student_number,
+				Students.id as ps_studentid,
+				Students.schoolid,
                 u_def_ext_students9.LSC_DEVICE_ID as device_id
 			FROM
     			Students

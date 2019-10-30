@@ -4,10 +4,6 @@ class Categories extends AzureSql {
 		super()
 		this.table = 'TACTicket_Categories'
 	}
-
-	all(filters) {
-		return super.all(filters, 1000, 1, false)
-	}
 }
 
 module.exports = new Categories()

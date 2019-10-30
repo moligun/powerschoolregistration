@@ -49,6 +49,8 @@ class AuthStore {
         const userInfo = yield this.ticketService.userInfo()
         if (userInfo.data && userInfo.data.id) {
             this.userInfo = userInfo.data
+        } else {
+            this.userInfo = undefined
         } 
     })
 }

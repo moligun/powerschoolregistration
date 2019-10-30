@@ -3,9 +3,13 @@ import { observer, inject } from 'mobx-react'
 import { FaPrint, FaPen } from 'react-icons/fa'
 class Ticket extends React.Component {
     handleEdit = () => {
-        this.props.editorStore.setTicketId(this.props.ticket.id)
-        this.props.editorStore.displayEditor = true
-        this.props.editorStore.status = this.props.ticket.status
+        const { editorStore, ticket } = this.props
+        editorStore.setTicketId(ticket.id)
+        editorStore.displayEditor = true
+        editorStore.status = ticket.status
+        editorStore.setCategory(ticket.category_id)
+        editorStore.setSubcategory(ticket.subcategory_id)
+        editorStore.deviceId = ticket.device_id
     }
 
     handlePrintView = () => {
