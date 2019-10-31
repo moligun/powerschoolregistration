@@ -48,7 +48,7 @@ class EditTicketForm extends React.Component {
 
     render() {
       const { editorStore, ticketStore } = this.props
-      const { ticket, ticketInfo, student, studentInfo, status, deviceId } = editorStore
+      const { ticket, ticketInfo, student, studentInfo, status, deviceId, editable } = editorStore
       const { ticketStatus } = ticketStore
       const handleClose = {
           name: "Close",
@@ -64,7 +64,7 @@ class EditTicketForm extends React.Component {
         )
       }
       return (
-          <NewEditor title={'Edit Ticket ' +  ticket.id} handleClose={handleClose} handleSubmit={handleSubmit}>
+          <NewEditor title={`${editable ? 'Edit ' : ''}Ticket ${ticket.id}`} handleClose={handleClose} handleSubmit={editable ? handleSubmit : false}>
             <div className="row">
                 <div className="info-box col-sm-12">
                     <h2>Title</h2>
@@ -104,28 +104,32 @@ class EditTicketForm extends React.Component {
                         )}
                     </ul>
                 </div>
-                <div className="col-sm-12">
-                    <div className="comment-form">
-                        <div className="form-group">
-                            <label htmlFor="commentText">Comment</label>
-                            <textarea className="form-control" onChange={this.handleComment} id="commentText" value={editorStore.comment} />
-                        </div>
-                        <div className="form-group">
-                            <label>Device ID</label>
-                            <input type="text" autocomplete="off" className="form-control" value={deviceId} onChange={this.handleDeviceId} />
-                        </div>
-                        <label>Categories</label>
-                        <CategorySelector category={editorStore.category} subcategory={editorStore.subcategory} handleCategory={this.handleCategoryChange} />
-                        <div className="form-group">
-                            <label>Status</label>
-                            <select className="form-control" value={status} onChange={this.handleStatus}>
-                                {Object.keys(ticketStatus).map((value) => 
-                                    <option key={'status.' + value} value={value}>{ticketStatus[value]}</option>
-                                )}
-                            </select>
+                {
+                    editable &&
+                    <div className="col-sm-12">
+                        <div className="comment-form">
+                            <div className="form-group">
+                                <label htmlFor="commentText">Comment</label>
+                                <textarea className="form-control" onChange={this.handleComment} id="commentText" value={editorStore.comment} />
+                            </div>
+                            <div className="form-group">
+                                <label>Device ID</label>
+                                <input type="text" autocomplete="off" className="form-control" value={deviceId} onChange={this.handleDeviceId} />
+                            </div>
+                            <label>Categories</label>
+                            <CategorySelector category={editorStore.category} subcategory={editorStore.subcategory} handleCategory={this.handleCategoryChange} />
+                            <div className="form-group">
+                                <label>Status</label>
+                                <select className="form-control" value={status} onChange={this.handleStatus}>
+                                    {Object.keys(ticketStatus).map((value) => 
+                                        <option key={'status.' + value} value={value}>{ticketStatus[value]}</option>
+                                    )}
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                }
             </div>
           </NewEditor>
       )

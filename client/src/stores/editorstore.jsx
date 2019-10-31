@@ -58,6 +58,13 @@ class EditorStore {
         return this.rootStore.ticketStore.activeTicket
     }
 
+    get editable() {
+        if ((this.ticket && this.ticket.status !== 'CLOSED') || this.rootStore.authStore.isAdmin) {
+            return true
+        }
+        return false
+    }
+
     get ticketInfo() {
         let ticketInfo = {}
         const { ticketStatus } = this.rootStore.ticketStore
@@ -283,6 +290,7 @@ decorate(EditorStore, {
     updateTicket: action,
     comments: computed,
     ticket: computed,
+    editable: computed,
     ticketInfo: computed,
     studentId: observable,
     deviceId: observable,

@@ -25,11 +25,12 @@ class StudentStore {
     setStudentId(idType) {
         const { editorStore } = this.rootStore
         editorStore.errors.student = []
-        if (parseInt(editorStore.studentId)) {
+        if (editorStore.studentId.length > 0 && parseInt(editorStore.studentId)) {
             this.studentIdType = idType
             this.studentId = editorStore.studentId
             editorStore.displayEditor = true
         } else {
+            editorStore.loading = false
             editorStore.errors.student.push('Student ID must be numeric only.')
         }
     }

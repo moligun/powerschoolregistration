@@ -25,21 +25,20 @@ router.get('/', Auth.requireAuthentication, async (req, res) => {
 	}
 )
 
-router.get('/ticket/:id', async (req, res) => {
-		const id = req.params.id;
-		let ticket = {};
-		try {
-			ticket = await Tickets.find({ id });
-		} catch(error) {
-			console.log(error);
+router.get(
+	'/ticket/:id', 
+	(req, res, next) => {
+		res.locals.skipStatusValues = ['OPEN']
+		res.locals.flashError = {
+			code: 403,
+			message: 'You do not have permission'
 		}
-		if (ticket && ticket.status !== 'OPEN') {
-			if (!req.isAuthenticated() || req.user.access_level == 0) {
-				res.status(403).send('You do not have permission')
-				return
-			}
-		}
-		res.send(ticket);
+		return next()
+	},
+	Auth.requireTicketStatus,
+	Auth.requireAuthentication,
+	(req, res) => {
+		res.send(res.locals.ticket)
 	}
 )
 
@@ -55,7 +54,16 @@ router.get('/ticket/:id/comments', Auth.requireAuthentication, async (req, res) 
 	}
 )
 
-router.post('/ticket/:id/comment', Auth.requireAuthentication, async (req, res) => {
+router.post(
+	'/ticket/:id/comment',
+	Auth.requireAuthentication, 
+	(req, res, next) => {
+		res.locals.skipStatusValues = ['OPEN', 'WIP']
+		return next()
+	},
+	Auth.requireTicketStatus,
+	Auth.requireAdmin,
+	async (req, res) => {
 		const ticket_id = req.params.id;
 		const comment = req.body.comment
 		const created_by = req.body.created_by
@@ -98,7 +106,16 @@ router.post('/ticket', async (req, res) => {
 	}
 )
 
-router.put('/ticket/:id', Auth.requireAuthentication, async (req, res) => {
+router.put(
+	'/ticket/:id', 
+	Auth.requireAuthentication, 
+	(req, res, next) => {
+		res.locals.skipStatusValues = ['OPEN', 'WIP']
+		return next()
+	},
+	Auth.requireTicketStatus,
+	Auth.requireAdmin,
+	async (req, res) => {
 		const ticketId = req.params.id
 		const filterObj = {id: ticketId}
 		const data = {
