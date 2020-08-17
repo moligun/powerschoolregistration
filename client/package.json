@@ -1,0 +1,42 @@
+{
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "https://localhost:3000",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "js-file-download": "^0.4.10",
+    "mobx": "^5.15.4",
+    "mobx-react": "^6.1.8",
+    "node-sass": "^4.14.1",
+    "react": "^16.13.0",
+    "react-barcode": "^1.4.0",
+    "react-datepicker": "^2.14.0",
+    "react-dom": "^16.13.0",
+    "react-fontawesome": "^1.7.1",
+    "react-icons": "^3.9.0",
+    "react-scripts": "^3.4.1",
+    "typescript": "^3.9.6"
+  },
+  "scripts": {
+    "start": "PORT=3001 react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

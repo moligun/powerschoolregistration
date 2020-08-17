@@ -20,21 +20,22 @@ exports.powerSchool = {
 	clientID: process.env.PS_CLIENT_ID,
 	clientSecret: process.env.PS_CLIENT_SECRET,
 	tokenURL: powerSchoolURL + '/oauth/access_token',
-	namedQueryURL: powerSchoolURL + '/ws/schema/query/'
+	namedQueryURL: powerSchoolURL + '/ws/'
 }
 
 exports.powerSchoolSSO = {
 	URL: powerSchoolURL + '/openid',
 	config: {
 		'openid.ns': 'http://specs.openid.net/auth/2.0',
-		'openid.return_to': hostURL + '/auth/testlogin',
+		'openid.return_to': hostURL + '/auth/login',
 		'openid.mode': 'checkid_setup',
 		'openid.ns.ext1': 'http://openid.net/srv/ax/1.0',
 		'openid.ext1.mode': 'fetch_request',
 		'openid.ext1.type.lastName': 'http://powerschool.com/entity/lastName',
 		'openid.ext1.type.dcid': 'http://powerschool.com/entity/id',
 		'openid.ext1.type.usertype': 'http://powerschool.com/entity/type',
-		'openid.ext1.required': 'dcid,lastName,usertype'
+		'openid.ext1.type.studentids': 'http://powerschool.com/guardian/student-ids',
+		'openid.ext1.required': 'dcid,lastName,usertype,studentids'
 	}
 }
 

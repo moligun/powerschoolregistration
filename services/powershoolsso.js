@@ -5,6 +5,7 @@ const { URLSearchParams } = require('url');
 const authWithServer = (req, res) => {
 	const identifier = req.query.openid_identifier;
 	let rpRequestParams = config.powerSchoolSSO.config;
+
 	let state;
 	let returnToParams = new URLSearchParams(rpRequestParams['openid.return_to'].split('?').pop());
 	if (returnToParams['state'] === undefined) {
@@ -70,7 +71,8 @@ const verifyFields = (req) => {
 	const requiredFields = [
 		'openid.ext1.value.dcid',
 		'openid.ext1.value.lastName',
-		'openid.ext1.value.usertype'
+		'openid.ext1.value.usertype',
+		'openid.ext1.value.studentids'
 	];
 	let fieldsObj = {};
 
@@ -79,7 +81,12 @@ const verifyFields = (req) => {
 			return false;
 		}
 		let newFieldName = field.split('.').pop();
-		fieldsObj[newFieldName] = req.query[field];
+		if (newFieldName === 'studentids') {
+			const studentIds = JSON.parse(req.query[field]);
+			fieldsObj[newFieldName] = JSON.parse(studentIds['id']);
+		} else {
+			fieldsObj[newFieldName] = req.query[field];
+		}
 		return true;
 	});
 	if (allFieldsPresent === true) {

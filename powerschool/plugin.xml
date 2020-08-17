@@ -2,57 +2,58 @@
 <plugin xmlns="http://plugin.powerschool.pearson.com"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://plugin.powerschool.pearson.com plugin.xsd"
-        name="Custom Class Roster Plugin"
-        version="1.01"
-        description="Give the ability to grab teacher information via e-mail address">
+        name="LSC Registration"
+        version="1.03"
+        description="Custom LSC Student Registration">
 	<oauth />
     <openid host="34-48552.lsc.k12.in.us" port="3000">
         <links>
-            <link title="LSC Teacher Portal" display-text="myApp" path="/auth/testlogin">
+            <link title="LSC Teacher Portal" display-text="newApp" path="/auth/login">
                 <ui_contexts>
                     <ui_context id="admin.header" />
                     <ui_context id="admin.left_nav" />
+                    <ui_context id="guardian.header" />
                 </ui_contexts>
             </link>
         </links>
     </openid>
 	<access_request>
-        <field table="Users" field="homeschoolid" access="ViewOnly" />
-        <field table="Users" field="email_addr" access="ViewOnly" />
-        <field table="Users" field="DCID" access="ViewOnly" />
-        <field table="Users" field="lastfirst" access="ViewOnly" />
-        <field table="Users" field="psaccess" access="ViewOnly" />
-        <field table="Users" field="canchangeschool" access="ViewOnly" />
-        <field table="Users" field="groupvalue" access="ViewOnly" />
-        <field table="Gen" field="id" access="ViewOnly" />
-        <field table="Gen" field="cat" access="ViewOnly" />
-        <field table="Gen" field="value" access="ViewOnly" />
-        <field table="Schools" field="name" access="ViewOnly" />
-        <field table="Schools" field="school_number" access="ViewOnly" />
-        <field table="SchoolStaff" field="DCID" access="ViewOnly" />
-        <field table="SchoolStaff" field="ID" access="ViewOnly" />
-        <field table="SchoolStaff" field="schoolid" access="ViewOnly" />
-        <field table="SchoolStaff" field="Status" access="ViewOnly" />
-        <field table="SchoolStaff" field="StaffStatus" access="ViewOnly" />
-        <field table="SchoolStaff" field="users_dcid" access="ViewOnly" />
-        <field table="CC" field="DateEnrolled" access="ViewOnly" />
-        <field table="CC" field="DateLeft" access="ViewOnly" />
-        <field table="CC" field="StudentID" access="ViewOnly" />
-        <field table="CC" field="schoolID" access="ViewOnly" />
-        <field table="CC" field="teacherID" access="ViewOnly" />
-        <field table="CC" field="termID" access="ViewOnly" />
-        <field table="CC" field="expression" access="ViewOnly" />
-        <field table="Students" field="DCID" access="ViewOnly" />
-        <field table="Students" field="Enroll_Status" access="ViewOnly" />
-        <field table="Students" field="LastFirst" access="ViewOnly" />
-        <field table="Students" field="Student_Number" access="ViewOnly" />
-        <field table="Students" field="Lunch_ID" access="ViewOnly" />
-        <field table="Students" field="ID" access="ViewOnly" />
-        <field table="Terms" field="ID" access="ViewOnly" />
-        <field table="Terms" field="firstday" access="ViewOnly" />
-        <field table="Terms" field="lastday" access="ViewOnly" />
-        <field table="Terms" field="schoolid" access="ViewOnly" />
-        <field table="Terms" field="isyearrec" access="ViewOnly" />
+        <field table="Person" field="firstname" access="ViewOnly" />
+        <field table="Person" field="lastname" access="ViewOnly" />
+        <field table="Person" field="ID" access="ViewOnly" />
+        <field table="Person" field="prefixcodesetid" access="ViewOnly" />
+        <field table="Personaddress" field="street" access="ViewOnly" />
+        <field table="personemailaddressassoc" field="personemailaddressassocid" access="ViewOnly" />
+        <field table="Emailaddress" field="emailaddressid" access="ViewOnly" />
+        <field table="Emailaddress" field="emailaddress" access="ViewOnly" />
+        <field table="Personphonenumberassoc" field="personphonenumberassocid" access="ViewOnly" />
+        <field table="Personphonenumberassoc" field="phonenumberasentered" access="ViewOnly" />
+        <field table="Personphonenumberassoc" field="phonenumberid" access="ViewOnly" />
+        <field table="Personphonenumberassoc" field="phonetypecodesetid" access="ViewOnly" />
+        <field table="Personphonenumberassoc" field="phonenumberpriorityorder" access="ViewOnly" />
+        <field table="Personphonenumberassoc" field="ispreferred" access="ViewOnly" />
+        <field table="Phonenumber" field="phonenumberid" access="ViewOnly" />
+        <field table="Phonenumber" field="issms" access="ViewOnly" />
+        <field table="guardianstudent" field="guardianid" access="ViewOnly" />
+        <field table="guardianstudent" field="guardianstudentid" access="ViewOnly" />
+        <field table="guardianstudrestrictionmap" field="guardianstudentid" access="ViewOnly" />
+        <field table="guardianpersonassoc" field="personid" access="ViewOnly" />
+        <field table="guardianpersonassoc" field="guardianid" access="ViewOnly" />
+        <field table="studentcontactassoc" field="studentdcid" access="ViewOnly" />
+        <field table="studentcontactassoc" field="personid" access="ViewOnly" />
+        <field table="studentcontactassoc" field="contactpriorityorder" access="ViewOnly" />
+        <field table="studentcontactassoc" field="studentcontactassocid" access="ViewOnly" />
+        <field table="studentcontactdetail" field="isactive" access="ViewOnly" />
+        <field table="studentcontactdetail" field="startdate" access="ViewOnly" />
+        <field table="studentcontactdetail" field="enddate" access="ViewOnly" />
+        <field table="studentcontactdetail" field="isemergency" access="ViewOnly" />
+        <field table="studentcontactdetail" field="iscustodial" access="ViewOnly" />
+        <field table="studentcontactdetail" field="liveswithflg" access="ViewOnly" />
+        <field table="studentcontactdetail" field="schoolpickupflg" access="ViewOnly" />
+        <field table="studentcontactdetail" field="receivesmailflg" access="ViewOnly" />
+        <field table="studentcontactdetail" field="relationshiptypecodesetid" access="ViewOnly" />
+        <field table="students" field="dcid" access="ViewOnly" />
+        <field table="students" field="schoolid" access="ViewOnly" />
 	</access_request>
  
     <publisher name="Patrick Mulligan">

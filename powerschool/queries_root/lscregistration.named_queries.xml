@@ -1,0 +1,40 @@
+<queries>
+    <query name="com.lsc.registration.get_nda_contacts" coreTable="" flattened="true">
+        <description>Get a list of active staff by school</description>
+        <args>
+			<arg name="schoolid" 
+				required="true" 
+				description="The IDs of the schools included in query."
+				type="array"
+			/>
+        </args>
+        <columns>
+			<column column="guardianpersonassoc.personid">personid</column>
+ 		</columns>
+        <sql>
+			<![CDATA[
+			SELECT 
+    			DISTINCT sca.personid
+			FROM 
+				studentcontactassoc sca
+			WHERE 
+				EXISTS (
+					SELECT 1 FROM students WHERE students.schoolid IN (:schoolid) AND sca.studentdcid = students.dcid
+				)
+			AND
+				NOT EXISTS (
+					SELECT 
+						gpa.personid
+					FROM 
+						guardianpersonassoc GPA
+					INNER JOIN
+						guardianstudent GS
+					ON
+						gpa.guardianid = GS.guardianid
+					WHERE 
+						sca.personid = gpa.personid 
+				)
+			]]>
+        </sql>
+    </query>
+</queries>

@@ -26,61 +26,91 @@ const getAccessToken = async () => {
 		console.log(error);
 	}
 }
-const runNamedQuery = async (token, namedQuery, paramsObj) => {
+const createQuery = (token, query, paramsObj) => {
 	try {
 		if (token) {
 			const headers = {
 				'Authorization': 'Bearer ' + token,
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
 			}
-			const url = config.powerSchool.namedQueryURL + namedQuery + '?pagesize=500';
-			const response = await fetch(url, {
+			const url = config.powerSchool.namedQueryURL + query
+			const { body, method } = paramsObj
+			return fetch(url, {
 				headers: headers,
-				body: JSON.stringify(paramsObj),
-				method: 'POST'
-			});
-			const jsonResponse = await response.json();
-			return jsonResponse;
+				body: body !== undefined ? JSON.stringify(body) : null,
+				method: method !== undefined ? method : 'GET'
+			})
+			.then(response => response.json())
 		}
 	} catch (error) {
-		console.log(error);
+		console.log(error)
+	}
+	return false
+}
+
+const getStudents = (token, studentIds) => {
+	let studentPromises = [];
+	if (studentIds && studentIds.length > 0) {
+		studentIds.forEach(id => {
+			let query = `v1/student/${id}?expansions=phones,addresses,demographics&extensions=u_health,s_in_stu_x`
+			studentPromises.push(createQuery(token, query, {method: 'GET'}))
+		});
+		return Promise.all(studentPromises)
 	}
 	return false;
 }
-const getStaffInfo = async (token, params) => {
-	const namedQuery = 'com.lsc.roster.get_staff_info';
-	const profileResults = await runNamedQuery(token, namedQuery, params);
-	return profileResults;
+
+const getContacts = (token, studentIds) => {
+	let contactPromises = [];
+	if (studentIds && studentIds.length > 0) {
+		studentIds.forEach(id => {
+			let query = `contacts/student/${id}`
+			contactPromises.push(createQuery(token, query, {method: 'GET'}))
+		});
+		return Promise.all(contactPromises)
+			.then((dataSets) => {
+				let contactsCollection = []
+				for (let studentContacts of dataSets) {
+					for (let contact of studentContacts) {
+						contactsCollection.push(contact)
+					}
+				}
+				return contactsCollection
+			})
+	}
+	return false;
 }
 
-const getActiveTerm = async (token, params) => {
-	const namedQuery = 'com.lsc.roster.get_current_term';
-	const termResult = await runNamedQuery(token, namedQuery, params);
-	return termResult;
+const getNonAccessContacts = (token, paramsObj, page = 1, limit = 1000) => {
+	const query = `schema/query/com.lsc.registration.get_nda_contacts?pagesize=${limit}&page=${page}`
+	const promise = createQuery(token, query, paramsObj)
+	return promise
 }
 
-const getClassRoster = async (token, params) => {
-	const namedQuery = 'com.lsc.roster.get_class_roster';
-	const termResult = await runNamedQuery(token, namedQuery, params);
-	return termResult;
+const getNonAccessContactCount = (token, paramsObj) => {
+	const query = `schema/query/com.lsc.registration.get_nda_contacts/count`
+	const promise = createQuery(token, query, paramsObj)
+	return promise
 }
 
-const getSchoolsList = async (token, params) => {
-	const namedQuery = 'com.lsc.roster.get_schools_list';
-	const termResult = await runNamedQuery(token, namedQuery, params);
-	return termResult;
+const deleteContacts = (token, contactIds) => {
+	let contactPromises = [];
+	if (contactIds && contactIds.length > 0) {
+		contactIds.forEach(id => {
+			let query = `contacts/${id}?extensions=personcorefields`
+			contactPromises.push(createQuery(token, query, {method: 'DELETE'}))
+		});
+		return Promise.all(contactPromises)
+	}
+	return false;
 }
 
-const getStaffList = async (token, params) => {
-	const namedQuery = 'com.lsc.roster.get_staff_list';
-	const termResult = await runNamedQuery(token, namedQuery, params);
-	return termResult;
-}
 module.exports = {
-	getAccessToken: getAccessToken,
-	getStaffInfo: getStaffInfo,
-	getActiveTerm: getActiveTerm,
-	getClassRoster: getClassRoster,
-	getSchoolsList: getSchoolsList,
-	getStaffList: getStaffList
+	getAccessToken,
+	getStudents,
+	getNonAccessContacts,
+	deleteContacts,
+	getNonAccessContactCount,
+	getContacts
 }

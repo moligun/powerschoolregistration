@@ -1,10 +1,8 @@
 const express = require('express')
 	, router = express.Router()
-	, passport = require('passport')
-	, powerSchoolAPI = require('../services/powerschoolapi')
 	, powerSchoolSSO = require('../services/powershoolsso');
 
-router.get('/testlogin', (req, res, next) => {
+router.get('/login', (req, res, next) => {
 	const identifier = req.query.openid_identifier;
 	if (identifier === undefined && 
 		req.session.powerschool &&
@@ -13,17 +11,18 @@ router.get('/testlogin', (req, res, next) => {
 			res.status('403').send('Forbidden');
 			return;
 		} else {
-			res.redirect('/students/registration');
+			res.redirect('/');
 			return;
 		}
 	} else if (identifier) {
 		powerSchoolSSO.authWithServer(req, res);
 		return;
 	}
-	res.status('500').send('Cannot process.');
+	res.send('Cannot process.');
+	return;
 });
 
-router.get('/return', passport.authenticate('oauth2'), (req, res) => {
+router.get('/return', (req, res) => {
 	let redirectUrl = req.session.originalUrl ? req.session.originalUrl : '/';
 	res.redirect(redirectUrl);
 });

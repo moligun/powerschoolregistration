@@ -17,12 +17,10 @@ router.get('/', async (req, res) => {
 		}
 		*/
 			const accessToken = await psApi.getAccessToken();
-			const studentPromises = psApi.getStudents(accessToken.access_token, [51])
-			if (studentPromises !== false) {
-				const students = await studentPromises
-				console.log(students[0].student)
-				console.log(students[0].student['_extension_data']['_table_extension'][1])
-				res.send(students)
+			const contactPromises = psApi.getContacts(accessToken.access_token, [51])
+			if (contactPromises !== false) {
+				const contacts = await contactPromises
+				res.send(contacts)
 				return
 			}
 	} catch(error) {

@@ -35,8 +35,6 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const logger = require('morgan');
 const bunyan = require('bunyan');
-const Passport = require('./services/passport');
-const passport = Passport();
 const config = require('./config');
 const path = require('path');
 const redis = require('redis');
@@ -75,25 +73,14 @@ app.use(expressSession({
 
 app.use(bodyParser.urlencoded({ extended : true }));
 
-app.use(passport.initialize());
-app.use(passport.session());
 app.use('/static', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'client/build')))
 app.use(require('./controllers'));
-app.get('/', (req, res) => {
-	const groupId = config.adminGroup;
-	const errors = [];
-	let sess = req.session;
-	if (sess && sess.error) {
-		errors.push(sess.error);
-		sess.error = null;
-	}
-	res.render('index', { user: req.user, errors: errors });
-});
 if (process.env.ENVIRONMENT == 'DEVELOPMENT') {
 	process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 	https.createServer({
-		key: fs.readFileSync('server.key'),
-		cert: fs.readFileSync('server.cert')
+		key: fs.readFileSync('../server.key'),
+		cert: fs.readFileSync('../server.cert')
 	}, app).listen(3000);
 } else {
 	module.exports = app;
