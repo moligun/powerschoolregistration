@@ -111,6 +111,23 @@ class ContactsStore {
         })
         return studentContacts
     }
+
+    get removableStudentContacts() {
+        let studentContacts = []
+        for (const contact of this.contacts) {
+            if (contact.activeContactStudent) {
+                if (!contact.validation.allValidated) {
+                    studentContacts.push(
+                        {
+                            "contactId": contact.contactId,
+                            "studentContactId": contact.activeContactStudent.studentContactId
+                        }
+                    )
+                }
+            }
+        }
+        return studentContacts
+    }
 }
 decorate(ContactsStore, {
     contacts: observable,
@@ -119,6 +136,7 @@ decorate(ContactsStore, {
     addContact: action,
     activeStudentContacts: computed,
     unusedStudentContacts: computed,
-    highestSequenceNumber: computed
+    highestSequenceNumber: computed,
+    removableStudentContacts: computed
 })
 export default ContactsStore

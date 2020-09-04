@@ -32,14 +32,14 @@ class EditContactForm extends React.Component {
     handleSubmit = (event) => {
         event.preventDefault()
         const { contactEditorStore, contactsStore } = this.props
-        const { activeContactId } = contactEditorStore
         const { contacts } = contactsStore
 
-        if (activeContactId === -1) {
+        if (contactEditorStore.activeContactId === -1) {
             const contactIndex = contactsStore.addContact()
             contactEditorStore.setContactId(contactIndex)
-        } else if (contacts[activeContactId].activeContactStudent === false) {
-            contacts[activeContactId].addContactStudent()
+        }
+        if (contacts[contactEditorStore.activeContactId].activeContactStudent === false) {
+            contacts[contactEditorStore.activeContactId].addContactStudent()
         }
         contactEditorStore.submit()
     }

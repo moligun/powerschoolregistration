@@ -27,6 +27,20 @@ class StudentStore {
         this.students = undefined
     }
 
+    get validatedStudentIndexes() {
+        let indexes = []
+        if (this.students.length > 0) {
+            for (let index in this.students) {
+                if (this.students[index].validationSuccess === true) {
+                    indexes.push(index)
+                }
+            }
+        } else {
+            console.log('apparently no students?')
+        }
+        return indexes
+    }
+
     loadStudents = flow(function * () {
         try {
             const students = yield this.studentService.loadStudents()
@@ -58,6 +72,7 @@ decorate(StudentStore, {
     students: observable,
     loading: observable,
     loadStudents: action,
-    asJSON: computed
+    asJSON: computed,
+    validatedStudentIndexes: computed
 })
 export default StudentStore

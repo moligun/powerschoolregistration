@@ -3,7 +3,9 @@ import { inject, observer} from 'mobx-react'
 class SubmissionPage extends React.Component {
     handleSubmit = (event) => {
         event.preventDefault()
-        const { formStore } = this.props
+        const { formStore, contactsStore } = this.props
+        const firstContact = contactsStore.contacts[0]
+        formStore.processSubmissions()
         formStore.changeSection(1)
         window.scrollTo(0, 0)
     }
@@ -32,5 +34,6 @@ class SubmissionPage extends React.Component {
 }
 export default inject(stores => ({
   formStore: stores.rootStore.formStore,
-  studentStore: stores.rootStore.studentStore
+  studentStore: stores.rootStore.studentStore,
+  contactsStore: stores.rootStore.contactsStore
 }))(observer(SubmissionPage))

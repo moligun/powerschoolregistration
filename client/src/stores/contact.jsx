@@ -2,13 +2,15 @@ import {
         observable, 
         action, 
         decorate,
-        computed
+        computed,
+        flow
     } from "mobx"
 import ContactPhone from './contactphone'
 import ContactDemographics from "./contactdemographics"
 import ContactStudent from "./contactstudent"
 import ContactEmail from "./contactemail"
 import Validation from "./validation"
+import ContactService from '../services/contactservice'
 class Contact {
     phones
     contactId = undefined
@@ -62,9 +64,10 @@ class Contact {
     }
 
     addContactStudent() {
-        const { activeStudentId } = this.rootStore.formStore
+        const { student } = this.rootStore.formStore
+        console.log(`pushing ${student.id}`)
         this.contactStudents.push(new ContactStudent({
-            "dcid": activeStudentId
+            "dcid": student.id
         }))
     }
 
@@ -117,6 +120,15 @@ class Contact {
         }
         return validatedPhones
     }
+
+    processContact = flow(function* () {
+        try {
+            console.log(this.contactStudents[0])
+            const studentAssociations = yield ContactService.deleteContactAssociation(this.contactId, this.contactStudents[0].studentContactId)
+        } catch (error) {
+            console.log(error)
+        }
+    })
 }
 
 decorate(Contact, {
@@ -128,6 +140,7 @@ decorate(Contact, {
     removeActiveStudent: action,
     addContactStudent: action,
     refreshValidation: action,
+    processContact: action,
     phones: observable,
     addresses: observable,
     contactStudents: observable,

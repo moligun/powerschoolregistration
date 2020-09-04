@@ -79,38 +79,20 @@ const getContacts = (token, studentIds) => {
 				return contactsCollection
 			})
 	}
-	return false;
+	return false
 }
 
-const getNonAccessContacts = (token, paramsObj, page = 1, limit = 1000) => {
-	const query = `schema/query/com.lsc.registration.get_nda_contacts?pagesize=${limit}&page=${page}`
-	const promise = createQuery(token, query, paramsObj)
-	return promise
-}
-
-const getNonAccessContactCount = (token, paramsObj) => {
-	const query = `schema/query/com.lsc.registration.get_nda_contacts/count`
-	const promise = createQuery(token, query, paramsObj)
-	return promise
-}
-
-const deleteContacts = (token, contactIds) => {
-	let contactPromises = [];
-	if (contactIds && contactIds.length > 0) {
-		contactIds.forEach(id => {
-			let query = `contacts/${id}?extensions=personcorefields`
-			contactPromises.push(createQuery(token, query, {method: 'DELETE'}))
-		});
-		return Promise.all(contactPromises)
+const deleteContactAssociation = (token, contactId, contactStudentId) => {
+	if (contactId && contactStudentId > 0) {
+		const query = `contacts/${contactId}/students/${contactStudentId}`
+		return createQuery(token, query, {method: 'DELETE'})
 	}
-	return false;
+	return false
 }
 
 module.exports = {
 	getAccessToken,
 	getStudents,
-	getNonAccessContacts,
-	deleteContacts,
-	getNonAccessContactCount,
+	deleteContactAssociation,
 	getContacts
 }

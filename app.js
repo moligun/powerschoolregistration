@@ -70,7 +70,7 @@ app.use(expressSession({
 	saveUninitialized: true,
 	cookie: {secure: secureCookie, maxAge: 3600000}
 }));
-
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended : true }));
 
 app.use('/static', express.static(path.join(__dirname, 'public')));

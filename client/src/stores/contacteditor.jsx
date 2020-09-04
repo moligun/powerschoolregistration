@@ -109,6 +109,9 @@ class ContactEditorStore {
             this.contact.phones = this.phones
             this.contact.contactDemographics.initData(this.contactDemographics.asJSON)
             this.contact.email.initData(this.email.asJSON)
+            if (this.contact.activeContactStudent) {
+                console.log('there is a contact....so that not it')
+            }
             this.contact.activeContactStudent.setStudentDetails(this.activeContactStudent)
             this.contact.activeContactStudent.sequence = highestSequenceNumber
             this.contact.refreshValidation()

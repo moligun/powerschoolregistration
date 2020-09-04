@@ -29,14 +29,15 @@ class StudentInfoForm extends React.Component {
 
     render() {
         const { contactEditor } = this.props
-        const { student, formSections, activeSectionId, studentsCount, activeStudentIndex } = this.props.formStore
-
-        if (activeStudentIndex >= studentsCount) {
+        const { student, formSections, activeSectionId, submitState } = this.props.formStore
+        if (submitState === true) {
             return (<SubmissionPage />)
         }
+
         if (student === undefined) {
             return (<h2>Loading</h2>)
         }
+
         let activeSection
         switch (activeSectionId) {
             case 0:

@@ -28,4 +28,22 @@ router.get('/', async (req, res) => {
 	}	
 	res.send([])
 })
+
+router.delete('/contact/:id/student/:contactstudentid', async (req, res) => {
+	const contactId = req.params.id
+	const contactStudentId = req.params.contactstudentid
+	if (contactId && contactStudentId) {
+		try {
+			const accessToken = await psApi.getAccessToken();
+			console.log(accessToken)
+			const deleteAssoc = await psApi.deleteContactAssociation(accessToken.access_token, contactId, contactStudentId)
+			res.send(deleteAssoc)
+			return
+		 } catch(error) {
+			res.send(error)
+			return
+		 }
+	}
+	res.send('Valid Contact ID/ Association ID must be provided')
+})
 module.exports = router
