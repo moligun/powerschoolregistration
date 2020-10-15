@@ -17,6 +17,14 @@ class StudentService {
         return axios(config)
     }
 
+    loadDistricts() {
+        const config = {
+            method: "GET",
+            url: "/students/districts"
+        }
+        return axios(config)
+    }
+
     loadContacts() {
         const config = {
             method: "GET",
@@ -25,11 +33,11 @@ class StudentService {
         return axios(config)
     }
 
-    updateUser(data) {
+    updateStudent(data) {
         const config = {
-            method: "PUT",
+            method: "POST",
             data,
-            url: `/users/user/${data.id}`
+            url: `/students`
         }
         return axios(config)
     }

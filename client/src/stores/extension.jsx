@@ -33,7 +33,7 @@ class Extension {
 
     getField(name) {
         if (!this.fields.get(name)) {
-            this.fields.set(name, {"name": name, "type": "string", "value": ""})
+            this.fields.set(name, {"name": name, "type": "text", "value": ""})
         }
         return this.fields.get(name)
     }

@@ -7,6 +7,7 @@ class Contact extends React.Component {
         event.preventDefault()
         contactEditorStore.setContactId(contact.indexId)
         contactEditorStore.display = true
+        contactEditorStore.editValid = true
     }
 
     handleRemove = (event) => {
@@ -79,34 +80,37 @@ class Contact extends React.Component {
                             <div className="contact-information">
                                 <ul className="list-group p-0">
                                     {contact.phones.map((phone, index) => 
-                                        <li className="list-group-item d-flex justify-content-between row p-0 ml-1" key={`contact-phone-${index}`}>
-                                            <div className="contact-item col-sm-12 col-md-4 d-flex flex-column align-items-center p-0">
-                                                <div className="contact-label">
-                                                    Phone Type
-                                                </div>
-                                                <div className="contact-information">
-                                                    {phone.phoneType}
-                                                </div>
-                                            </div>
-                                            <div className="contact-item col-sm-12 col-md-4 d-flex flex-column align-items-center p-0">
-                                                <div className="contact-label">
-                                                    Number
-                                                </div>
-                                                <div className="contact-information">
-                                                    {phone.phoneNumber}
-                                                </div>
-                                            </div>
-                                            <div className="contact-item d-flex col-md-4 flex-column align-items-center p-0">
-                                                <div className="contact-information">
-                                                    <div className="col-sm-12 d-flex justify-content-between align-items-center">
-                                                        <div className="contact-label">Recieves Text?</div>{phone.sms ? <FaCheck className="text-success ml-2" /> : <FaTimes className="text-danger ml-2" />}
+                                        (phone.markedForDeletion === false && phone.deleted === false) ?
+                                            <li className="list-group-item d-flex justify-content-between row p-0 ml-1" key={`contact-phone-${index}`}>
+                                                <div className="contact-item col-sm-12 col-md-4 d-flex flex-column align-items-center p-0">
+                                                    <div className="contact-label">
+                                                        Phone Type
                                                     </div>
-                                                    <div className="col-sm-12 d-flex justify-content-between align-items-center">
-                                                        <div className="contact-label">Preferred?</div> {phone.preferred ? <FaCheck className="text-success ml-2" /> : <FaTimes className="text-danger ml-2" />}
+                                                    <div className="contact-information">
+                                                        {phone.phoneType}
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </li>
+                                                <div className="contact-item col-sm-12 col-md-4 d-flex flex-column align-items-center p-0">
+                                                    <div className="contact-label">
+                                                        Number
+                                                    </div>
+                                                    <div className="contact-information">
+                                                        {phone.phoneNumber}
+                                                    </div>
+                                                </div>
+                                                <div className="contact-item d-flex col-md-4 flex-column align-items-center p-0">
+                                                    <div className="contact-information">
+                                                        <div className="col-sm-12 d-flex justify-content-between align-items-center">
+                                                            <div className="contact-label">Recieves Text?</div>{phone.sms ? <FaCheck className="text-success ml-2" /> : <FaTimes className="text-danger ml-2" />}
+                                                        </div>
+                                                        <div className="col-sm-12 d-flex justify-content-between align-items-center">
+                                                            <div className="contact-label">Preferred?</div> {phone.preferred ? <FaCheck className="text-success ml-2" /> : <FaTimes className="text-danger ml-2" />}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li> 
+                                            :
+                                            ''
                                     )}
                                 </ul>
                             </div>

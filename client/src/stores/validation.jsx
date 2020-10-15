@@ -7,7 +7,11 @@ import {
 
 class Validation {
     fields = observable.map()
-    constructor(validations) {
+    title = ''
+    constructor(validations, title) {
+        if (title) {
+            this.title = title
+        }
         if (validations) {
             for (const validation of validations) {
                 if (validation.name) {
@@ -57,7 +61,6 @@ class Validation {
     getValidation(name, validationCriteria, value) {
         if (!this.fields.get(name)) {
             console.log(name)
-            //this.setValidation(name, validationCriteria)
             return false
         }
         return this.fields.get(name)

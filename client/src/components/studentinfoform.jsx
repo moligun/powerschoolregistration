@@ -1,5 +1,6 @@
 import React from 'react'
 import { inject, observer} from 'mobx-react'
+import Agreements from './agreements'
 import ContactsList from './contactslist'
 import HealthInformation from './healthinformation'
 import StudentInformation from './studentinformation'
@@ -48,6 +49,9 @@ class StudentInfoForm extends React.Component {
                 break
             case 2:
                 activeSection = <HealthInformation />
+                break
+            case 3:
+                activeSection = <Agreements />
                 break
             default:
                 break

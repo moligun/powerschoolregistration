@@ -38,7 +38,6 @@ class AuthStore {
         try {
             const userInfo = yield this.studentService.userInfo()
             if (userInfo.data && userInfo.data.dcid) {
-                console.log(userInfo.data.dcid)
                 this.userInfo = userInfo.data
             } else {
                 this.userInfo = undefined

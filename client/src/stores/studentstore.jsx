@@ -11,6 +11,7 @@ import StudentService from "../services/studentservice"
 import StudentForm from "./studentform"
 class StudentStore {
     students = []
+    districts = []
     loading = true
     constructor(root) {
         this.rootStore = root
@@ -44,6 +45,10 @@ class StudentStore {
     loadStudents = flow(function * () {
         try {
             const students = yield this.studentService.loadStudents()
+            const districts = yield this.studentService.loadDistricts()
+            if (districts.data) {
+                this.districts = districts.data
+            }
             if (students.data && students.data.length > 0) {
                 for (let index in students.data) {
                     let student = students.data[index]['student']
@@ -71,6 +76,7 @@ class StudentStore {
 decorate(StudentStore, {
     students: observable,
     loading: observable,
+    districts: observable,
     loadStudents: action,
     asJSON: computed,
     validatedStudentIndexes: computed

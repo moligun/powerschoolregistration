@@ -7,6 +7,7 @@ import {
 class ContactEmail {
     address = ""
     contactEmailId = ""
+    contactId
     data
     constructor(emailObj) {
         this.data = emailObj
@@ -27,6 +28,24 @@ class ContactEmail {
         this[name] = value
     }
 
+    update() {
+        if (this.contactEmailId > 0) {
+            return `/ws/contacts/${this.contactId}/emails/${this.contactEmailId}`
+        } else {
+            return `/ws/contacts/${this.contactId}/emails`
+        }
+    }
+
+    get changesMade() {
+        /*
+        const changes = [
+            this.address !== this.data.address
+        ]
+        return changes.some((obj) => obj === true) || !this.contactEmailId
+        */
+       return false
+    }
+
     get asJSON() {
         const { address, contactEmailId } = this
         return {
@@ -39,8 +58,10 @@ class ContactEmail {
 decorate(ContactEmail, {
     address: observable,
     contactEmailId: observable,
+    contactId: observable,
     initData: action,
     setValue: action,
-    asJSON: computed
+    asJSON: computed,
+    changesMade: computed
 })
 export default ContactEmail

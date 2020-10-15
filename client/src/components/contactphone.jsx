@@ -5,8 +5,7 @@ function ContactPhone(props) {
     const { phone, index } = props
     const phoneNumberValidation = phone.validation.getValidation("phoneNumber")
     return (
-        <div className="d-flex w-100 justify-content-between align-items-end" data-index={ index }>
-            <h3>#{index + 1}</h3>
+        <div className="d-flex w-100 justify-content-between align-items-start" data-index={ index }>
             <div className="d-flex flex-column">
                 <label>Phone Type</label>
                 <select className="form-control" name="phoneType" value={phone.phoneType} onChange={props.handleChange} data-index={ index }>

@@ -4,10 +4,12 @@ import {
         decorate,
         computed
     } from "mobx"
+import ContactService from '../services/contactservice'
 class ContactDemographics {
     firstName = ''
     lastName = ''
     data
+    contactId
     constructor(data) {
         this.data = data
         this.initData(this.data)
@@ -29,13 +31,35 @@ class ContactDemographics {
             lastName
         }
     }
-}
 
+    get changesMade() {
+        const changes = [
+            this.firstName !== this.data.firstName,
+            this.lastName !== this.data.lastName
+        ]
+        return changes.some((obj) => obj === true)
+    }
+
+    update() {
+        return ContactService.updateContactDemographics(this.contactId, this.asJSON)
+            .then(
+                action("updateContactDemographic", (response) => {
+                    const { savedObject } = response.data
+                    if (savedObject) {
+                        this.data = savedObject
+                    }
+                })
+            )
+    }
+}
 decorate(ContactDemographics, {
     firstName: observable,
     lastName: observable,
+    contactId: observable,
     initData: action,
     setValue: action,
-    asJSON: computed
+    update: action,
+    asJSON: computed,
+    changesMade: computed
 })
 export default ContactDemographics

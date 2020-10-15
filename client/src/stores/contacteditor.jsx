@@ -14,6 +14,7 @@ class ContactEditorStore {
     phones = observable.array()
     contactDemographics
     activeContactStudent
+    editValid = false
     validation
     validationRules = [
         {"name": "phoneCount", "rules": ["atLeast"], "comparisonValue": 1, "label": "Phone Number"},
@@ -55,21 +56,29 @@ class ContactEditorStore {
         if (this.contact) {
             if (this.contact.phones && this.contact.phones.length > 0) {
                 for (const phone of this.contact.phones) {
-                    this.phones.push(new ContactPhone(phone.asJSON))
+                    this.phones.push(new ContactPhone(phone.asJSON, this.contact.contactId, phone.markedForDeletion))
                 }
             }
 
             if (this.contact.activeContactStudent) {
+                console.log('So there is already and activeContactStudent')
+                this.activeContactStudent.setDetailsServerData(this.contact.activeContactStudent.detailJSON)
                 this.activeContactStudent.initData(this.contact.activeContactStudent.asJSON)
+                this.activeContactStudent.contactId = this.contact.contactId
+            } else {
+                console.log('Wait...no active Contact Student?')
             }
 
             if (this.contact.contactDemographics) {
                 this.contactDemographics.initData(this.contact.contactDemographics.asJSON)
+                this.contactDemographics.contactId = this.contact.contactId
             }
             if (this.contact.email) {
                 this.email.initData(this.contact.email.asJSON)
+                this.email.contactId = this.contact.contactId
             }
         }
+        
         this.validation.validateAll({"phoneCount": this.validatedPhones.length, "contactDemographics": this.contactDemographics})
     }
 
@@ -109,30 +118,45 @@ class ContactEditorStore {
             this.contact.phones = this.phones
             this.contact.contactDemographics.initData(this.contactDemographics.asJSON)
             this.contact.email.initData(this.email.asJSON)
-            if (this.contact.activeContactStudent) {
-                console.log('there is a contact....so that not it')
-            }
             this.contact.activeContactStudent.setStudentDetails(this.activeContactStudent)
-            this.contact.activeContactStudent.sequence = highestSequenceNumber
+            if (!this.editValid) {
+                this.contact.activeContactStudent.sequence = highestSequenceNumber
+                this.contact.activeContactStudent.contactId = this.contact.contactId
+            }
+            this.editValid = false
             this.contact.refreshValidation()
+            this.contact.activeContactStudent.markedForDeletion = false
             this.display = false
             this.resetDefault()
         }
     }
 
     addPhone() {
-        this.phones.push(new ContactPhone())
+        const newPhone = new ContactPhone()
+        if (this.contact && this.contact.contactId) {
+            newPhone.contactId = this.contact.contactId
+        }
+        this.phones.push(newPhone)
     }
 
     deletePhone(index) {
-        this.phones.splice(index, 1)
+        if (this.phones[index].contactsPhoneId === 0) {
+            console.log('spliced, not marked')
+            this.phones.splice(index)
+        } else {
+            console.log('marked')
+            this.phones[index].markedForDeletion = true
+        }
     }
 
     get validatedPhones() {
         let validatedPhones = []
         if (this.phones) {
             for (const phone of this.phones) {
-                if (phone.validation.allValidated === true) {
+                if (phone.deleted === false && 
+                   phone.markedForDeletion === false && 
+                   phone.validation.allValidated === true) 
+                {
                     validatedPhones.push(phone)
                 }
             }
@@ -148,6 +172,7 @@ decorate(ContactEditorStore, {
     contactDemographics: observable,
     activeContactStudent: observable,
     email: observable,
+    editValid: observable,
     loadContactInfo: action,
     setContactId: action,
     resetDefault: action,

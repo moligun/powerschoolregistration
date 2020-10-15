@@ -44,44 +44,38 @@ class Contact {
         const { contactData } = this
         this.contactId = contactData && contactData.contactId ? contactData.contactId : 0
         this.contactDemographics = new ContactDemographics(contactData)
+        this.contactDemographics.contactId = this.contactId
         if (contactData && contactData.emails && contactData.emails.length > 0) {
             this.email = new ContactEmail(contactData.emails[0])
         } else {
             this.email = new ContactEmail()
         }
+        this.email.contactId = this.contactId
 
         if (contactData && contactData.contactStudents && contactData.contactStudents.length > 0) {
             for (const student of contactData.contactStudents) {
-                this.contactStudents.push(new ContactStudent(student))
+                this.contactStudents.push(new ContactStudent(student, this.contactId))
             }
         }
 
         if (contactData && contactData.phones && contactData.phones.length > 0) {
             for (const phoneObj of contactData.phones) {
-                this.phones.push(new ContactPhone(phoneObj))
+                this.phones.push(new ContactPhone(phoneObj, this.contactId))
             }
         }
     }
 
     addContactStudent() {
         const { student } = this.rootStore.formStore
-        console.log(`pushing ${student.id}`)
         this.contactStudents.push(new ContactStudent({
-            "dcid": student.id
+            "dcid": student.id,
+            "studentNumber": student.studentNumber
         }))
     }
 
     removeActiveStudent() {
-        const { activeStudentId } = this.rootStore.formStore
-        if (activeStudentId && this.contactStudents.length > 0) {
-            this.contactStudents.forEach((contactStudent, index) => {
-                if (activeStudentId === contactStudent.dcid) {
-                    if (contactStudent.studentContactId) {
-                        this.removeContactAssocList.push(contactStudent.studentContactId)
-                    }
-                    this.contactStudents.splice(index, 1)
-                }
-            })
+        if (this.activeContactStudent) {
+            this.activeContactStudent.markedForDeletion = true
         }
     }
 
@@ -95,6 +89,52 @@ class Contact {
             }
         }
         return false
+    }
+
+    get hasContactStudents() {
+        if (this.contactStudents && this.contactStudents.length > 0) {
+            return this.contactStudents.some((contactStudent) => contactStudent.deleted === false)
+        }
+        return false
+    }
+
+    refreshContactData = flow(function * (contactId) {
+        try {
+            const contact = yield ContactService.getContact(contactId)
+            if (contact.data && contact.data.contactId > 0) {
+                this.contactData = contact.data
+                this.loadContactData()
+            }
+        } catch(error) {
+            console.log(error)
+        } finally {
+            this.loading = false
+        }
+
+    })
+
+    updatePackages() {
+        let updates = []
+        if (this.contactDemographics.changesMade === true) {
+            updates.push(this.contactDemographics.update())
+        }
+
+        for (const studentContact of this.contactStudents) {
+            if (studentContact.erroredOut === false && studentContact.changesMade === true) {
+                updates = updates.concat(studentContact.update())
+            }
+        }
+
+        for (const phone of this.phones) {
+            if (phone.changesMade === true) {
+                updates.push(phone.update())
+            }
+        }
+
+        if (this.email.changesMade === true) {
+            updates.push(this.email.update())
+        }
+        return updates
     }
 
     setValue(collection, name, value, index) {
@@ -121,14 +161,25 @@ class Contact {
         return validatedPhones
     }
 
-    processContact = flow(function* () {
-        try {
-            console.log(this.contactStudents[0])
-            const studentAssociations = yield ContactService.deleteContactAssociation(this.contactId, this.contactStudents[0].studentContactId)
-        } catch (error) {
-            console.log(error)
+    get asJSON() {
+        let phones = []
+        let contactStudents = []
+        for (const phone of this.phones) {
+            phones.push(phone.asJSON)
         }
-    })
+
+        for (const contactStudent of this.contactStudents) {
+            contactStudents.push(contactStudent.asJSON)
+        }
+        const obj = {
+            "firstName": this.contactDemographics.firstName,
+            "lastName": this.contactDemographics.lastName,
+            phones,
+            contactStudents,
+            emails: [this.email.asJSON]
+        }
+        return obj
+    }
 }
 
 decorate(Contact, {
@@ -140,13 +191,16 @@ decorate(Contact, {
     removeActiveStudent: action,
     addContactStudent: action,
     refreshValidation: action,
-    processContact: action,
+    refreshContactData: action,
     phones: observable,
     addresses: observable,
     contactStudents: observable,
     email: observable,
     contactDemographics: observable,
+    contactData: observable,
     activeContactStudent: computed,
-    validatedPhones: computed
+    validatedPhones: computed,
+    asJSON: computed,
+    hasContactStudents: computed
 })
 export default Contact

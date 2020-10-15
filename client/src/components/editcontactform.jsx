@@ -3,6 +3,7 @@ import { observer, inject } from 'mobx-react'
 import ContactPhone from './contactphone'
 import Select from './select'
 import Validation from './validation'
+import ContactEditorStore from '../stores/contacteditor'
 class EditContactForm extends React.Component {
     constructor(props) {
         super(props)
@@ -65,7 +66,7 @@ class EditContactForm extends React.Component {
     }
 
     render() {
-        const { validation, phones, activeContactStudent, 
+        const { validation, activeContactStudent, phones,
                 contactDemographics, relationshipOptions, 
                 email } = this.props.contactEditorStore
         const firstNameValidation = validation.getValidation('contactDemographics.firstName')
@@ -106,7 +107,7 @@ class EditContactForm extends React.Component {
                             </div>
                             <div className="form-check form-check-inline w-50 mx-0">
                                 <input className="form-check input" name="livesWith" type="checkbox" 
-                                    value="1" onChange={this.handleChange} checked={ activeContactStudent.studentDetails.livesWith } />
+                                    value="1" onChange={this.handleChange} checked={ activeContactStudent.studentDetails.livesWith ? "checked": ""} />
                                 <label className="form-check-label pl-1">Lives With</label>
                             </div>
                             <div className="form-check form-check-inline w-50 mx-0">
@@ -135,9 +136,11 @@ class EditContactForm extends React.Component {
                     <Validation validation={phoneCountValidation} />
                     <ul className={`list-group`}>
                         {phones.map((phone, index) => 
-                            <li className="list-group-item" draggable="true" key={'phone-' + index}>
-                                <ContactPhone phone={ phone } index={ index } handleChange={this.handleChange} handlePhoneDelete={this.handlePhoneDelete} />
-                            </li>
+                            phone.markedForDeletion === false  && phone.deleted === false ?
+                                <li className="list-group-item" draggable="true" key={'phone-' + index}>
+                                    {phone.markedForDeletion === true ? 'marked' : 'not marked'}
+                                    <ContactPhone phone={ phone } index={ index } handleChange={this.handleChange} handlePhoneDelete={this.handlePhoneDelete} />
+                                </li> : ''
                         )}
                     </ul> 
                     <div className="form-row d-flex justify-content-between py-5">

@@ -305,7 +305,6 @@ class HealthInformation extends React.Component {
                     <NestedRadio field={healthInformation.getField('he_born')} label="Was the Child Born Premature?" onChange={this.handleChange} 
                         validation={healthInformationValidation.getValidation('he_born')} />
                 </div>
-                {healthInformationValidation.allValidated ? <h1>Passed!</h1> : ''}
             </fieldset>
         )
     }

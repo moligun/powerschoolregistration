@@ -5,8 +5,8 @@ class SubmissionPage extends React.Component {
         event.preventDefault()
         const { formStore, contactsStore } = this.props
         const firstContact = contactsStore.contacts[0]
+        console.log('submitting')
         formStore.processSubmissions()
-        formStore.changeSection(1)
         window.scrollTo(0, 0)
     }
 
@@ -18,15 +18,29 @@ class SubmissionPage extends React.Component {
     }
 
     render() {
-        const { studentStore } = this.props
+        const { studentStore, contactsStore, formStore} = this.props
         return (
             <div>
                 <div>
-                    <p>{studentStore.asJSON}</p>
+                    <ol>
+                        {studentStore.students.map((student) => 
+                            <li>
+                                {student.name.last_name + ", " + student.name.first_name} 
+                                <span className={`${student.validationSuccess === true ? "alert-success" : "alert-danger"} ml-1 px-2`}>{student.validationSuccess ? "Ready to Submit" : "Needs Attention"}</span>
+                                <ul>
+                                    {student.validationAreas.map((validation) => 
+                                        validation.allValidated === false && <li><span className="alert-danger">{validation.title} Needs Attention</span></li>
+                                    )}
+                                </ul>
+                            </li>
+                        )}
+                    </ol>
                 </div>
                 <div className="w-100 d-flex justify-content-between">
                     <button onClick={this.handlePrevious} className="btn btn-secondary">Previous</button>
-                    <button onClick={this.handleSubmit} className="btn btn-primary">Submit</button>
+                    <button onClick={this.handleSubmit} className="btn btn-primary" disabled={formStore.submitting}>
+                        { formStore.submitting ? 'Processing....' : 'Submit' }
+                    </button>
                 </div>
             </div>
         )

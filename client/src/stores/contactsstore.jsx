@@ -23,7 +23,8 @@ class ContactsStore {
                 "contactStudents":[
                     {
                         "sequence": this.highestSequenceNumber,
-                        "dcid": this.rootStore.formStore.activeStudentId
+                        "dcid": this.rootStore.formStore.student.id,
+                        "studentNumber": this.rootStore.formStore.student.studentNumber
                     }
                 ]
             }
@@ -45,10 +46,14 @@ class ContactsStore {
     loadContacts = flow(function * () {
         try {
             const contacts = yield this.contactService.loadContacts()
+            let existingContacts = []
             if (contacts.data && contacts.data.length > 0) {
                 for (let index in contacts.data) {
                     let contact = contacts.data[index]
-                    this.contacts.push(new Contact(contact, index, this.rootStore))
+                    if (existingContacts.includes(contact.contactId) === false) {
+                        existingContacts.push(contact.contactId)
+                        this.contacts.push(new Contact(contact, index, this.rootStore))
+                    }
                 }
             } else {
                 this.contacts = undefined
@@ -73,7 +78,10 @@ class ContactsStore {
     get activeStudentContacts() {
         let studentContacts = []
         for (const contact of this.contacts) {
-            if (contact.activeContactStudent && contact.validation.allValidated) {
+            if (contact.activeContactStudent 
+                && contact.activeContactStudent.deleted === false
+                && contact.activeContactStudent.markedForDeletion === false  
+                && contact.validation.allValidated) {
                 studentContacts.push(contact)
             }
         }
@@ -94,7 +102,9 @@ class ContactsStore {
     get unusedStudentContacts() {
         let studentContacts = []
         for (const contact of this.contacts) {
-            if (!contact.activeContactStudent || !contact.validation.allValidated) {
+            if (!contact.activeContactStudent || (contact.activeContactStudent.deleted === false 
+                && (contact.activeContactStudent.markedForDeletion === true 
+                    || !contact.validation.allValidated))) {
                 studentContacts.push(contact)
             }
         }
@@ -116,13 +126,9 @@ class ContactsStore {
         let studentContacts = []
         for (const contact of this.contacts) {
             if (contact.activeContactStudent) {
-                if (!contact.validation.allValidated) {
-                    studentContacts.push(
-                        {
-                            "contactId": contact.contactId,
-                            "studentContactId": contact.activeContactStudent.studentContactId
-                        }
-                    )
+                if (contact.activeContactStudent.markedForDeletion !== true 
+                    && !contact.validation.allValidated && contact.activeContactStudent.deleted === false) {
+                    studentContacts.push(contact)
                 }
             }
         }
