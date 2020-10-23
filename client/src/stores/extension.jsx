@@ -4,19 +4,22 @@ import {
         decorate,
         computed
     } from "mobx"
-
 class Extension {
     name
     fields = observable.map()
-    constructor(data, whiteList) {
-        this.loadExtensionData(data, whiteList)
+    constructor(data, whiteList, startingValues) {
+        this.loadExtensionData(data, whiteList, startingValues)
     }
   
-    loadExtensionData(data, whiteList) {
+    loadExtensionData(data, whiteList, startingValues) {
         this.name = data.name
         data['_field'].forEach(field => {
             if (field.type && field.type === "Boolean") {
                 field.value = field.value ? 1 : 0
+            }
+
+            if (startingValues && startingValues[field.name] !== undefined) {
+                field.value = startingValues[field.name]
             }
 
             if (whiteList === false || whiteList.includes(field.name)) {
@@ -43,6 +46,7 @@ class Extension {
         for (const field of this.fields.values()) {
             fieldObj[field.name] = field.value
         }
+        console.log(fieldObj)
         return fieldObj
     }
 

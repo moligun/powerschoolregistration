@@ -19,28 +19,34 @@ class ContactEditorStore {
     validationRules = [
         {"name": "phoneCount", "rules": ["atLeast"], "comparisonValue": 1, "label": "Phone Number"},
         {"name": "contactDemographics.firstName", "rules": ["required"]},
-        {"name": "contactDemographics.lastName", "rules": ["required"]}
+        {"name": "contactDemographics.lastName", "rules": ["required"]},
+        {"name": "activeContactStudent.emergency", "rules": ["required"]},
+        {"name": "activeContactStudent.custodial", "rules": ["required"]},
+        {"name": "activeContactStudent.schoolPickup", "rules": ["required"]},
+        {"name": "activeContactStudent.custodial", "rules": ["required"]},
+        {"name": "activeContactStudent.livesWith", "rules": ["required"]},
+        {"name": "activeContactStudent.relationship", "rules": ["required", "notEqual"], "comparisonValue": "Not Set", "label": "Required"}
     ]
     email
     display = false
     activeContactId = undefined
     relationshipOptions= [
         {"label": "Aunt", "value": "Aunt"},
+        {"label": "Babysitter", "value": "Babysitter"},
         {"label": "Brother", "value": "Brother"},
+        {"label": "Day Care", "value": "Day Care"},
         {"label": "Father", "value": "Father"},
         {"label": "Friend", "value": "Friend"},
         {"label": "Grandfather", "value": "Grandfather"},
         {"label": "Grandmother", "value": "Grandmother"},
+        {"label": "Guardian", "value": "Guardian"},
         {"label": "Mother", "value": "Mother"},
         {"label": "Neighbor", "value": "Neighbor"},
         {"label": "Other", "value": "Other"},
         {"label": "Sister", "value": "Sister"},
-        {"label": "Uncle", "value": "Uncle"},
         {"label": "Stepfather", "value": "Stepfather"},
         {"label": "Stepmother", "value": "Stepmother"},
-        {"label": "Guardian", "value": "Guardian"},
-        {"label": "Babysitter", "value": "Babysitter"},
-        {"label": "Day Care", "value": "Day Care"}
+        {"label": "Uncle", "value": "Uncle"}
     ]
 
     constructor(root) {
@@ -61,7 +67,7 @@ class ContactEditorStore {
             }
 
             if (this.contact.activeContactStudent) {
-                console.log('So there is already and activeContactStudent')
+                console.log(this.contact.activeContactStudent.detailJSON)
                 this.activeContactStudent.setDetailsServerData(this.contact.activeContactStudent.detailJSON)
                 this.activeContactStudent.initData(this.contact.activeContactStudent.asJSON)
                 this.activeContactStudent.contactId = this.contact.contactId
@@ -79,7 +85,11 @@ class ContactEditorStore {
             }
         }
         
-        this.validation.validateAll({"phoneCount": this.validatedPhones.length, "contactDemographics": this.contactDemographics})
+        this.validation.validateAll({
+            "phoneCount": this.validatedPhones.length, 
+            "contactDemographics": this.contactDemographics, 
+            "activeContactStudent": this.activeContactStudent.detailJSON
+        })
     }
 
     setContactId(contactId) {

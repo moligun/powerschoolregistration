@@ -3,19 +3,20 @@ import { observer, inject } from 'mobx-react'
 import EditContactForm from './editcontactform'
 import Contact from './contact'
 import Validation from './validation'
+import Loading from './loading'
 class ContactsList extends React.Component {
     componentDidMount() {
         const { formStore, contactsStore } = this.props
-        if (formStore.student && contactsStore.activeStudentContacts) {
-            const values = {"count": contactsStore.activeStudentContacts.length}
+        if (formStore.student && contactsStore.validatedStudentContacts) {
+            const values = {"count": contactsStore.validatedStudentContacts.length}
             formStore.student.contactInformationValidation.validateAll(values)
         }
     }
 
     componentDidUpdate() {
         const { formStore, contactsStore } = this.props
-        if (formStore.student && contactsStore.activeStudentContacts) {
-            const values = {"count": contactsStore.activeStudentContacts.length}
+        if (formStore.student && contactsStore.validatedStudentContacts) {
+            const values = {"count": contactsStore.validatedStudentContacts.length}
             formStore.student.contactInformationValidation.validateAll(values)
         }
     }
@@ -79,6 +80,9 @@ class ContactsList extends React.Component {
         const { contactInformationValidation } = student
         const { activeStudentContacts, unusedStudentContacts } = contactsStore
         const itemCount = activeStudentContacts.length
+        if (!contactsStore.contacts) {
+            return (<Loading />)
+        }
         if (contactEditorStore.display && contactEditorStore.activeContactId !== undefined) {
             return (<EditContactForm />)
         }
@@ -98,7 +102,7 @@ class ContactsList extends React.Component {
                     </div>
                 </div>
                 <div>
-                    <Validation validation={contactInformationValidation.getValidation("count")} />
+                    <Validation validation={contactInformationValidation.getValidation("count")} className="alert alert-danger" />
                     {activeStudentContacts.length > 0 && 
                         <ul className="list-group">
                             {activeStudentContacts.map((contact, index) => 

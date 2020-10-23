@@ -5,21 +5,19 @@ import {
         computed
     } from "mobx"
 import ContactService from '../services/contactservice'
-import Contact from "./contact"
 class ContactStudent {
     dcid = undefined
     studentContactId = 0
+    studentNumber
     contactId = 0
-    errorCount = 0
     deleted = false
     markedForDeletion = false
     studentDetails = {
-        "custodial": false,
-        "emergency": false,
-        "livesWith": false,
-        "receivesMail": false,
-        "relationship": "Not Set",
-        "schoolPickup": false,
+        "custodial": "",
+        "emergency": "",
+        "livesWith": "",
+        "relationship": "",
+        "schoolPickup": "",
         "active": true
     }
     studentContactDetailId = 0
@@ -75,6 +73,25 @@ class ContactStudent {
             console.log(this.contactId)
             updates.push(
                 ContactService.addContactStudent(this.contactId, this.asJSON)
+                    .then(
+                        action("updateContactStudentSuccess", (response) => {
+                            if (response && response.data) {
+                                if (response.data.savedObject) {
+                                    const { savedObject } = response.data
+                                    console.log(savedObject)
+                                    this.setContactServerData(savedObject)
+                                    this.initData(savedObject)
+                                    return false
+                                } else if (response.data.error_message) {
+                                    if (response.data.error_message.error) {
+                                        return response.data.error_message.error
+                                    }
+                                }
+                            } else {
+                                return ["Generic Issue adding contact."]
+                            }
+                        })
+                    )
             )
         } else {
             if (this.markedForDeletion === true) {
@@ -82,8 +99,18 @@ class ContactStudent {
                     ContactService.deleteContactStudent(this.contactId, this.studentContactId)
                         .then(
                             action("deleteContactStudentSuccess", (response) => {
-                                this.markedForDeletion = false
-                                this.deleted = true
+                                if (response.data) {
+                                    if (response.data.action === "DELETE" && response.data.status === "SUCCESS") {
+                                        this.markedForDeletion = false
+                                        this.deleted = true
+                                        return false
+                                    } else {
+                                        if (response.data.error_message.error) {
+                                            return response.data.error_message.error
+                                        }
+                                    }
+                                }
+                                return ["Issues deleting contact"]
                             })
                         )
                 )
@@ -92,13 +119,18 @@ class ContactStudent {
                     ContactService.updateContactStudent(this.contactId, this.studentContactId, this.contactJSON)
                         .then(
                             action("updateContactStudentSuccess", (response) => {
-                                if (response && response.data && response.data.savedObject) {
-                                    const { savedObject } = response.data
-                                    this.setContactServerData(savedObject)
-                                    this.errorCount = 0
+                                if (response && response.data) {
+                                    if (response.data.savedObject) {
+                                        const { savedObject } = response.data
+                                        this.setContactServerData(savedObject)
+                                        return false
+                                    } else if (response.data.error_message) {
+                                        if (response.data.error_message.error) {
+                                            return response.data.error_message.error
+                                        }
+                                    }
                                 } else {
-                                    this.errorCount++
-                                    console.log('error occurred')
+                                    return ["Generic Issue updating contact order."]
                                 }
                             })
                         )
@@ -115,13 +147,18 @@ class ContactStudent {
                         )
                         .then(
                             action("updateContactStudentDetailsSuccess", (response) => {
-                                if (response && response.data && response.data.savedObject) {
-                                    const { savedObject } = response.data
-                                    this.setDetailsServerData(savedObject)
-                                    this.errorCount = 0
+                                if (response && response.data) {
+                                    if (response.data.savedObject) {
+                                        const { savedObject } = response.data
+                                        this.setDetailsServerData(savedObject)
+                                        return false
+                                    } else if (response.data.error_message) {
+                                        if (response.data.error_message.error) {
+                                            return response.data.error_message.error
+                                        }
+                                    }
                                 } else {
-                                    this.errorCount++
-                                    console.log('error occurred')
+                                    return ["Generic Issue updating contactStudent details"]
                                 }
                             })
                         )
@@ -160,7 +197,6 @@ class ContactStudent {
             "custodial",
             "emergency",
             "livesWith",
-            "receivesMail",
             "relationship",
             "schoolPickup"
         ]
@@ -174,13 +210,6 @@ class ContactStudent {
             this.detailChangesMade ||
             this.sequence !== this.data.sequence
 
-    }
-
-    get erroredOut() {
-        if (this.errorCount >= 2) {
-            return true
-        }
-        return false
     }
 
     setStudentDetails(data) {
@@ -212,8 +241,7 @@ decorate(ContactStudent, {
     markedForDeletion: observable,
     detailData: observable,
     data: observable,
-    errorCount: observable,
-    erroredOut: computed,
+    studentNumber: observable,
     asJSON: computed,
     detailJSON: computed,
     contactJSON: computed,

@@ -24,9 +24,9 @@
         <field table="Person" field="ExcludeFromStateReporting" access="FullAccess" />
         <field table="Person" field="prefixcodesetid" access="ViewOnly" />
         <field table="Personaddress" field="street" access="ViewOnly" />
-        <field table="personemailaddressassoc" field="personemailaddressassocid" access="ViewOnly" />
+        <field table="personemailaddressassoc" field="personemailaddressassocid" access="FullAccess" />
         <field table="Emailaddress" field="emailaddressid" access="ViewOnly" />
-        <field table="Emailaddress" field="emailaddress" access="ViewOnly" />
+        <field table="Emailaddress" field="emailaddress" access="FullAccess" />
         <field table="Gen" field="value" access="ViewOnly" />
         <field table="Gen" field="cat" access="ViewOnly" />
         <field table="Gen" field="name" access="ViewOnly" />

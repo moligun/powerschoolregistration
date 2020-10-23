@@ -39,7 +39,9 @@ class Validation {
         let part = dotNotationParts.shift()
         let obj = values
         while (part) {
-            obj = obj[part]
+            if (obj[part] !== undefined) {
+                obj = obj[part]
+            }
             part = dotNotationParts.shift()
         }
         return obj[lastObjPart]
@@ -72,11 +74,15 @@ class Validation {
             return true
         }
 
+        if (name === 'studentExt2.mvtransportation') {
+            console.log('The value: ' + value)
+        }
+
         if (validateObj.validateIf) {
             if (validateObj.validateIf && validateObj.validateIf.length > 0) {
                 for (const validate of validateObj.validateIf) {
                     let {field, value } = validate
-                    if (field && parentFields[field] && parentFields[field] === value) {
+                    if (field && parentFields[field] !== undefined && parentFields[field] === value) {
                         validateObj.validated = false
                     } else {
                         validateObj.validated = true
@@ -98,7 +104,7 @@ class Validation {
     }
 
     required(obj, value) {
-        if (value === '') {
+        if (value === '' || value === undefined) {
             obj.messages.push('Required')
         }
     }
@@ -123,7 +129,7 @@ class Validation {
 
     address(obj, value) {
         const regex = /[*,.()":;'@&]/g
-        if (value !== undefined) {
+        if (value !== undefined && typeof value === "string") {
             if (value.search(regex) > -1) {
                 obj.messages.push('None of the following characters: *,.()":;\'@&.')
             }
@@ -131,10 +137,21 @@ class Validation {
     }
 
     atLeast(obj, value) {
-        console.log(`triggered ${value} og ${obj.comparisonValue}`)
         if (obj.comparisonValue) {
             if (value < obj.comparisonValue) {
                 obj.messages.push(`Must include at least ${obj.comparisonValue} ${obj.label}`)
+            }
+        }
+    }
+
+    notEqual(obj, value) {
+        if (obj.comparisonValue) {
+            if (value === obj.comparisonValue) {
+                if (obj.label) {
+                    obj.messages.push(`${obj.label}`)
+                } else {
+                    obj.messages.push(`Cannot be set to "${obj.comparisonValue}"`)
+                }
             }
         }
     }

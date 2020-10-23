@@ -11,19 +11,37 @@ class StudentForm {
     healthInformation
     studentExt
     studentExt2
+    studentExt3
     release
     validations = new Validation()
     studentInformationValidation
     studentInformationValidationRules = [
         {"name": "phones.main.number", "rules": ["phone", "required"]},
         {"name": "phones.cell.number", "rules": ["phone"]},
-        {"name": "addresses.physical.street", "rules": ["address"]},
-        {"name": "studentExt2.mvtempliving", "rules": ["required"]}
+        {"name": "addresses.mailing.street", "rules": ["address", "required"]},
+        {"name": "addresses.mailing.city", "rules": ["address", "required"]},
+        {"name": "addresses.mailing.state_province", "rules": ["address", "required"]},
+        {"name": "addresses.mailing.postal_code", "rules": ["required", "address"]},
+        {"name": "studentExt2.mvtempliving", "rules": ["required"]},
+        {"name": "studentExt2.mvtemplivinghardship", "rules": ["required"]},
+        {"name": "studentExt2.mvlivingwithother", "rules": ["required"]},
+        {"name": "studentExt2.mvmotelhotelname", "rules": ["required"], 
+            "validateIf":[
+                {"field": "mcKinneyExtras", "value": true}, 
+                {"field": "mcKinneyLivingValue", "value": "mvmotelhotel"}
+            ]
+        },
+        {"name": "studentExt2.mvtransportation", "rules": ["required"], 
+            "validateIf":[
+                {"field": "mcKinneyExtras", "value": true}
+            ]
+        },
+        {"name": "mcKinneyLivingValue", "rules": ["required"], "validateIf":[{"field": "mcKinneyExtras", "value": true}]}
     ]
 
     contactInformationValidation
     contactInformationValidationRules = [
-        {"name": "count", "rules":["atLeast"], "comparisonValue": 3, "label": "Contacts with a Valid Phone Number"}
+        {"name": "count", "rules":["atLeast"], "comparisonValue": 3, "label": "Contacts with Required Fields Completed."}
     ]
 
     healthInformationValidation
@@ -54,6 +72,10 @@ class StudentForm {
         {"name": "internet_agreement", "rules": ["required"]}
     ]
 
+    signatureInformationValidation
+    signatureInformationRules = [
+        {"name": "lsc_useragreementsigned", "rules": ["required"]}
+    ]
     id = undefined
     studentNumber
     name = {"first_name": "", "last_name": "", "middle_name": ""}
@@ -85,22 +107,27 @@ class StudentForm {
         "mvsheltertemphousing", "mvsharedhousing",
         "mvtransitionalhousing", "mvcarparkcampsite",
         "mvplacetoplace", "mvmotelhotelname",
-        "mvotherexplain", "mvadditionalkids"
+        "mvotherexplain", "mvadditionalkids",
+        "mvtransportation"
     ]
     validationAreas
     studentData
     studentFields = observable.map()
-    constructor(data) {
+    errors = []
+    constructor(data, root) {
         this.studentInformationValidation = new Validation(this.studentInformationValidationRules, "Student Info")
         this.contactInformationValidation = new Validation(this.contactInformationValidationRules, "Contacts")
         this.healthInformationValidation = new Validation(this.healthInformationValidationRules, "Health Information")
         this.releaseInformationValidation = new Validation(this.releaseInformationValidationRules, "Agreements")
+        this.signatureInformationValidation = new Validation(this.signatureInformationRules, "Signature")
         this.validationAreas = [
             this.studentInformationValidation, 
             this.contactInformationValidation, 
             this.healthInformationValidation,
-            this.releaseInformationValidation
+            this.releaseInformationValidation,
+            this.signatureInformationValidation
         ]
+        this.rootStore = root
         this.loadStudentData(data)
     }
 
@@ -148,13 +175,16 @@ class StudentForm {
                 switch (extension.name) {
                     case 'u_health':
                         this.healthInformation = new Extension(extension, false)
-                        this.healthInformationValidation.validateAll(this.healthInformation.fieldsObj)
                         break
                     case 's_in_stu_x':
                         this.studentExt = new Extension(extension, ["student_name_suffix"])
                         break
                     case 'u_demo':
                         this.studentExt2 = new Extension(extension, this.uDemoWhiteList)
+                        break
+                    case 'u_lsc':
+                        this.studentExt3 = new Extension(extension, ["next_year_reg", "lsc_useragreementsigned"], {"lsc_useragreementsigned": ""})
+                        this.signatureInformationValidation.validateAll(this.studentExt3.fieldsObj)
                         break
                     case 'u_release':
                         this.release = new Extension(extension, false)
@@ -163,11 +193,51 @@ class StudentForm {
                         break
                 }
             }
-            this.studentInformationValidation.validateAll({"phones": this.phones, "addresses": this.addresses, "studentExt2": this.studentExt2.fieldsObj})
+            this.refreshStudentValidation()
+    }
+
+    refreshStudentValidation() {
+        this.studentInformationValidation.validateAll({
+            "phones": this.phones, 
+            "addresses": this.addresses, 
+            "studentExt2": this.studentExt2.fieldsObj,
+            "mcKinneyLivingValue": this.mcKinneyLivingValue.value,
+            "mcKinneyExtras": this.mcKinneyExtras
+        })
     }
 
     update() {
         return StudentService.updateStudent(this.asJSON)
+    }
+
+    processSubmissionErrors() {
+        this.errors = []
+        if (this.rootStore.contactsStore.contacts.length > 0) {
+            for (const contact of this.rootStore.contactsStore.contacts) {
+                if (contact.contactAssociatedWithStudent([this.studentNumber]) && contact.errors.length > 0) {
+                    for (const error of contact.errors) {
+                        this.errors.push(error)
+                    }
+                }
+            }
+        }
+    }
+    get submissionErrors() {
+        let errors = []
+        if (this.rootStore.contactsStore.contacts.length > 0) {
+            for (const contact of this.rootStore.contactsStore.contacts) {
+                if (contact.contactAssociatedWithStudent([this.studentNumber]) && contact.errors.length > 0) {
+                    for (const error of contact.errors) {
+                        let message = ''
+                        message += contact.fullName
+                        message += error && error.field ? ` (${error.field}): ` : ': '
+                        message += error && error.error_description ? error.error_description : error
+                        errors.push(message)
+                    }
+                }
+            }
+        }
+        return errors
     }
 
     get asJSON() {
@@ -190,7 +260,7 @@ class StudentForm {
             "demographics": this.demographics,
             "school_enrollment": this.schoolEnrollment,
             "@extensions": "u_health, s_in_stu_x",
-            "_extension_data": {"_table_extension": [this.healthInformation.asJSON, this.studentExt.asJSON, this.studentExt2.asJSON, this.release.asJSON]}
+            "_extension_data": {"_table_extension": [this.healthInformation.asJSON, this.studentExt.asJSON, this.studentExt2.asJSON, this.release.asJSON, this.studentExt3.asJSON]}
         }
     }
 }
@@ -198,6 +268,9 @@ class StudentForm {
 decorate(StudentForm, {
     loadStudentData: action,
     getField: action,
+    refreshStudentValidation: action,
+    processSubmissionErrors: action,
+    errors: observable,
     id: observable,
     studentNumber: observable,
     studentData: observable,
@@ -209,11 +282,13 @@ decorate(StudentForm, {
     schoolEnrollment: observable,
     studentExt: observable,
     studentExt2: observable,
+    studentExt3: observable,
     release: observable,
     validations: observable,
     mcKinneyExtras: computed,
     validationSuccess: computed,
     asJSON: computed,
-    mcKinneyLivingValue: computed
+    mcKinneyLivingValue: computed,
+    submissionErrors: computed
 })
 export default StudentForm

@@ -43,6 +43,14 @@ class ContactsStore {
         }
     }
 
+    getContactById(id) {
+        for (const contact of this.contacts) {
+            if (contact.contactId > 0 && contact.contactId === id) {
+                return contact
+            }
+        }
+    }
+
     loadContacts = flow(function * () {
         try {
             const contacts = yield this.contactService.loadContacts()
@@ -53,6 +61,15 @@ class ContactsStore {
                     if (existingContacts.includes(contact.contactId) === false) {
                         existingContacts.push(contact.contactId)
                         this.contacts.push(new Contact(contact, index, this.rootStore))
+                    } else {
+                        let existingContact = this.getContactById(contact.contactId)
+                        if (contact && contact.contactStudents && contact.contactStudents.length > 0) {
+                            for (const student of contact.contactStudents) {
+                                if (existingContact.includesStudentContact(student.contactStudentId) === false) {
+                                    existingContact.addExistingContactStudent(student, contact.contactId)
+                                }
+                            }
+                        }
                     }
                 }
             } else {
@@ -77,58 +94,74 @@ class ContactsStore {
 
     get activeStudentContacts() {
         let studentContacts = []
-        for (const contact of this.contacts) {
-            if (contact.activeContactStudent 
-                && contact.activeContactStudent.deleted === false
-                && contact.activeContactStudent.markedForDeletion === false  
-                && contact.validation.allValidated) {
-                studentContacts.push(contact)
+        if (this.contacts) {
+            for (const contact of this.contacts) {
+                if (contact.activeContactStudent 
+                    && contact.activeContactStudent.deleted === false
+                    && contact.activeContactStudent.markedForDeletion === false) {
+                    studentContacts.push(contact)
+                }
+            }
+            studentContacts.sort((a, b) => {
+                let firstComp = a.activeContactStudent.sequence
+                let secondComp = b.activeContactStudent.sequence
+                if (firstComp < secondComp) {
+                    return -1
+                }
+                if (firstComp > secondComp) {
+                    return 1
+                }
+                return 0
+            })
+        }
+        return studentContacts
+    }
+
+    get validatedStudentContacts() {
+        let studentContacts = []
+        if (this.contacts) {
+            for (const contact of this.contacts) {
+                if (contact.activeContactStudent && contact.validation.allValidated) {
+                    studentContacts.push(contact)
+                }
             }
         }
-        studentContacts.sort((a, b) => {
-            let firstComp = a.activeContactStudent.sequence
-            let secondComp = b.activeContactStudent.sequence
-            if (firstComp < secondComp) {
-                return -1
-            }
-            if (firstComp > secondComp) {
-                return 1
-            }
-            return 0
-        })
         return studentContacts
     }
 
     get unusedStudentContacts() {
         let studentContacts = []
-        for (const contact of this.contacts) {
-            if (!contact.activeContactStudent || (contact.activeContactStudent.deleted === false 
-                && (contact.activeContactStudent.markedForDeletion === true 
-                    || !contact.validation.allValidated))) {
-                studentContacts.push(contact)
+        if (this.contacts) {
+            for (const contact of this.contacts) {
+                if (!contact.activeContactStudent || (contact.activeContactStudent.deleted === false 
+                    && (contact.activeContactStudent.markedForDeletion === true))) {
+                    studentContacts.push(contact)
+                }
             }
+            studentContacts.sort((a, b) => {
+                let firstComp = a.contactDemographics.lastName
+                let secondComp = b.contactDemographics.lastName
+                if (firstComp < secondComp) {
+                    return -1
+                }
+                if (firstComp > secondComp) {
+                    return 1
+                }
+                return 0
+            })
         }
-        studentContacts.sort((a, b) => {
-            let firstComp = a.contactDemographics.lastName
-            let secondComp = b.contactDemographics.lastName
-            if (firstComp < secondComp) {
-                return -1
-            }
-            if (firstComp > secondComp) {
-                return 1
-            }
-            return 0
-        })
         return studentContacts
     }
 
     get removableStudentContacts() {
         let studentContacts = []
-        for (const contact of this.contacts) {
-            if (contact.activeContactStudent) {
-                if (contact.activeContactStudent.markedForDeletion !== true 
-                    && !contact.validation.allValidated && contact.activeContactStudent.deleted === false) {
-                    studentContacts.push(contact)
+        if (this.contacts) {
+            for (const contact of this.contacts) {
+                if (contact.activeContactStudent) {
+                    if (contact.activeContactStudent.markedForDeletion !== true 
+                        && !contact.validation.allValidated && contact.activeContactStudent.deleted === false) {
+                        studentContacts.push(contact)
+                    }
                 }
             }
         }
@@ -141,6 +174,7 @@ decorate(ContactsStore, {
     loadContacts: action,
     addContact: action,
     activeStudentContacts: computed,
+    validatedStudentContacts: computed,
     unusedStudentContacts: computed,
     highestSequenceNumber: computed,
     removableStudentContacts: computed

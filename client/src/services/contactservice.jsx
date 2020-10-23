@@ -42,6 +42,24 @@ class ContactService {
         return axios(config)
     }
 
+    addContactEmail(id, data) {
+        const config = {
+            method: "POST",
+            url: `/contacts/${id}/emails`,
+            data
+        }
+        return axios(config)
+    }
+
+    updateContactEmail(id, contactEmailId, data) {
+        const config = {
+            method: "PUT",
+            url: `/contacts/${id}/emails/${contactEmailId}`,
+            data
+        }
+        return axios(config)
+    }
+
     updateContactPhone(id, contactPhoneId, data) {
         const config = {
             method: "PUT",

@@ -6,7 +6,6 @@ import {
     } from "mobx"
 import Validation from "./validation"
 import ContactService from '../services/contactservice'
-import Contact from "./contact"
 class ContactPhone {
     sequence
     preferred = false
@@ -40,7 +39,6 @@ class ContactPhone {
         } else {
             data = {}
         }
-        console.log(data)
         this.data = data
     }
 
@@ -64,16 +62,37 @@ class ContactPhone {
                 return ContactService.deleteContactPhone(this.contactId, this.contactsPhoneId)
                     .then(
                         action("deletePhoneSuccess", (response) => {
-                            this.markedForDeletion = false
-                            this.deleted = true
+                            if (response && response.data) {
+                                if (response.data.action === "DELETE" && response.data.status === "SUCCESS") {
+                                    this.markedForDeletion = false
+                                    this.deleted = true
+                                    return false
+                                } else {
+                                    if (response.data.error_message.error) {
+                                        return response.data.error_message.error
+                                    }
+                                }
+                            }
+                            return ["Issues deleting phone"]
                         })
                     )
             } else {
                 return ContactService.updateContactPhone(this.contactId, this.contactsPhoneId, this.asJSON)
                     .then(
                         action("updatePhoneSuccess", (response) => {
-                            const { savedObject } = response.data
-                            this.setServerData(savedObject)
+                            if (response && response.data) {
+                                if (response.data.savedObject) {
+                                    const { savedObject } = response.data
+                                    this.setServerData(savedObject)
+                                    return false
+                                } else if (response.data.error_message) {
+                                    if (response.data.error_message.error) {
+                                        return response.data.error_message.error
+                                    }
+                                }
+                            } else {
+                                return ["Generic Issue updating contact phone."]
+                            }
                         })
                     )
             }
@@ -81,11 +100,20 @@ class ContactPhone {
             return ContactService.addContactPhone(this.contactId, this.asJSON)
                 .then(
                     action("addPhoneSuccess", (response) => {
-                        const { savedObject } = response.data
-                        if (savedObject.contactsPhoneId > 0) {
-                            this.setServerData(savedObject)
-                            this.contactsPhoneId = savedObject.contactsPhoneId
+                        if (response && response.data) {
+                            const { savedObject } = response.data
+                            if (savedObject && savedObject.contactsPhoneId > 0) {
+                                this.setServerData(savedObject)
+                                this.contactsPhoneId = savedObject.contactsPhoneId
+                                return false
+                            } else if (response.data.error_message) {
+                                if (response.data.error_message.error) {
+                                    return response.data.error_message.error
+                                }
+                            }
+
                         }
+                        return ["Generic Cannot Add Phone Message"]
                     })
                 )
         }

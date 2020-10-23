@@ -18,6 +18,7 @@ class Contact {
     contactStudents
     contactData
     email
+    errors = []
     removeContactAssocList = []
     validation
     validationRules = [
@@ -65,6 +66,17 @@ class Contact {
         }
     }
 
+    contactAssociatedWithStudent(studentNumbers) {
+        if (studentNumbers && studentNumbers.length > 0 && this.contactStudents.length > 0) {
+            for (const contactStudent of this.contactStudents) {
+                if (studentNumbers.includes(parseInt(contactStudent.studentNumber))) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     addContactStudent() {
         const { student } = this.rootStore.formStore
         this.contactStudents.push(new ContactStudent({
@@ -93,9 +105,21 @@ class Contact {
 
     get hasContactStudents() {
         if (this.contactStudents && this.contactStudents.length > 0) {
-            return this.contactStudents.some((contactStudent) => contactStudent.deleted === false)
+            return this.contactStudents.some((contactStudent) => 
+                contactStudent.deleted === false && contactStudent.markedForDeletion === false
+            )
         }
         return false
+    }
+
+    includesStudentContact(contactStudentId) {
+        return this.contactStudents.some((contactStudent) => 
+            parseInt(contactStudent.studentContactId) === parseInt(contactStudentId)
+        )
+    }
+
+    addExistingContactStudent(student, contactId) {
+        this.contactStudents.push(new ContactStudent(student, contactId))
     }
 
     refreshContactData = flow(function * (contactId) {
@@ -119,8 +143,12 @@ class Contact {
             updates.push(this.contactDemographics.update())
         }
 
+        if (this.email.changesMade === true) {
+            updates.push(this.email.update())
+        }
+
         for (const studentContact of this.contactStudents) {
-            if (studentContact.erroredOut === false && studentContact.changesMade === true) {
+            if (studentContact.changesMade === true) {
                 updates = updates.concat(studentContact.update())
             }
         }
@@ -129,10 +157,6 @@ class Contact {
             if (phone.changesMade === true) {
                 updates.push(phone.update())
             }
-        }
-
-        if (this.email.changesMade === true) {
-            updates.push(this.email.update())
         }
         return updates
     }
@@ -149,6 +173,10 @@ class Contact {
         this.phones.splice(index, 1)
     }
 
+    addError(error) {
+        this.errors.push(error[0])
+    }
+
     get validatedPhones() {
         let validatedPhones = []
         if (this.phones) {
@@ -161,12 +189,23 @@ class Contact {
         return validatedPhones
     }
 
+    get fullName() {
+        let nameString = ''
+        if (this.contactDemographics.lastName) {
+            nameString = this.contactDemographics.lastName 
+            nameString += this.contactDemographics.firstName ? `, ${this.contactDemographics.firstName}` : ''
+        }
+        return nameString
+    }
+
     get asJSON() {
         let phones = []
         let contactStudents = []
         for (const phone of this.phones) {
             phones.push(phone.asJSON)
         }
+
+        const email = this.email.asJSON
 
         for (const contactStudent of this.contactStudents) {
             contactStudents.push(contactStudent.asJSON)
@@ -175,8 +214,11 @@ class Contact {
             "firstName": this.contactDemographics.firstName,
             "lastName": this.contactDemographics.lastName,
             phones,
-            contactStudents,
-            emails: [this.email.asJSON]
+            contactStudents
+        }
+
+        if (email.address) {
+            obj['emails'] = [this.email.asJSON]
         }
         return obj
     }
@@ -192,15 +234,19 @@ decorate(Contact, {
     addContactStudent: action,
     refreshValidation: action,
     refreshContactData: action,
+    addError: action,
+    addExistingContactStudent: action,
     phones: observable,
     addresses: observable,
     contactStudents: observable,
     email: observable,
     contactDemographics: observable,
     contactData: observable,
+    errors: observable,
     activeContactStudent: computed,
     validatedPhones: computed,
     asJSON: computed,
-    hasContactStudents: computed
+    hasContactStudents: computed,
+    fullName: computed
 })
 export default Contact

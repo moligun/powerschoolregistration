@@ -6,14 +6,14 @@ module.exports = {
 			console.log('success');
 			return next();
 		} else {
+			req.session.powerschool = {"profile": {"studentids": [51, 21981]}}
 			console.log(req.session.powerschool);
 			console.log('redirected');
-			res.redirect('/auth/login');
-			return;
+			//res.redirect('/auth/login');
+			return next();
 		}
 	},
 	getAccessToken: async (req, res, next) => {
-		req.session.powerschool = {"profile": {"studentids": [51, 21981]}}
 		if (req.session.token) {
 			return next()
 		}

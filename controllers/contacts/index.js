@@ -43,79 +43,69 @@ router.get('/contact/:id', auth.getAccessToken, async (req, res) => {
 router.post('/', auth.getAccessToken, async (req, res) => {
 	const data = req.body
 	if (data) {
-		try {
-			const accessToken = req.session.token.access_token
-			const addContact = await psApi.addContact(accessToken, data)
-			console.log(addContact)
-			res.send(addContact)
+		const accessToken = req.session.token.access_token
+		const contactPromise = psApi.addContact(accessToken, data)
+		const result = await psApi.processPromise(contactPromise)
+		if (result !== false) {
+			res.send(result)
 			return
-		 } catch(error) {
-			console.log(error)
-			res.send(error)
-			return
-		 }
+		}
 	}
-	res.send('Valid Contact ID/ Association ID must be provided')
+	const errorMessage = {"error_message": {"error": ["Issues occurred while attempting to add new contact"]}}
+	res.send(errorMessage)
+	return
 })
 
 router.post('/:id/students', auth.getAccessToken, async (req, res) => {
 	const contactId = req.params.id
 	const data = req.body
 	if (contactId && data) {
-		try {
-			const accessToken = req.session.token.access_token
-			const addStudent = await psApi.addContactStudent(accessToken, contactId, data)
-			res.send(addStudent)
+		const accessToken = req.session.token.access_token
+		const contactPromise = psApi.addContactStudent(accessToken, contactId, data)
+		const result = await psApi.processPromise(contactPromise)
+		if (result !== false) {
+			res.send(result)
 			return
-		 } catch(error) {
-			console.log(error)
-			res.send(error)
-			return
-		 }
+		}
 	}
-	res.send('Valid Contact ID/ Association ID must be provided')
+	const errorMessage = {"error_message": {"error": ["Issues occurred while attempting to add contact to student."]}}
+	res.send(errorMessage)
+	return
 })
 
 router.put('/:id/demographics/', auth.getAccessToken, async (req, res) => {
 	const contactId = req.params.id
 	const data = req.body
-	try {
-		if (contactId && data) {
-			const accessToken = req.session.token.access_token
-			const updateContact = await psApi.updateContactDemographics(accessToken, contactId, data)
-			res.send(updateContact)
+	if (contactId && data) {
+		const accessToken = req.session.token.access_token
+		const contactPromise = psApi.updateContactDemographics(accessToken, contactId, data)
+		const result = await psApi.processPromise(contactPromise)
+		if (result !== false) {
+			res.send(result)
 			return
 		}
-	} catch(error) {
-		console.log(error)
-		res.send(error)
-		return
 	}
-	res.send('Valid Contact ID/ Association ID must be provided')
+	const errorMessage = {"error_message": {"error": ["Issues occurred while attempting to update contact name"]}}
+	res.send(errorMessage)
+	return
 })
 
 router.put('/:id/students/:contactStudentId', auth.getAccessToken, async (req, res) => {
 	const contactId = req.params.id
 	const contactStudentId = req.params.contactStudentId
 	const data = req.body
-	let success = false
-	let attempts = 0
-	while (success === false && attempts < 5) {
-		try {
-			if (contactId && contactStudentId && data) {
-				const accessToken = req.session.token.access_token
-				const updateContact = await psApi.updateContactStudent(accessToken, contactId, contactStudentId, data)
-				success = true
-				res.send(updateContact)
-				return
-			}
-		} catch(error) {
-			console.log(error)
-			attempts++
+	const accessToken = req.session.token.access_token
+	if (accessToken && contactId && contactStudentId && data) {
+		const contactPromise = psApi.updateContactStudent(accessToken, contactId, contactStudentId, data)
+		const result = await psApi.processPromise(contactPromise)
+		if (result !== false) {
+			res.send(result)
+			return
 		}
 	}
-	console.log('Failed Out')
-	res.send('Valid Contact ID/ Association ID must be provided')
+	const errorMessage = {"error_message": {"error": ["Issues occurred while attempting to update contact order"]}}
+	res.send(errorMessage)
+	return
 })
 
 router.put('/:id/students/:contactStudentId/studentdetails/:contactStudentDetailId', auth.getAccessToken, async (req, res) => {
@@ -123,83 +113,111 @@ router.put('/:id/students/:contactStudentId/studentdetails/:contactStudentDetail
 	const contactStudentId = req.params.contactStudentId
 	const contactStudentDetailId = req.params.contactStudentDetailId
 	const data = req.body
-	try {
-		if (contactId && contactStudentId && contactStudentDetailId && data) {
-			const accessToken = req.session.token.access_token
-			const updateContactDetail = await psApi.updateContactStudentDetail(
-				accessToken, 
-				contactId, 
-				contactStudentId, 
-				contactStudentDetailId, 
-				data
-			)
-			res.send(updateContactDetail)
+	if (contactId && contactStudentId && contactStudentDetailId && data) {
+		const accessToken = req.session.token.access_token
+		const contactPromise = psApi.updateContactStudentDetail(
+			accessToken, 
+			contactId, 
+			contactStudentId, 
+			contactStudentDetailId, 
+			data
+		)
+		const result = await psApi.processPromise(contactPromise)
+		if (result !== false) {
+			res.send(result)
 			return
 		}
-	} catch(error) {
-		console.log(error)
-		res.send(error)
-		return
 	}
-	res.send('Valid Contact ID/ Association ID must be provided')
+	const errorMessage = {"error_message": {"error": ["Issues occurred while attempting to update Contact Student Details"]}}
+	res.send(errorMessage)
+	return
 })
 
 router.delete('/:id/students/:contactstudentid', auth.getAccessToken, async (req, res) => {
 	const contactId = req.params.id
 	const contactStudentId = req.params.contactstudentid
 	if (contactId && contactStudentId) {
-		try {
-			const accessToken = req.session.token.access_token
-			const deleteAssoc = await psApi.deleteContactAssociation(accessToken, contactId, contactStudentId)
-			console.log(deleteAssoc)
-			res.send(deleteAssoc)
+		const accessToken = req.session.token.access_token
+		const contactPromise = psApi.deleteContactAssociation(accessToken, contactId, contactStudentId)
+		const result = await psApi.processPromise(contactPromise)
+		if (result !== false) {
+			res.send(result)
 			return
-		 } catch(error) {
-			res.send(error)
-			return
-		 }
+		}
 	}
-	res.send('Valid Contact ID/ Association ID must be provided')
+	const errorMessage = {"error_message": {"error": ["Could not remove contact from student."]}}
+	res.send(errorMessage)
+	return
 })
 
 router.post('/:id/phones', auth.getAccessToken, async (req, res) => {
 	const contactId = req.params.id
 	const data = req.body
 	if (contactId && data) {
-		try {
-			const accessToken = req.session.token.access_token
-			const addContact = await psApi.addContactPhone(accessToken, contactId, data)
-			console.log(addContact)
-			res.send(addContact)
+		const accessToken = req.session.token.access_token
+		const contactPromise = psApi.addContactPhone(accessToken, contactId, data)
+		const result = await psApi.processPromise(contactPromise)
+		if (result !== false) {
+			res.send(result)
 			return
-		 } catch(error) {
-			console.log(error)
-			res.send(error)
-			return
-		 }
+		}
 	}
-	res.send('Valid Contact ID/ Association ID must be provided')
+	const errorMessage = {"error_message": {"error": ["Could not add phone number to contact."]}}
+	res.send(errorMessage)
+	return
 })
 
 router.put('/:id/phones/:contactPhoneId', auth.getAccessToken, async (req, res) => {
 	const contactId = req.params.id
 	const contactPhoneId = req.params.contactPhoneId
 	const data = req.body
-	console.log(data)
-	try {
-		if (contactId && contactPhoneId && data) {
-			const accessToken = req.session.token.access_token
-			const updateContact = await psApi.updateContactPhone(accessToken, contactId, contactPhoneId, data)
-			console.log(JSON.stringify(updateContact.error_message))
-			res.send(updateContact)
+	if (contactId && contactPhoneId && data) {
+		const accessToken = req.session.token.access_token
+		const contactPromise = psApi.updateContactPhone(accessToken, contactId, contactPhoneId, data)
+		const result = await psApi.processPromise(contactPromise)
+		if (result !== false) {
+			res.send(result)
 			return
 		}
-	} catch(error) {
-		console.log(error)
-		res.send(error)
-		return
 	}
-	res.send('Valid Contact ID/ Association ID must be provided')
+	const errorMessage = {"error_message": {"error": ["Could not edit contact phone number."]}}
+	res.send(errorMessage)
+	return
+})
+
+router.post('/:id/emails', auth.getAccessToken, async (req, res) => {
+	const contactId = req.params.id
+	const data = req.body
+	if (contactId && data) {
+		const accessToken = req.session.token.access_token
+		const contactPromise = psApi.addContactEmail(accessToken, contactId, data)
+		const result = await psApi.processPromise(contactPromise)
+		if (result !== false) {
+			res.send(result)
+			return
+		}
+	}
+	const errorMessage = {"error_message": {"error": ["Could not add email to contact."]}}
+	res.send(errorMessage)
+	return
+})
+
+router.put('/:id/emails/:contactEmailId', auth.getAccessToken, async (req, res) => {
+	const contactId = req.params.id
+	const contactEmailId = req.params.contactEmailId
+	const data = req.body
+	if (contactId && contactEmailId && data) {
+		const accessToken = req.session.token.access_token
+		const contactPromise = psApi.updateContactEmail(accessToken, contactId, contactEmailId, data)
+		const result = await psApi.processPromise(contactPromise)
+		if (result !== false) {
+			res.send(result)
+			return
+		}
+	}
+	const errorMessage = {"error_message": {"error": ["Could not edit contact email."]}}
+	res.send(errorMessage)
+	return
 })
 
 router.delete('/:id/phones/:contactPhoneId', auth.getAccessToken, async (req, res) => {

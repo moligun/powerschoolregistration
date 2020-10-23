@@ -1,6 +1,7 @@
 import React from 'react'
 import { inject, observer} from 'mobx-react'
 import Agreements from './agreements'
+import Signature from './signature'
 import ContactsList from './contactslist'
 import HealthInformation from './healthinformation'
 import StudentInformation from './studentinformation'
@@ -39,6 +40,7 @@ class StudentInfoForm extends React.Component {
             return (<h2>Loading</h2>)
         }
 
+        let activeValidation = formSections[activeSectionId] ? formSections[activeSectionId].validation : false
         let activeSection
         switch (activeSectionId) {
             case 0:
@@ -52,6 +54,9 @@ class StudentInfoForm extends React.Component {
                 break
             case 3:
                 activeSection = <Agreements />
+                break
+            case 4:
+                activeSection = <Signature />
                 break
             default:
                 break
@@ -71,9 +76,16 @@ class StudentInfoForm extends React.Component {
                     </ul>
                 </nav>
                 {activeSection}
-                <div className="w-100 d-flex justify-content-between">
+                <div className="w-100 d-flex justify-content-between align-items-start">
                     <button onClick={this.handlePrevious} className="btn btn-secondary" disabled={contactEditor.display}>Previous</button>
-                    <button onClick={this.handleNext} className="btn btn-primary" disabled={contactEditor.display}>Next</button>
+                    <div className="button-group d-flex flex-column align-items-end">
+                        <button onClick={this.handleNext} className="btn btn-primary" disabled={contactEditor.display || (student[activeValidation] && student[activeValidation].allValidated === false)}>Next</button>
+                        {student[activeValidation] && 
+                            student[activeValidation].allValidated === false &&
+                            <div className="text-danger">Fields above require attention.</div>
+                        
+                        }
+                    </div>
                 </div>
             </div>
         )

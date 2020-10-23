@@ -5,6 +5,7 @@ import {
         action,
         flow
     } from "mobx"
+import contact from "../components/contact"
 import contactService from "../services/contactservice"
 import StudentService from "../services/studentservice"
 
@@ -15,7 +16,8 @@ class FormStore {
         {"name": "Student Info", "validation": "studentInformationValidation"}, 
         {"name": "Contacts", "validation": "contactInformationValidation"},
         {"name": "Health Information", "validation": "healthInformationValidation"},
-        {"name": "Agreements", "validation": "releaseInformationValidation"}
+        {"name": "Agreements", "validation": "releaseInformationValidation"},
+        {"name": "Signature", "validation": "signatureInformationValidation"},
     ]
     activeSectionId = 0
     submitState = false
@@ -103,68 +105,45 @@ class FormStore {
                 "student": []
             }
         }
+        let activeStudentNumbers = []
         for (const studentIndex of studentStore.validatedStudentIndexes) {
             studentPayload.students.student.push(studentStore.students[studentIndex].asJSON)
+            activeStudentNumbers.push(studentStore.students[studentIndex].studentNumber)
         }
         try {
             for (const contact of this.rootStore.contactsStore.contacts){
-                if (contact.contactId > 0) {
-                    let contactUpdatePackage = contact.updatePackages()
-                    if (contactUpdatePackage.length > 0) {
-                            const results = yield Promise.resolve(contactUpdatePackage)
-                    } else {
-                        console.log('nothing to update')
-                    }
-                } else if (contact.hasContactStudents) {
-                    const results = yield contactService.createContact(contact.asJSON)
-                    if (results.data) {
-                        if (results.data['success_message']['id']) {
-                            yield contact.refreshContactData(results.data['success_message']['id'])
-                        }
-                    }
-                }
-            }
-            const studentResults = yield StudentService.updateStudent(studentPayload)
-        } catch (error) {
-            console.log(error)
-        } finally {
-            this.submitting = false
-        }
-    })
+                if (contact.contactAssociatedWithStudent(activeStudentNumbers) === false) {
+                    continue
+                } 
+                contact.errors = []
 
-    processSubmissions = flow(function* () {
-        this.submitting = true
-        this.removeUnvalidatedContacts()
-        const { studentStore } = this.rootStore
-        let studentPayload = {
-            "students": {
-                "student": []
-            }
-        }
-        for (const studentIndex of studentStore.validatedStudentIndexes) {
-            console.log(studentStore.students[studentIndex].asJSON)
-            studentPayload.students.student.push(studentStore.students[studentIndex].asJSON)
-        }
-        try {
-            for (const contact of this.rootStore.contactsStore.contacts){
                 if (contact.contactId > 0) {
                     let contactUpdatePackage = contact.updatePackages()
                     if (contactUpdatePackage.length > 0) {
-                            console.log('updating contact...')
-                            const results = yield Promise.resolve(contactUpdatePackage)
+                            const results = yield Promise.all(contactUpdatePackage)
+                            if (results && results.length > 0) {
+                                for (const result of results) {
+                                    if (result !== false) {
+                                        contact.addError(result)
+                                    }
+                                }
+                            }
                     } else {
                         console.log('nothing to update')
                     }
                 } else if (contact.hasContactStudents) {
                     const results = yield contactService.createContact(contact.asJSON)
                     if (results.data) {
-                        if (results.data['success_message']['id']) {
+                        if (results.data['success_message']) {
                             yield contact.refreshContactData(results.data['success_message']['id'])
+                        } else if (results.data['error_message']) {
+                            console.log(results.data['error_message'])
                         }
                     }
                 }
             }
             const studentResults = yield StudentService.updateStudent(studentPayload)
+            console.log(studentResults)
         } catch (error) {
             console.log(error)
         } finally {

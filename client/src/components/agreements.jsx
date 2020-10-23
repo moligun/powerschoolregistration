@@ -1,10 +1,6 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
-import NestedRadio from './nestedradio'
-import NestedCheckbox from './nestedcheckbox'
 import Select from './select'
-import Input from './input'
-import healthinformation from './healthinformation'
 class Agreements extends React.Component {
     componentDidMount() {
         const { release, releaseInformationValidation, healthInformation } = this.props.student

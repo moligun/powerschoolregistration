@@ -3,14 +3,11 @@ import { inject, observer} from 'mobx-react'
 import Input from './input'
 import Select from './select'
 import NestedRadio from './nestedradio'
-import ContactDemographics from '../stores/contactdemographics'
 class StudentInfoForm extends React.Component {
     handleChange = (event) => {
         const { student } = this.props.formStore
         let obj = student
-        student.studentInformationValidation.validate(event.target.name, event.target.value)
         let dotNotationParts = event.target.name.split('.')
-        console.log(dotNotationParts)
         let lastObjPart =  dotNotationParts.pop()
         let part = dotNotationParts.shift()
         while (part) {
@@ -18,6 +15,7 @@ class StudentInfoForm extends React.Component {
             part = dotNotationParts.shift()
         }
         obj[lastObjPart] = event.target.value
+        student.refreshStudentValidation()
     }
     handleExtChange = (event) => {
         const { student } = this.props.formStore
@@ -30,7 +28,6 @@ class StudentInfoForm extends React.Component {
                 console.log('no extension specified')
                 return
             }
-            console.log(ext)
         }
         const extObj = student[ext]
         const checkedTypes = ['checkbox', 'radio']
@@ -40,14 +37,14 @@ class StudentInfoForm extends React.Component {
             if (type === 'checkbox') {
                 value = event.currentTarget.checked ? 1 : 0
             } else {
-                value = parseInt(event.currentTarget.value)
+                value = event.currentTarget.value
+                value = value === "Yes" || value === "No" ? value : parseInt(value)
             }
         } else {
             value = event.currentTarget.value
         }
-        student.studentInformationValidation.validate(validationName, value)
-        console.log(name + " " + value)
         extObj.setFieldValue(name, value)
+        student.refreshStudentValidation()
     }
 
     handleMvChange = (event) => {
@@ -60,7 +57,6 @@ class StudentInfoForm extends React.Component {
                 console.log('no extension specified')
                 return
             }
-            console.log(ext)
         }
         const extObj = student[ext]
         const currentValue = event.currentTarget.value
@@ -71,6 +67,7 @@ class StudentInfoForm extends React.Component {
                 event.currentTarget.value = mvLiving.value
             }
         }
+        student.refreshStudentValidation()
     }
     handleCancel = (event) => {
         event.preventDefault()
@@ -80,18 +77,6 @@ class StudentInfoForm extends React.Component {
     render() {
         const { student } = this.props.formStore
         const { districts } = this.props.studentStore
-        const studentSuffixOptions = [
-            {"label": "Jr", "value": "Jr"},
-            {"label": "II", "value": "II"},
-            {"label": "III", "value": "III"},
-            {"label": "IV", "value": "IV"},
-            {"label": "V", "value": "V"},
-            {"label": "VI", "value": "VI"},
-            {"label": "VII", "value": "VII"},
-            {"label": "VIII", "value": "VIII"},
-            {"label": "IX", "value": "IX"},
-            {"label": "X", "value": "X"}
-        ]
         const { studentExt, studentExt2, name, addresses, phones, schoolEnrollment, demographics } = student
         return (
             <div>
@@ -104,12 +89,9 @@ class StudentInfoForm extends React.Component {
                             label="Middle Name" value={name.middle_name} readOnly />
                         <Input className="col-sm-12 col-md-6 col-lg-4" type="text" name="name.last_name" 
                             label="Last Name" value={name.last_name} readOnly />
-                        <Select className="col-sm-12 col-md-6 col-lg-4 form-control-plaintext" name="name.suffix" 
-                            label="Suffix" field={studentExt.getField('student_name_suffix')} 
-                            extension="studentExt" options={studentSuffixOptions} readOnly />
-                    </div>
-                    <div className="form-row">
-                        <Input type="date" name="demographics.birth_date" label="Date of Birth" value={demographics.birth_date} onChange={this.handleChange} />
+                        <Input className="col-sm-12 col-md-6 col-lg-4" name="name.suffix" 
+                            label="Suffix" value={studentExt.getField('student_name_suffix').value} readOnly />
+                        <Input type="date" name="demographics.birth_date" label="Date of Birth" value={demographics.birth_date} readOnly />
                     </div>
                     <div className="form-row">
                         <Input type="tel" name="phones.main.number" label="Home Phone" validation={student.studentInformationValidation.getValidation('phones.main.number')} value={phones.main.number} onChange={this.handleChange} />
@@ -136,12 +118,30 @@ class StudentInfoForm extends React.Component {
                 <fieldset>
                     <legend>Mailing Address</legend>
                     <div className="form-row">
-                        <Input type="text" label="Street" name="addresses.mailing.street" value={addresses.mailing.street} onChange={this.handleChange} />
+                        <Input type="text" label="Street" name="addresses.mailing.street" 
+                            value={addresses.mailing.street} 
+                            onChange={this.handleChange}
+                            validation={student.studentInformationValidation.getValidation('addresses.mailing.street')} />
                     </div>
                     <div className="form-row">
-                        <Input type="text" label="City" name="addresses.mailing.city" value={addresses.mailing.city} onChange={this.handleChange}/>
-                        <Input type="text" label="State" name="addresses.mailing.state_province" value={addresses.mailing.state_province} onChange={this.handleChange}/>
-                        <Input type="text" label="Zip Code" name="addresses.mailing.postal_code" value={addresses.mailing.postal_code} onChange={this.handleChange}/>
+                        <Input type="text" label="City" 
+                            name="addresses.mailing.city" 
+                            value={addresses.mailing.city} 
+                            onChange={this.handleChange}
+                            validation={student.studentInformationValidation.getValidation('addresses.mailing.city')} 
+                        />
+                        <Input type="text" label="State" 
+                            name="addresses.mailing.state_province" 
+                            value={addresses.mailing.state_province} 
+                            onChange={this.handleChange}
+                            validation={student.studentInformationValidation.getValidation('addresses.mailing.state_province')} 
+                        />
+                        <Input type="text" label="Zip Code" 
+                            name="addresses.mailing.postal_code" 
+                            value={addresses.mailing.postal_code} 
+                            onChange={this.handleChange}
+                            validation={student.studentInformationValidation.getValidation('addresses.mailing.postal_code')} 
+                        />
                     </div>
                 </fieldset>
                 <fieldset>
@@ -155,33 +155,63 @@ class StudentInfoForm extends React.Component {
 
                         <NestedRadio field={studentExt2.getField('mvtempliving')} 
                             label="Is this student's home address a temporary living arrangement, other than a rental?" 
-                            onChange={this.handleExtChange} validation={student.studentInformationValidation.getValidation('studentExt2.mvtempliving')}
-                             />
-                        <NestedRadio field={studentExt2.getField('mvtemplivinghardship')} label="Is this a temporary living arrangement due to a loss of housing or economic hardship?" onChange={this.handleExtChange} />
-                        <NestedRadio field={studentExt2.getField('mvlivingwithother')} label="As a student, are you living with someone other than your parent or legal guardian?" onChange={this.handleExtChange} />
+                            onChange={this.handleExtChange} 
+                            validation={student.studentInformationValidation.getValidation('studentExt2.mvtempliving')} />
+                        <NestedRadio field={studentExt2.getField('mvtemplivinghardship')} 
+                            label="Is this a temporary living arrangement due to a loss of housing or economic hardship?" 
+                            onChange={this.handleExtChange}
+                            validation={student.studentInformationValidation.getValidation('studentExt2.mvtemplivinghardship')} />
+                        <NestedRadio 
+                            field={studentExt2.getField('mvlivingwithother')} 
+                            label="As a student, are you living with someone other than your parent or legal guardian?" 
+                            onChange={this.handleExtChange}
+                            validation={student.studentInformationValidation.getValidation('studentExt2.mvlivingwithother')} />
                     </div>
                     {this.props.formStore.student.mcKinneyExtras === true && 
                         <React.Fragment>
                             <div className="form-row">
+                                <p className="font-weight-bold col-sm-12">Residency and Educational Rights</p>
+                                <p className="col-sm-12">Students without fixed, regular, and adequate living situations have the following rights:</p>
+                                <ol>
+                                   <li className="mb-2">
+                                       Immediate enrollment in the school they last attended or the local school where they are 
+                                       currently staying even if they do not have all of the documents normally required at the 
+                                       time of enrollment without fear of being separated or treated differently due to their housing situations;</li>
+                                    <li className="mb-2">Transportation to the school of origin for the regular school day;</li>
+                                    <li>Access to free meals, Title I and other educational programs, and transportation to extra-curricular 
+                                        activities to the same extent that it is offered to other students. </li>
+                                </ol>
+                                <p className="col-sm-12">Any questions about these rights can be directed to either John Layton, (765) 771-6000, 
+                                    jlayton@lsc.k12.in.us or the State Coordinator at (317) 460-1340.</p>
+                            </div>
+                            <div className="form-row">
                                 <Select className="col-sm-12" label="Please choose which of the following situations the student currently resides" 
                                     field={student.mcKinneyLivingValue} 
-                                    onChange={this.handleMvChange} extension="studentExt2" options={student.mvLivingSituations} />
+                                    onChange={this.handleMvChange} extension="studentExt2" 
+                                    options={student.mvLivingSituations}
+                                    validation={student.studentInformationValidation.getValidation('mcKinneyLivingValue')} />
+
                                     {student.mcKinneyLivingValue.value === 'mvmotelhotel' &&
                                         <Input type="text" label="Hotel/Motel Name" 
                                             className="col-sm-12" name="mvmotelhotelname" 
                                             value={studentExt2.getField('mvmotelhotelname').value} 
-                                            extension="studentExt2" onChange={this.handleExtChange} />
+                                            extension="studentExt2" onChange={this.handleExtChange}
+                                            validation={student.studentInformationValidation.getValidation('studentExt2.mvmotelhotelname')} />
                                     }
                             </div>
-                            <div className="form-row">
+                            <div className="form-row" extension="studentExt2">
                                 <Input type="textarea" label="Please explain any other living situations" 
                                     className="col-sm-12" name="mvotherexplain" 
                                     value={studentExt2.getField('mvotherexplain').value} 
-                                    extension="studentExt2" onChange={this.handleExtChange} />
+                                    onChange={this.handleExtChange} />
+                                <NestedRadio field={studentExt2.getField('mvtransportation')} 
+                                    label="Are you requesting transportation under the McKinney-Vento Act?" 
+                                    onChange={this.handleExtChange} values={{"yes": "Yes", "no": "No"}}
+                                    validation={student.studentInformationValidation.getValidation('studentExt2.mvtransportation')} />
                                 <Input type="textarea" label="Other Children Living in the Home" 
                                     className="col-sm-12" name="mvadditionalkids" 
                                     value={studentExt2.getField('mvadditionalkids').value} 
-                                    extension="studentExt2" onChange={this.handleExtChange} />
+                                    onChange={this.handleExtChange} />
                             </div>
                         </React.Fragment>
                     }

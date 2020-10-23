@@ -5,6 +5,10 @@ import NestedCheckbox from './nestedcheckbox'
 import Select from './select'
 import Input from './input'
 class HealthInformation extends React.Component {
+    componentDidMount() {
+        const { healthInformationValidation, healthInformation } = this.props
+        healthInformationValidation.validateAll(healthInformation.fieldsObj)
+    }
     handleChange = (event) => {
         const { healthInformation, healthInformationValidation } = this.props
         const type = event.currentTarget.type

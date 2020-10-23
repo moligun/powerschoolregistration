@@ -7,7 +7,9 @@ function Select(props) {
             <label className="font-weight-bold" htmlFor={props.field.name}>{props.label}</label>
             <select className="form-control" id={props.field.name} name={props.field.name} 
             data-ext={props.extension ? props.extension : undefined} 
-            value={props.field.value} onChange={props.onChange} readOnly={props.readOnly ? true : false} disabled={props.readOnly ? true : false}>
+            value={props.field.value} onChange={props.onChange} 
+            readOnly={props.readOnly ? true : false} 
+            disabled={props.readOnly ? true : false}>
                 <option key={props.field.name} value="">Select an Option...</option>
                 {props.options.map((option) => <option key={props.field.name + "-" + option.value} value={option.value}>{option.label}</option>)}
             </select>

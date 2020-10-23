@@ -3,7 +3,7 @@ import { observer, inject } from 'mobx-react'
 import ContactPhone from './contactphone'
 import Select from './select'
 import Validation from './validation'
-import ContactEditorStore from '../stores/contacteditor'
+import NestedRadio from './nestedradio'
 class EditContactForm extends React.Component {
     constructor(props) {
         super(props)
@@ -24,6 +24,8 @@ class EditContactForm extends React.Component {
        let value
        if (type === "checkbox") {
            value = event.target.checked ? true : false
+       } else if (type === "radio") {
+           value = parseInt(event.target.value)
        } else {
            value = event.target.value
        }
@@ -79,51 +81,51 @@ class EditContactForm extends React.Component {
                     <legend>Contact Information</legend>
                     <div className="form-row">
                         <div className="form-group col-md-6 col-sm-12">
-                            <label>First Name</label>
+                            <label className="font-weight-bold">First Name</label>
                             <input type="text" value={contactDemographics.firstName} className={`form-control ${firstNameValidation.validated === false ? 'border-danger' : ''}`} name="firstName" onChange={this.handleChange} />
                             <Validation validation={firstNameValidation} />
                         </div>
                         <div className="form-group col-md-6 col-sm-12">
-                            <label>Last Name</label>
+                            <label className="font-weight-bold">Last Name</label>
                             <input type="text" value={contactDemographics.lastName} className={`form-control ${lastNameValidation.validated === false ? 'border-danger' : ''}`} name="lastName" onChange={this.handleChange} />
                             <Validation validation={lastNameValidation} />
                         </div>
                         <div className="form-group col-md-6 col-sm-12" data-collection="email">
-                            <label>Email</label>
+                            <label className="font-weight-bold">Email</label>
                             <input type="text" value={email.address} className="form-control" name="address" onChange={this.handleChange} />
                         </div>
                     </div>
                 </fieldset>
                 <fieldset data-collection="activeContactStudent">
                     <div className="form-row">
-                        <Select field={{"name": "relationship", 
-                            "value": activeContactStudent.studentDetails.relationship}} 
-                            label="Relationship" options={relationshipOptions} onChange={this.handleChange} />
+                        <Select 
+                        field={{"name": "relationship", "value": activeContactStudent.studentDetails.relationship}} 
+                            label="Relationship" options={relationshipOptions} onChange={this.handleChange}
+                            validation={validation.getValidation('activeContactStudent.relationship')} />
                         <div className="form-group d-flex flex-wrap justify-content-start w-100">
-                            <div className="form-check form-check-inline w-50 mx-0">
-                                <input className="form-check input"  name="custodial" type="checkbox" 
-                                    value="1" onChange={this.handleChange} checked={ activeContactStudent.studentDetails.custodial } />
-                                <label className="form-check-label pl-1">Has Custody</label>
+                            <div className="col-sm-12 col-md-6">
+                                <NestedRadio 
+                                    field={{"name": "emergency", "value": activeContactStudent.studentDetails.emergency}} 
+                                    label="Emergency Contact?" onChange={this.handleChange}
+                                    validation={validation.getValidation('activeContactStudent.emergency')} />
                             </div>
-                            <div className="form-check form-check-inline w-50 mx-0">
-                                <input className="form-check input" name="livesWith" type="checkbox" 
-                                    value="1" onChange={this.handleChange} checked={ activeContactStudent.studentDetails.livesWith ? "checked": ""} />
-                                <label className="form-check-label pl-1">Lives With</label>
+                            <div className="col-sm-12 col-md-6">
+                                <NestedRadio 
+                                    field={{"name": "custodial", "value": activeContactStudent.studentDetails.custodial}} 
+                                    label="Has Custody?" onChange={this.handleChange}
+                                    validation={validation.getValidation('activeContactStudent.custodial')} />
                             </div>
-                            <div className="form-check form-check-inline w-50 mx-0">
-                                <input className="form-check input" name="schoolPickup" type="checkbox" 
-                                    value="1" onChange={this.handleChange} checked={ activeContactStudent.studentDetails.schoolPickup } />
-                                <label className="form-check-label pl-1">School Pickup</label>
+                            <div className="col-sm-12 col-md-6">
+                                <NestedRadio 
+                                    field={{"name": "schoolPickup", "value": activeContactStudent.studentDetails.schoolPickup}} 
+                                    label="Can pick up student?" onChange={this.handleChange}
+                                    validation={validation.getValidation('activeContactStudent.schoolPickup')} />
                             </div>
-                            <div className="form-check form-check-inline w-50 mx-0">
-                                <input className="form-check input" name="emergency" type="checkbox" 
-                                    value="1" onChange={this.handleChange} checked={ activeContactStudent.studentDetails.emergency } />
-                                <label className="form-check-label pl-1">Emergency Contact</label>
-                            </div>
-                            <div className="form-check form-check-inline w-50 mx-0">
-                                <input className="form-check input" name="receivesMail" type="checkbox" 
-                                    value="1" onChange={this.handleChange} checked={ activeContactStudent.studentDetails.receivesMail } />
-                                <label className="form-check-label pl-1">Receives Mail</label>
+                            <div className="col-sm-12 col-md-6">
+                                <NestedRadio 
+                                    field={{"name": "livesWith", "value": activeContactStudent.studentDetails.livesWith}} 
+                                    label="Lives with student?" onChange={this.handleChange} 
+                                    validation={validation.getValidation('activeContactStudent.livesWith')} />
                             </div>
                         </div>
                     </div>
@@ -138,7 +140,6 @@ class EditContactForm extends React.Component {
                         {phones.map((phone, index) => 
                             phone.markedForDeletion === false  && phone.deleted === false ?
                                 <li className="list-group-item" draggable="true" key={'phone-' + index}>
-                                    {phone.markedForDeletion === true ? 'marked' : 'not marked'}
                                     <ContactPhone phone={ phone } index={ index } handleChange={this.handleChange} handlePhoneDelete={this.handlePhoneDelete} />
                                 </li> : ''
                         )}

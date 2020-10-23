@@ -2,6 +2,26 @@ const config = require('../config');
 const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
 
+const processPromise = async (promise, attemptCount = 5, defaultTimer = 2000) => {
+	let attempts = 0
+	while (attempts < attemptCount) {
+		try {
+			console.log('try one')
+			if (promise) {
+				const result = await promise
+				if (result) {
+					return result
+				}
+			}
+		} catch(error) {
+			console.log(error)
+			attempts++
+		}
+		await new Promise(resolve => setTimeout(resolve, defaultTimer))
+	}
+	return false
+}
+
 const getAccessToken = async () => {
 	try {
 		const encodedAuthCode = Buffer.from(config.powerSchool.clientID + 
@@ -53,7 +73,7 @@ const getStudents = (token, studentIds) => {
 	let studentPromises = [];
 	if (studentIds && studentIds.length > 0) {
 		studentIds.forEach(id => {
-			let query = `v1/student/${id}?expansions=phones,addresses,demographics,school_enrollment&extensions=u_health,s_in_stu_x,u_demo,u_release`
+			let query = `v1/student/${id}?expansions=phones,addresses,demographics,school_enrollment&extensions=u_health,s_in_stu_x,u_demo,u_release,u_lsc`
 			studentPromises.push(createQuery(token, query, {method: 'GET'}))
 		});
 		return Promise.all(studentPromises)
@@ -127,11 +147,27 @@ const addContactPhone = (token, contactId, body) => {
 const updateContactPhone = (token, contactId, contactPhoneId, body) => {
 	if (contactId && contactPhoneId && body) {
 		const query = `contacts/${contactId}/phones/${contactPhoneId}`
-		console.log(query)
 		return createQuery(token, query, {method: 'PUT', body})
 	}
 	return false
 }
+
+const addContactEmail = (token, contactId, body) => {
+	if (contactId && body) {
+		const query = `contacts/${contactId}/emails`
+		return createQuery(token, query, {method: 'POST', body})
+	}
+	return false
+}
+
+const updateContactEmail = (token, contactId, contactEmailId, body) => {
+	if (contactId && contactEmailId && body) {
+		const query = `contacts/${contactId}/emails/${contactEmailId}`
+		return createQuery(token, query, {method: 'PUT', body})
+	}
+	return false
+}
+
 
 const updateContactDemographics = (token, contactId, body) => {
 	if (contactId && body) {
@@ -187,8 +223,11 @@ module.exports = {
 	addContactPhone,
 	updateContactPhone,
 	deleteContactPhone,
+	addContactEmail,
+	updateContactEmail,
 	addContactStudent,
 	updateContactStudent,
 	updateContactStudentDetail,
-	updateStudent
+	updateStudent,
+	processPromise
 }

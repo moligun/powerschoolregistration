@@ -44,10 +44,19 @@ class ContactDemographics {
         return ContactService.updateContactDemographics(this.contactId, this.asJSON)
             .then(
                 action("updateContactDemographic", (response) => {
-                    const { savedObject } = response.data
-                    if (savedObject) {
-                        this.data = savedObject
+                    if (response && response.data) {
+                        const { savedObject } = response.data
+                        if (savedObject) {
+                            this.data = savedObject
+                            return false
+                        } else if (response.data.error_message) {
+                            if (response.data.error_message.error) {
+                                return response.data.error_message.error
+                            }
+                        }
+
                     }
+                    return ["Generic Issue updating contact name"]
                 })
             )
     }

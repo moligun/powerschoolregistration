@@ -29,7 +29,7 @@ class StudentsList extends React.Component {
                     {students && students.map((student, index) => 
                         <li key={'student-' + student.id} className="nav-item">
                             <button onClick={this.handleClick} data-index={index} className={`nav-link ${submitState === false && parseInt(index) === parseInt(activeStudentIndex) ? "active" : ""}`}>
-                                {student.name.first_name + ", " + student.name.last_name} 
+                                {student.name.last_name + ", " + student.name.first_name} 
                                 {student.validationSuccess ? <FaCheck className="text-success ml-1" /> : <FaTimes className="text-danger ml-1" />}
                             </button>
                         </li>

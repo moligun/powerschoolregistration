@@ -52,7 +52,7 @@ class StudentStore {
             if (students.data && students.data.length > 0) {
                 for (let index in students.data) {
                     let student = students.data[index]['student']
-                    this.students.push(new StudentForm(student))
+                    this.students.push(new StudentForm(student, this.rootStore))
                 }
                 this.rootStore.formStore.setActiveIndex(0)
             } else {

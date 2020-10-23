@@ -4,6 +4,7 @@ import {
         decorate,
         computed
     } from "mobx"
+import ContactService from '../services/contactservice'
 class ContactEmail {
     address = ""
     contactEmailId = ""
@@ -30,27 +31,55 @@ class ContactEmail {
 
     update() {
         if (this.contactEmailId > 0) {
-            return `/ws/contacts/${this.contactId}/emails/${this.contactEmailId}`
+            return ContactService.updateContactEmail(this.contactId, this.contactEmailId, this.asJSON)
+                .then(
+                    action("updateContactEmail", (response) => {
+                        if (response && response.data) {
+                            const { savedObject } = response.data
+                            if (savedObject) {
+                                this.data = savedObject
+                                return false
+                            } else if (response.data.error_message) {
+                                if (response.data.error_message.error) {
+                                    return response.data.error_message.error
+                                }
+                            }
+                        }
+                        return ["Generic Issue updating contact email"]
+                    })
+                )
         } else {
-            return `/ws/contacts/${this.contactId}/emails`
+            return ContactService.addContactEmail(this.contactId, this.asJSON)
+                .then(
+                    action("addContactEmail", (response) => {
+                        if (response && response.data) {
+                            const { savedObject } = response.data
+                            if (savedObject) {
+                                this.data = savedObject
+                                return false
+                            } else if (response.data.error_message) {
+                                if (response.data.error_message.error) {
+                                    return response.data.error_message.error
+                                }
+                            }
+                        }
+                        return ["Generic Issue adding contact email"]
+                    })
+                )
         }
     }
 
     get changesMade() {
-        /*
         const changes = [
-            this.address !== this.data.address
+            this.address !== (this.data && this.data.address ? this.data.address : '')
         ]
         return changes.some((obj) => obj === true) || !this.contactEmailId
-        */
-       return false
     }
 
     get asJSON() {
-        const { address, contactEmailId } = this
+        const { address } = this
         return {
-            address,
-            contactEmailId
+            address
         }
     }
 }
