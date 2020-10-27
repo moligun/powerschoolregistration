@@ -34,8 +34,8 @@ class ContactDemographics {
 
     get changesMade() {
         const changes = [
-            this.firstName !== this.data.firstName,
-            this.lastName !== this.data.lastName
+            this.firstName !== (this.data && this.data.firstName ? this.data.firstName : ''),
+            this.lastName !== (this.data && this.data.lastName ? this.data.lastName : '')
         ]
         return changes.some((obj) => obj === true)
     }

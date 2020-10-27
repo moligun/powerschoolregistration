@@ -21,6 +21,7 @@
         <field table="Person" field="firstname" access="FullAccess" />
         <field table="Person" field="lastname" access="FullAccess" />
         <field table="Person" field="ID" access="FullAccess" />
+        <field table="Person" field="DCID" access="FullAccess" />
         <field table="Person" field="ExcludeFromStateReporting" access="FullAccess" />
         <field table="Person" field="prefixcodesetid" access="ViewOnly" />
         <field table="Personaddress" field="street" access="ViewOnly" />

@@ -1,9 +1,8 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
 import Select from './select'
+import Input from './input'
 class Signature extends React.Component {
-    componentDidMount() {
-    }
     handleChange = (event) => {
         const { student } = this.props
         const { signatureInformationValidation } = student
@@ -14,6 +13,7 @@ class Signature extends React.Component {
             console.log('no extension specified')
             return
         }
+        const validationName = ext === 'studentExt3' ? name : ext + '.' + name
         const extObj = student[ext]
         const checkedTypes = ['checkbox', 'radio']
         let value = 0
@@ -26,12 +26,35 @@ class Signature extends React.Component {
         } else {
             value = event.currentTarget.value
         }
-        extObj.setFieldValue(name, value)
-        signatureInformationValidation.validate(name, value)
+        if (name === 'disclaimer_1_name') {
+            const disclaimerFields = [
+                "disclaimer_1_name",
+                "disclaimer_2_name",
+                "disclaimer_3_name",
+                "disclaimer_4_name",
+                "disclaimer_5_name",
+            ]
+            for (const disclaimerField of disclaimerFields) {
+                extObj.setFieldValue(disclaimerField, value)
+            }
+        } else {
+            extObj.setFieldValue(name, value)
+        }
+        signatureInformationValidation.validate(validationName, value)
+    }
+
+    handleDateChange = (date, props) => {
+        const { extension, name } = props
+        const { student } = this.props
+        const validationName = extension + '.' + name
+        const { signatureInformationValidation } = student
+        const dateValue = date ? date.toLocaleDateString("en-US") : ''
+        student[extension].setFieldValue(name, dateValue)
+        signatureInformationValidation.validate(validationName, dateValue)
     }
 
     render() {
-        const { studentExt3, signatureInformationValidation } = this.props.student
+        const { studentExt3, signatureInformationValidation, release } = this.props.student
         return (
             <React.Fragment>
                 <fieldset>
@@ -40,10 +63,31 @@ class Signature extends React.Component {
                         <p className="text-danger">
                             The electronic signature below and its related fields are treated by Lafayette School Corporation like a handwritten signature on a paper form.
                         </p>
+                        <p className="font-weight-bold font-italic">I affirm that all the information provided is true and correct to the best of my knowledge.</p>
                     </div>
                     <div className="form-row">
-                        <Select field={studentExt3.getField('lsc_useragreementsigned')} extension="studentExt3" validation={signatureInformationValidation.getValidation('lsc_useragreementsigned')}
+                        <Select field={studentExt3.getField('lsc_useragreementsigned')} className="col-sm-12" extension="studentExt3" 
+                            validation={signatureInformationValidation.getValidation('lsc_useragreementsigned')}
                             label="I Agree" onChange={this.handleChange} options={[{"label": "Yes", "value": "1"}]} />
+                        <Input type="text" name="disclaimer_1_name" className="col-sm-12" 
+                            validation={signatureInformationValidation.getValidation('release.disclaimer_1_name')}
+                            label="Signature" subLabel="Type Name of Parent/Guardian" extension="release" 
+                            value={release.getField('disclaimer_1_name')['value']} onChange={this.handleChange} />
+                        <Input type="date" name="signature_date" className="col-sm-12" 
+                            validation={signatureInformationValidation.getValidation('release.signature_date')}
+                            label="Date" extension="release" 
+                            value={release.getField('signature_date')['value']} onChange={this.handleDateChange} />
+                    </div>
+                    <div className="form-row">
+                        <input type="hidden" name="disclaimer_2_name" 
+                            value={release.getField('disclaimer_2_name')['value']} />
+                        <input type="hidden" name="disclaimer_3_name" 
+                            value={release.getField('disclaimer_3_name')['value']} />
+                        <input type="hidden" name="disclaimer_4_name" 
+                            value={release.getField('disclaimer_4_name')['value']} />
+                        <input type="hidden" name="disclaimer_5_name" 
+                            value={release.getField('disclaimer_5_name')['value']} />
+
                     </div>
                 </fieldset>
             </React.Fragment>

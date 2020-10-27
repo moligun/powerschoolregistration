@@ -5,7 +5,6 @@ import {
         action,
         flow
     } from "mobx"
-import contact from "../components/contact"
 import contactService from "../services/contactservice"
 import StudentService from "../services/studentservice"
 
@@ -48,7 +47,6 @@ class FormStore {
 
     changeSection(changeBy) {
         let newSectionValue = changeBy + this.activeSectionId
-        console.log(newSectionValue)
         const maxSectionIndex = this.formSections.length - 1
         const studentsLeft = (this.activeStudentIndex + 1) < this.studentsCount
         if (newSectionValue > maxSectionIndex) {
@@ -90,7 +88,7 @@ class FormStore {
         for (const studentIndex of studentStore.validatedStudentIndexes) {
             this.setActiveIndex(studentIndex)
             for (const contact of contactsStore.removableStudentContacts) {
-                contact.activeContactStudent.deleted = true
+                contact.activeContactStudent.markedForDeletion = true
             }
         }
         this.setActiveIndex(originalActiveIndex)
@@ -132,18 +130,51 @@ class FormStore {
                         console.log('nothing to update')
                     }
                 } else if (contact.hasContactStudents) {
+                    let existingContactSequences = {}
+                    for (const contactStudent of contact.contactStudents) {
+                        let studentDcid = contactStudent.dcid
+                        existingContactSequences[studentDcid] = contactStudent.sequence
+                    }
                     const results = yield contactService.createContact(contact.asJSON)
                     if (results.data) {
                         if (results.data['success_message']) {
-                            yield contact.refreshContactData(results.data['success_message']['id'])
+                            yield contact.refreshContactData(results.data['success_message']['id'], existingContactSequences)
+                            let contactUpdatePackage = contact.updatePackages()
+                            if (contactUpdatePackage.length > 0) {
+                                    const results = yield Promise.all(contactUpdatePackage)
+                                    if (results && results.length > 0) {
+                                        for (const result of results) {
+                                            if (result !== false) {
+                                                contact.addError(result)
+                                            }
+                                        }
+                                    }
+                            } else {
+                                console.log('nothing to update (from new)')
+                            }
                         } else if (results.data['error_message']) {
-                            console.log(results.data['error_message'])
+                            contact.addError(results.data['error_message']['error'])
+                        } else {
+                            contact.addError(["Issues Adding Contact"])
                         }
                     }
                 }
             }
             const studentResults = yield StudentService.updateStudent(studentPayload)
-            console.log(studentResults)
+            const studentResultsObject = studentResults.data && studentResults.data.results ? studentResults.data.results.result : null
+            if (Array.isArray(studentResultsObject)) {
+                for (const student of studentResultsObject) {
+                    let indexId = student.client_uid
+                    console.log(indexId)
+                    studentStore.students[indexId].submissionSuccess = true
+                }
+            } else if (typeof studentResultsObject === 'object') {
+                let indexId = studentResultsObject.client_uid !== undefined ? studentResultsObject.client_uid : undefined
+                if (indexId !== undefined) {
+                    studentStore.students[indexId].submissionSuccess = true
+                }
+            }
+            
         } catch (error) {
             console.log(error)
         } finally {

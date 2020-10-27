@@ -13,8 +13,11 @@ function ContactPhone(props) {
                 <label className="font-weight-bold">Phone Type</label>
                 <select className="form-control" name="phoneType" value={phone.phoneType} onChange={props.handleChange} data-index={ index }>
                     <option>Phone Type...</option>
-                    <option value="Mobile">Mobile</option>
+                    <option value="Daytime">Daytime</option>
                     <option value="Home">Home</option>
+                    <option value="Mobile">Mobile</option>
+                    <option value="Work">Work</option>
+                    <option value="Pager">Pager</option>
                 </select>
             </div>
             <div className="d-flex flex-column col-sm-12 col-md-6 col-lg-4">

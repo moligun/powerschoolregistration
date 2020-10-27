@@ -7,8 +7,9 @@ import {
 import Extension from './extension'
 import Validation from './validation'
 import StudentService from '../services/studentservice'
-class StudentForm {
+class Student {
     healthInformation
+    submissionSuccess = false
     studentExt
     studentExt2
     studentExt3
@@ -74,10 +75,13 @@ class StudentForm {
 
     signatureInformationValidation
     signatureInformationRules = [
-        {"name": "lsc_useragreementsigned", "rules": ["required"]}
+        {"name": "lsc_useragreementsigned", "rules": ["required"]},
+        {"name": "release.signature_date", "rules": ["required"]},
+        {"name": "release.disclaimer_1_name", "rules": ["required"]}
     ]
     id = undefined
     studentNumber
+    studentIndex
     name = {"first_name": "", "last_name": "", "middle_name": ""}
     phones = {
         "main": {"number": ""},
@@ -114,7 +118,7 @@ class StudentForm {
     studentData
     studentFields = observable.map()
     errors = []
-    constructor(data, root) {
+    constructor(data, index, root) {
         this.studentInformationValidation = new Validation(this.studentInformationValidationRules, "Student Info")
         this.contactInformationValidation = new Validation(this.contactInformationValidationRules, "Contacts")
         this.healthInformationValidation = new Validation(this.healthInformationValidationRules, "Health Information")
@@ -128,6 +132,7 @@ class StudentForm {
             this.signatureInformationValidation
         ]
         this.rootStore = root
+        this.studentIndex = index
         this.loadStudentData(data)
     }
 
@@ -184,16 +189,24 @@ class StudentForm {
                         break
                     case 'u_lsc':
                         this.studentExt3 = new Extension(extension, ["next_year_reg", "lsc_useragreementsigned"], {"lsc_useragreementsigned": ""})
-                        this.signatureInformationValidation.validateAll(this.studentExt3.fieldsObj)
                         break
                     case 'u_release':
-                        this.release = new Extension(extension, false)
+                        let defaultSignatureValues = {
+                            "signature_date": "",
+                            "disclaimer_1_name": "",
+                            "disclaimer_2_name": "",
+                            "disclaimer_3_name": "",
+                            "disclaimer_4_name": "",
+                            "disclaimer_5_name": ""
+                        }
+                        this.release = new Extension(extension, false, defaultSignatureValues)
                         break
                     default:
                         break
                 }
             }
             this.refreshStudentValidation()
+            this.refreshSignatureValidation()
     }
 
     refreshStudentValidation() {
@@ -204,6 +217,12 @@ class StudentForm {
             "mcKinneyLivingValue": this.mcKinneyLivingValue.value,
             "mcKinneyExtras": this.mcKinneyExtras
         })
+    }
+
+    refreshSignatureValidation() {
+        const signatureValues = this.studentExt3.fieldsObj
+        signatureValues['release'] = this.release.fieldsObj
+        this.signatureInformationValidation.validateAll(signatureValues)
     }
 
     update() {
@@ -222,6 +241,14 @@ class StudentForm {
             }
         }
     }
+
+    get submissionCompleted() {
+        if (this.submissionSuccess && this.submissionErrors.length === 0) {
+            return true
+        }
+        return false
+    }
+
     get submissionErrors() {
         let errors = []
         if (this.rootStore.contactsStore.contacts.length > 0) {
@@ -253,7 +280,7 @@ class StudentForm {
         return {
             "id": this.id,
             "action": "UPDATE",
-            "client_uid": 1,
+            "client_uid": this.studentIndex,
             "addresses": this.addresses,
             "phones": this.phones,
             "name": this.name,
@@ -265,10 +292,11 @@ class StudentForm {
     }
 }
 
-decorate(StudentForm, {
+decorate(Student, {
     loadStudentData: action,
     getField: action,
     refreshStudentValidation: action,
+    refreshSignatureValidation: action,
     processSubmissionErrors: action,
     errors: observable,
     id: observable,
@@ -280,6 +308,7 @@ decorate(StudentForm, {
     demographics: observable,
     healthInformation: observable,
     schoolEnrollment: observable,
+    submissionSuccess: observable,
     studentExt: observable,
     studentExt2: observable,
     studentExt3: observable,
@@ -289,6 +318,7 @@ decorate(StudentForm, {
     validationSuccess: computed,
     asJSON: computed,
     mcKinneyLivingValue: computed,
-    submissionErrors: computed
+    submissionErrors: computed,
+    submissionCompleted: computed
 })
-export default StudentForm
+export default Student

@@ -8,7 +8,7 @@ import {
         onBecomeUnobserved
     } from "mobx"
 import StudentService from "../services/studentservice"
-import StudentForm from "./studentform"
+import Student from "./student"
 class StudentStore {
     students = []
     districts = []
@@ -52,7 +52,7 @@ class StudentStore {
             if (students.data && students.data.length > 0) {
                 for (let index in students.data) {
                     let student = students.data[index]['student']
-                    this.students.push(new StudentForm(student, this.rootStore))
+                    this.students.push(new Student(student, index, this.rootStore))
                 }
                 this.rootStore.formStore.setActiveIndex(0)
             } else {

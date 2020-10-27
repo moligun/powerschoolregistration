@@ -4,18 +4,22 @@ import { FaCheck, FaTimes } from 'react-icons/fa'
 function StudentStatus(props) {
     const { student, studentIndex } = props
     let status
+    let badge
     if (student.validationSuccess === false) {
         status = <li className="list-group-item list-group-item-danger">Sections Need Attention</li>
-    } else if (student.validationSuccess === true) {
+        badge = <div><span className="badge badge-primary badge-pill alert-danger">Missing Requirements</span></div>
+    } else if (student.submissionCompleted === false) {
         status = <li className="list-group-item list-group-item-warning">Ready for Submission</li>
+        badge = <div><span className="badge badge-primary badge-pill alert-warning">Ready to Submit</span></div>
+    } else if (student.submissionCompleted === true) {
+        status = <li className="list-group-item list-group-item-success">Submission Completed</li>
+        badge = <div><span className="badge badge-primary badge-pill alert-success">Submission Successful</span></div>
     }
     return (
         <li className="list-group-item">
             <div className="d-flex w-100 justify-content-between">
-            <h4>{student.name.last_name + ", " + student.name.first_name}</h4> 
-            <div><span className={`${student.validationSuccess === true ? "alert-warning" : "alert-danger"} badge badge-primary badge-pill`}>
-                {student.validationSuccess ? "Ready to Submit" : "Missing Requirements"}</span></div>
-
+            <h3>{student.name.last_name + ", " + student.name.first_name}</h3> 
+            {badge}
             </div>
             <h4>Section Checklist</h4>
             <ul className="list-group">

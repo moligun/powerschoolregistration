@@ -6,8 +6,8 @@ import {
     } from "mobx"
 import ContactService from '../services/contactservice'
 class ContactEmail {
-    address = ""
-    contactEmailId = ""
+    address = ''
+    contactEmailId = ''
     contactId
     data
     constructor(emailObj) {
@@ -73,7 +73,7 @@ class ContactEmail {
         const changes = [
             this.address !== (this.data && this.data.address ? this.data.address : '')
         ]
-        return changes.some((obj) => obj === true) || !this.contactEmailId
+        return changes.some((obj) => obj === true)
     }
 
     get asJSON() {

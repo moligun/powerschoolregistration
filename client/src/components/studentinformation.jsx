@@ -32,7 +32,6 @@ class StudentInfoForm extends React.Component {
         const extObj = student[ext]
         const checkedTypes = ['checkbox', 'radio']
         let value = 0
-        let validationName = ext + '.' + name
         if (checkedTypes.includes(type)) {
             if (type === 'checkbox') {
                 value = event.currentTarget.checked ? 1 : 0
@@ -49,7 +48,6 @@ class StudentInfoForm extends React.Component {
 
     handleMvChange = (event) => {
         const { student } = this.props.formStore
-        const name = event.currentTarget.name
         let ext = event.currentTarget.dataset.ext
         if (!ext) {
             ext = event.currentTarget.closest('[extension]').getAttribute('extension')
@@ -78,6 +76,7 @@ class StudentInfoForm extends React.Component {
         const { student } = this.props.formStore
         const { districts } = this.props.studentStore
         const { studentExt, studentExt2, name, addresses, phones, schoolEnrollment, demographics } = student
+        const studentDob = demographics.birth_date ? new Date(demographics.birth_date).toLocaleDateString('en-US') : ''
         return (
             <div>
                 <fieldset>
@@ -91,7 +90,9 @@ class StudentInfoForm extends React.Component {
                             label="Last Name" value={name.last_name} readOnly />
                         <Input className="col-sm-12 col-md-6 col-lg-4" name="name.suffix" 
                             label="Suffix" value={studentExt.getField('student_name_suffix').value} readOnly />
-                        <Input type="date" name="demographics.birth_date" label="Date of Birth" value={demographics.birth_date} readOnly />
+                        <Input type="text" name="demographics.birth_date" className="col-md-6 col-sm-12 col-lg-4"
+                            label="Date of Birth" 
+                            value={studentDob} readOnly />
                     </div>
                     <div className="form-row">
                         <Input type="tel" name="phones.main.number" label="Home Phone" validation={student.studentInformationValidation.getValidation('phones.main.number')} value={phones.main.number} onChange={this.handleChange} />

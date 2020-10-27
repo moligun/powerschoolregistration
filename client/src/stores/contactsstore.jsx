@@ -22,7 +22,6 @@ class ContactsStore {
             const contactObj = {
                 "contactStudents":[
                     {
-                        "sequence": this.highestSequenceNumber,
                         "dcid": this.rootStore.formStore.student.id,
                         "studentNumber": this.rootStore.formStore.student.studentNumber
                     }
@@ -32,14 +31,6 @@ class ContactsStore {
             return index
         } catch(error) {
             console.log(error)
-        }
-    }
-
-    addExistingContact(id) {
-        for (const contact of this.contacts) {
-            if (contact.contactId > 0 && contact.contactId === id) {
-                break
-            }
         }
     }
 
@@ -56,11 +47,12 @@ class ContactsStore {
             const contacts = yield this.contactService.loadContacts()
             let existingContacts = []
             if (contacts.data && contacts.data.length > 0) {
-                for (let index in contacts.data) {
-                    let contact = contacts.data[index]
+                let index = 0
+                for (const contact of contacts.data) {
                     if (existingContacts.includes(contact.contactId) === false) {
                         existingContacts.push(contact.contactId)
                         this.contacts.push(new Contact(contact, index, this.rootStore))
+                        index++
                     } else {
                         let existingContact = this.getContactById(contact.contactId)
                         if (contact && contact.contactStudents && contact.contactStudents.length > 0) {
@@ -159,7 +151,9 @@ class ContactsStore {
             for (const contact of this.contacts) {
                 if (contact.activeContactStudent) {
                     if (contact.activeContactStudent.markedForDeletion !== true 
-                        && !contact.validation.allValidated && contact.activeContactStudent.deleted === false) {
+                        && !contact.validation.allValidated 
+                        && contact.activeContactStudent.deleted === false
+                        && contact.loggedInUser === false) {
                         studentContacts.push(contact)
                     }
                 }

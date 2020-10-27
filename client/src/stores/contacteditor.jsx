@@ -97,6 +97,8 @@ class ContactEditorStore {
     }
 
     get contact() {
+        console.log(this.activeContactId)
+        console.log(this.rootStore.contactsStore.contacts)
         if (this.activeContactId >= 0) {
             return this.rootStore.contactsStore.contacts[parseInt(this.activeContactId)]
         }
@@ -123,14 +125,13 @@ class ContactEditorStore {
     }
 
     submit() {
-        const { highestSequenceNumber } = this.rootStore.contactsStore
         if (this.validation.allValidated) {
             this.contact.phones = this.phones
             this.contact.contactDemographics.initData(this.contactDemographics.asJSON)
             this.contact.email.initData(this.email.asJSON)
             this.contact.activeContactStudent.setStudentDetails(this.activeContactStudent)
             if (!this.editValid) {
-                this.contact.activeContactStudent.sequence = highestSequenceNumber
+                this.contact.activeContactStudent.sequence = this.rootStore.contactsStore.highestSequenceNumber
                 this.contact.activeContactStudent.contactId = this.contact.contactId
             }
             this.editValid = false

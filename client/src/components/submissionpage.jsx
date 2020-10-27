@@ -6,7 +6,6 @@ class SubmissionPage extends React.Component {
         event.preventDefault()
         const { formStore } = this.props
         formStore.processSubmissions()
-        window.scrollTo(0, 0)
     }
 
     handlePrevious = (event) => {

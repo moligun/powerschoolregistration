@@ -21,6 +21,7 @@ class ContactStudent {
         "active": true
     }
     studentContactDetailId = 0
+    guardianId = 0
     sequence
     data
     detailData
@@ -51,6 +52,7 @@ class ContactStudent {
 
     initData(data) {
         this.dcid = data && data.dcid ? data.dcid : 0
+        this.guardianId = data && data.guardianId ? data.guardianId : 0
         this.sequence = data && data.sequence ? data.sequence : 0
         this.studentNumber = data && data.studentNumber ? data.studentNumber : 0
         this.studentContactId = data && data.studentContactId ? data.studentContactId : 0
@@ -70,7 +72,6 @@ class ContactStudent {
     update() {
         let updates = []
         if (this.studentContactId === 0) {
-            console.log(this.contactId)
             updates.push(
                 ContactService.addContactStudent(this.contactId, this.asJSON)
                     .then(

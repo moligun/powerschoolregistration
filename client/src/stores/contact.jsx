@@ -39,7 +39,7 @@ class Contact {
         this.validation.validateAll({ "contactDemographics": this.contactDemographics, "phoneCount": this.validatedPhones.length})
     }
   
-    loadContactData() {
+    loadContactData(existingStudentOrder) {
         this.phones = observable.array()
         this.contactStudents = observable.array()
         const { contactData } = this
@@ -56,6 +56,13 @@ class Contact {
         if (contactData && contactData.contactStudents && contactData.contactStudents.length > 0) {
             for (const student of contactData.contactStudents) {
                 this.contactStudents.push(new ContactStudent(student, this.contactId))
+            }
+        }
+        
+        if (existingStudentOrder !== undefined) {
+            for (const contactStudent of this.contactStudents) {
+                let contactStudentId = contactStudent.dcid
+                contactStudent.sequence = existingStudentOrder[contactStudentId] ? existingStudentOrder[contactStudentId] : contactStudent.sequence
             }
         }
 
@@ -91,6 +98,17 @@ class Contact {
         }
     }
 
+    get loggedInUser() {
+        const { userInfo } =this.rootStore.authStore
+        if (this.activeContactStudent) {
+            const activeGuardianId = userInfo && userInfo.dcid ? userInfo.dcid : undefined
+            if (activeGuardianId !== undefined && parseInt(this.activeContactStudent.guardianId) === parseInt(activeGuardianId)) {
+                return true
+            }
+        }
+        return false
+    }
+
     get activeContactStudent() {
         const { student } = this.rootStore.formStore
         if (student && this.contactStudents.length > 0) {
@@ -122,12 +140,12 @@ class Contact {
         this.contactStudents.push(new ContactStudent(student, contactId))
     }
 
-    refreshContactData = flow(function * (contactId) {
+    refreshContactData = flow(function * (contactId, studentSequenceOrder) {
         try {
             const contact = yield ContactService.getContact(contactId)
             if (contact.data && contact.data.contactId > 0) {
                 this.contactData = contact.data
-                this.loadContactData()
+                this.loadContactData(studentSequenceOrder)
             }
         } catch(error) {
             console.log(error)
@@ -140,21 +158,26 @@ class Contact {
     updatePackages() {
         let updates = []
         if (this.contactDemographics.changesMade === true) {
+            console.log('Demographics changes made')
             updates.push(this.contactDemographics.update())
         }
 
         if (this.email.changesMade === true) {
+            console.log('changes made to email...is that right?')
+            console.log(this.email)
             updates.push(this.email.update())
         }
 
         for (const studentContact of this.contactStudents) {
             if (studentContact.changesMade === true) {
+                console.log('student contact changes made')
                 updates = updates.concat(studentContact.update())
             }
         }
 
         for (const phone of this.phones) {
             if (phone.changesMade === true) {
+                console.log('phones added')
                 updates.push(phone.update())
             }
         }
@@ -247,6 +270,7 @@ decorate(Contact, {
     validatedPhones: computed,
     asJSON: computed,
     hasContactStudents: computed,
-    fullName: computed
+    fullName: computed,
+    loggedInUser: computed
 })
 export default Contact

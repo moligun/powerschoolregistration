@@ -1,7 +1,6 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
 import { FaSortUp, FaSortDown } from 'react-icons/fa'
-import Validation from './validation'
 class Contact extends React.Component {
     handleEdit = (event) => {
         const { contactEditorStore, contact } = this.props
@@ -39,12 +38,13 @@ class Contact extends React.Component {
         }
         return (
             <li key={'contact-' + this.props.index} className="list-group-item" data-id={contact.id} data-index={ this.props.index }>
-                {validationElement} 
+                {validationElement}
                 <div className="d-flex justify-content-between mb-2">
                     <div><span className="font-weight-bold">Priority #:</span> {this.props.index + 1}</div>
+                    {contact.loggedInUser && <div>Belongs To Logged in </div>}
                     <div className="button-group">
                         <button className="btn btn-sm btn-primary mr-1" onClick={this.handleEdit}>Edit</button>
-                        <button className="btn btn-sm btn-danger" onClick={this.handleRemove}>Remove</button>
+                        <button className="btn btn-sm btn-danger" onClick={this.handleRemove} disabled={contact.loggedInUser}>Remove</button>
                     </div>
                 </div>
                 <div className="d-flex align-items-top">

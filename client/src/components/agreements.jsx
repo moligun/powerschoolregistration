@@ -42,6 +42,7 @@ class Agreements extends React.Component {
         const { release, releaseInformationValidation, healthInformation } = this.props.student
         return (
             <React.Fragment>
+                <h2>Health Information</h2>
                 <fieldset>
                     <legend>CHIRP</legend>
                     <div className="form-row">
@@ -80,6 +81,41 @@ class Agreements extends React.Component {
                             options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
                     </div>
                 </fieldset>
+                <fieldset>
+                    <legend>Student Athlete</legend>
+                    <div>
+                        <p>
+                            As a student/student athlete, I have received and read both of the fact sheets regarding concussion and sudden cardiac arrest. 
+                            I understand the nature and risk of concussion and head injury to students/student athletes, including the risks of continuing to 
+                            participate/play after concussion or head injury, and the symptoms of sudden cardiac arrest. 
+                            I, as the parent or legal guardian of the student registering, 
+                            I have received and read both of the fact sheets regarding concussion and sudden cardiac arrest. 
+                            I understand the nature and risk of concussion and head injury to students/student athletes, 
+                            including the risks of continuing to participate/play after concussion or head injury, and the symptoms of sudden cardiac arrest.
+                        </p>
+                        <p>
+                            Click <a href="https://secure.infosnap.com/resources/1520/files/Heads_Up__-_A_Fact_Sheet_for_Athletes.pdf" target="_blank" rel="noopener noreferrer">here</a>  
+                            &nbsp;to view the complete Heads Up Fact Sheet for Student Athletes.
+                        </p>
+                        <p>
+                            Click <a href="https://secure.infosnap.com/resources/1520/files/Heads_Up__-_A_Fact_Sheet_for_Parents.pdf" target="_blank" rel="noopener noreferrer">here</a> 
+                            &nbsp;to view the complete Heads Up Fact Sheet for Parents.
+                        </p>
+                        <p>
+                            Click <a href="https://secure.infosnap.com/resources/1520/files/sudden-cardiac-arrest-fact-sheet-student-athletes.pdf" target="_blank" rel="noopener noreferrer">here</a> 
+                            &nbsp;to view the complete Sudden Cardiac Arrest Fact Sheet for Student Athletes.
+                        </p>
+                        <p>
+                            Click <a href="https://secure.infosnap.com/resources/1520/files/sudden-cardiac-arrest-fact-sheet-parents.pdf" target="_blank" rel="noopener noreferrer">here</a> 
+                            &nbsp;to view the complete Sudden Cardiac Arrest Fact Sheet for Parents.
+                        </p>
+                        <p>
+                            Click <a href="https://secure.infosnap.com/resources/1520/files/parent-and-student-athlete-acknowledgement-and-signature-form.pdf" target="_blank" rel="noopener noreferrer">here</a> 
+                            &nbsp;to view the complete Parent and Student Athlete Acknowledgement and Signature Form.
+                        </p>
+                    </div>
+                </fieldset>
+                <h2>Other</h2>
                 <fieldset>
                     <legend>Blanket Field Trip Permission</legend>
                     <div className="form-row">
@@ -135,8 +171,8 @@ class Agreements extends React.Component {
                             options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
                     </div>
                 </fieldset>
+                <h2>High School Only - Military Release</h2>
                 <fieldset>
-                    <legend>High School Only - Military Release</legend>
                     <div className="form-row">
                         <p>
                             The No Child Left Behind of 2001 states that schools must comply with a request by a military recruiter or an institute of 
@@ -153,6 +189,7 @@ class Agreements extends React.Component {
                             options={[{"label": "Yes", "value": 0}, {"label": "No", "value": 1}]} />
                     </div>
                 </fieldset>
+                <h2>Technology Information</h2>
                 <fieldset>
                     <legend>Electronic Information Source Agreement / Internet</legend>
                     <div className="form-row">
