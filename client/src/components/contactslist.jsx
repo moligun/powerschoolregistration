@@ -5,22 +5,6 @@ import Contact from './contact'
 import Validation from './validation'
 import Loading from './loading'
 class ContactsList extends React.Component {
-    componentDidMount() {
-        const { formStore, contactsStore } = this.props
-        if (formStore.student && contactsStore.validatedStudentContacts) {
-            const values = {"count": contactsStore.validatedStudentContacts.length}
-            formStore.student.contactInformationValidation.validateAll(values)
-        }
-    }
-
-    componentDidUpdate() {
-        const { formStore, contactsStore } = this.props
-        if (formStore.student && contactsStore.validatedStudentContacts) {
-            const values = {"count": contactsStore.validatedStudentContacts.length}
-            formStore.student.contactInformationValidation.validateAll(values)
-        }
-    }
-
     handleUp = (event) => {
         event.preventDefault()
         const currentIndex = parseInt(event.currentTarget.closest('li').dataset.index)
@@ -80,7 +64,7 @@ class ContactsList extends React.Component {
         const { contactInformationValidation } = student
         const { activeStudentContacts, unusedStudentContacts } = contactsStore
         const itemCount = activeStudentContacts.length
-        if (!contactsStore.contacts) {
+        if (contactsStore.loading === true) {
             return (<Loading />)
         }
         if (contactEditorStore.display && contactEditorStore.activeContactId !== undefined) {

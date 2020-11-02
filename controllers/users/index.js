@@ -4,6 +4,8 @@ const express = require('express')
 	, psApi = require('../../services/powerschoolapi')
 
 router.get('/me', Auth.requireAuthentication, async (req, res) => {
+	console.log(req.session.powerschool)
+	console.log('another')
 	try {
 		if (req.session.powerschool && req.session.powerschool.profile.dcid) {
 			res.send(req.session.powerschool.profile)
@@ -12,7 +14,7 @@ router.get('/me', Auth.requireAuthentication, async (req, res) => {
 	} catch(error) {
 		console.log(error)
 	}
-	res.send('')
+	res.status(403).send('error')
 	return
 })
 

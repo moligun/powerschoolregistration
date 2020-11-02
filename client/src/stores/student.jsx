@@ -7,85 +7,30 @@ import {
 import Extension from './extension'
 import Validation from './validation'
 import StudentService from '../services/studentservice'
+import healthRules from './validations/healthrules.json'
+import contactRules from './validations/contactrules.json'
+import releaseRules from './validations/releaserules.json'
+import signatureRules from './validations/signaturerules.json'
+import studentRules from './validations/studentrules.json'
 class Student {
-    healthInformation
     submissionSuccess = false
-    studentExt
-    studentExt2
-    studentExt3
-    release
+    healthInformation = new Extension('u_health')
+    studentExt = new Extension('s_in_stu_x')
+    studentExt2 = new Extension('u_demo')
+    studentExt3 = new Extension('u_lsc')
+    release = new Extension('u_release')
     validations = new Validation()
     studentInformationValidation
-    studentInformationValidationRules = [
-        {"name": "phones.main.number", "rules": ["phone", "required"]},
-        {"name": "phones.cell.number", "rules": ["phone"]},
-        {"name": "addresses.mailing.street", "rules": ["address", "required"]},
-        {"name": "addresses.mailing.city", "rules": ["address", "required"]},
-        {"name": "addresses.mailing.state_province", "rules": ["address", "required"]},
-        {"name": "addresses.mailing.postal_code", "rules": ["required", "address"]},
-        {"name": "studentExt2.mvtempliving", "rules": ["required"]},
-        {"name": "studentExt2.mvtemplivinghardship", "rules": ["required"]},
-        {"name": "studentExt2.mvlivingwithother", "rules": ["required"]},
-        {"name": "studentExt2.mvmotelhotelname", "rules": ["required"], 
-            "validateIf":[
-                {"field": "mcKinneyExtras", "value": true}, 
-                {"field": "mcKinneyLivingValue", "value": "mvmotelhotel"}
-            ]
-        },
-        {"name": "studentExt2.mvtransportation", "rules": ["required"], 
-            "validateIf":[
-                {"field": "mcKinneyExtras", "value": true}
-            ]
-        },
-        {"name": "mcKinneyLivingValue", "rules": ["required"], "validateIf":[{"field": "mcKinneyExtras", "value": true}]}
-    ]
-
     contactInformationValidation
-    contactInformationValidationRules = [
-        {"name": "count", "rules":["atLeast"], "comparisonValue": 3, "label": "Contacts with Required Fields Completed."}
-    ]
-
     healthInformationValidation
-    healthInformationValidationRules = [
-        {"name": "he_alg_epi", "rules": ["required"], "validateIf":[{"field": "he_alg", "value": 1}]},
-        {"name": "he_sesonal_allergy", "rules": ["required"], "validateIf":[{"field": "he_alg", "value": 1}]},
-        {"name": "he_insect_allergy", "rules": ["required"], "validateIf":[{"field": "he_alg", "value": 1}]},
-        {"name": "he_food_allergy", "rules": ["required"], "validateIf":[{"field": "he_alg", "value": 1}]},
-        {"name": "he_food_al_table", "rules": ["required"], "validateIf":[{"field": "he_alg", "value": 1}, {"field": "he_food_allergy", "value": 1}]},
-        {"name": "he_food_allergens", "rules": ["required"], "validateIf":[{"field": "he_alg", "value": 1}, {"field": "he_food_allergy", "value": 1}]},
-        {"name": "he_food_sympt", "rules": ["required"], "validateIf":[{"field": "he_alg", "value": 1}, {"field": "he_food_allergy", "value": 1}]},
-        {"name": "he_alg", "rules": ["required"]}, {"name": "he_asthma", "rules": ["required"]}, {"name": "he_seizure", "rules": ["required"]}, 
-        {"name": "he_diabetes", "rules": ["required"]}, {"name": "he_mental", "rules": ["required"]}, {"name": "he_autism", "rules": ["required"]}, 
-        {"name": "he_add", "rules": ["required"]}, {"name": "he_vision", "rules": ["required"]}, {"name": "he_blood", "rules": ["required"]}, 
-        {"name": "he_bone", "rules": ["required"]}, {"name": "he_bowel", "rules": ["required"]}, {"name": "he_hear", "rules": ["required"]},
-        {"name": "he_genetic", "rules": ["required"]}, {"name": "he_serious", "rules": ["required"]}, {"name": "he_hospital", "rules": ["required"]}, 
-        {"name": "he_surgery", "rules": ["required"]}, {"name": "he_tb_contact", "rules": ["required"]}, {"name": "he_eating", "rules": ["required"]}, 
-        {"name": "he_born", "rules": ["required"]}
-    ]
     releaseInformationValidation
-    releaseInformationValidationRules = [
-        {"name": "military_release", "rules": ["required"]},
-        {"name": "chrip_release", "rules": ["required"]},
-        {"name": "he_shared", "rules": ["required"]},
-        {"name": "field_trip_release", "rules": ["required"]},
-        {"name": "information_release", "rules": ["required"]},
-        {"name": "fees_agreement", "rules": ["required"]},
-        {"name": "internet_agreement", "rules": ["required"]}
-    ]
-
     signatureInformationValidation
-    signatureInformationRules = [
-        {"name": "lsc_useragreementsigned", "rules": ["required"]},
-        {"name": "release.signature_date", "rules": ["required"]},
-        {"name": "release.disclaimer_1_name", "rules": ["required"]}
-    ]
     id = undefined
     studentNumber
     studentIndex
     name = {"first_name": "", "last_name": "", "middle_name": ""}
     phones = {
-        "main": {"number": ""},
-        "cell": {"number": ""}
+        "main": {"number": ""}
     }
     addresses = {
         "physical": {
@@ -112,18 +57,18 @@ class Student {
         "mvtransitionalhousing", "mvcarparkcampsite",
         "mvplacetoplace", "mvmotelhotelname",
         "mvotherexplain", "mvadditionalkids",
-        "mvtransportation"
+        "mvtransportation", "student_cell", "student_txt_phone"
     ]
     validationAreas
     studentData
     studentFields = observable.map()
     errors = []
     constructor(data, index, root) {
-        this.studentInformationValidation = new Validation(this.studentInformationValidationRules, "Student Info")
-        this.contactInformationValidation = new Validation(this.contactInformationValidationRules, "Contacts")
-        this.healthInformationValidation = new Validation(this.healthInformationValidationRules, "Health Information")
-        this.releaseInformationValidation = new Validation(this.releaseInformationValidationRules, "Agreements")
-        this.signatureInformationValidation = new Validation(this.signatureInformationRules, "Signature")
+        this.studentInformationValidation = new Validation(studentRules, "Student Info")
+        this.contactInformationValidation = new Validation(contactRules, "Contacts")
+        this.healthInformationValidation = new Validation(healthRules, "Health Information")
+        this.releaseInformationValidation = new Validation(releaseRules, "Agreements")
+        this.signatureInformationValidation = new Validation(signatureRules, "Signature")
         this.validationAreas = [
             this.studentInformationValidation, 
             this.contactInformationValidation, 
@@ -169,40 +114,54 @@ class Student {
             this.studentData = data
             this.id = data.id
             this.studentNumber = data.local_id
-            this.addresses = Object.assign(this.addresses, this.studentData['addresses'])
-            this.phones = Object.assign(this.phones, this.studentData['phones'])
+            if (this.studentData && this.studentData['addresses'] && this.studentData['addresses']['physical']) {
+                this.addresses.physical = Object.assign(this.addresses.physical, this.studentData['addresses']['physical'])
+            }
+            if (this.studentData && this.studentData['addresses'] && this.studentData['addresses']['mailing']) {
+                this.addresses.mailing = Object.assign(this.addresses.mailing, this.studentData['addresses']['mailing'])
+            }
+            if (this.studentData && this.studentData['phones'] && this.studentData['phones']['main']) {
+                this.phones = Object.assign(this.phones, this.studentData['phones'])
+            }
             this.name = Object.assign(this.name, this.studentData['name'])
             this.demographics = Object.assign(this.demographics, this.studentData['demographics'])
             if (this.studentData['school_enrollment'] && this.studentData['school_enrollment']['district_of_residence']) {
                 this.schoolEnrollment["district_of_residence"] = this.studentData["school_enrollment"]["district_of_residence"]
             }
-            for (const extension of this.studentData['_extension_data']['_table_extension']) {
-                switch (extension.name) {
-                    case 'u_health':
-                        this.healthInformation = new Extension(extension, false)
-                        break
-                    case 's_in_stu_x':
-                        this.studentExt = new Extension(extension, ["student_name_suffix"])
-                        break
-                    case 'u_demo':
-                        this.studentExt2 = new Extension(extension, this.uDemoWhiteList)
-                        break
-                    case 'u_lsc':
-                        this.studentExt3 = new Extension(extension, ["next_year_reg", "lsc_useragreementsigned"], {"lsc_useragreementsigned": ""})
-                        break
-                    case 'u_release':
-                        let defaultSignatureValues = {
-                            "signature_date": "",
-                            "disclaimer_1_name": "",
-                            "disclaimer_2_name": "",
-                            "disclaimer_3_name": "",
-                            "disclaimer_4_name": "",
-                            "disclaimer_5_name": ""
-                        }
-                        this.release = new Extension(extension, false, defaultSignatureValues)
-                        break
-                    default:
-                        break
+            if (this.studentData && this.studentData['_extension_data'] && this.studentData['_extension_data']['_table_extension']) {
+                for (const extension of this.studentData['_extension_data']['_table_extension']) {
+                    switch (extension.name) {
+                        case 'u_health':
+                            let healthFieldOptions = {
+                                "he_food_date_last": {"value": ""}, 
+                                "he_food_al_table": {"value": ""},
+                                "he_health_agreement": {"value": "", "exclude": true}
+                            }
+                            this.healthInformation.loadExtensionData(extension, false, healthFieldOptions)
+                            break
+                        case 's_in_stu_x':
+                            this.studentExt.loadExtensionData(extension, ["student_name_suffix"])
+                            break
+                        case 'u_demo':
+                            this.studentExt2.loadExtensionData(extension, this.uDemoWhiteList)
+                            break
+                        case 'u_lsc':
+                            this.studentExt3.loadExtensionData(extension, ["next_year_reg", "lsc_useragreementsigned"], {"lsc_useragreementsigned": {"value": ""}})
+                            break
+                        case 'u_release':
+                            let defaultSignatureValues = {
+                                "signature_date": {"value":""},
+                                "disclaimer_1_name": {"value": ""},
+                                "disclaimer_2_name": {"value": ""},
+                                "disclaimer_3_name": {"value": ""},
+                                "disclaimer_4_name": {"value": ""},
+                                "disclaimer_5_name": {"value": ""}
+                            }
+                            this.release.loadExtensionData(extension, false, defaultSignatureValues)
+                            break
+                        default:
+                            break
+                    }
                 }
             }
             this.refreshStudentValidation()
@@ -219,27 +178,79 @@ class Student {
         })
     }
 
+    refreshContactValidation() {
+        const { contactsStore } = this.rootStore
+        if (contactsStore.validatedStudentContacts) {
+            const values = {"count": contactsStore.validatedStudentContacts.length}
+            this.contactInformationValidation.validateAll(values)
+        }
+    }
+
+    refreshHealthValidation() {
+        const healthValues = this.healthInformation.fieldsObj
+        this.healthInformationValidation.validateAll(healthValues)
+    }
+
+    refreshReleaseValidation() {
+        let releaseValues = this.release.fieldsObj
+        const sharedHealth = this.healthInformation.getOrCreateField('he_shared')
+        releaseValues[sharedHealth.name] = sharedHealth.value
+        this.releaseInformationValidation.validateAll(releaseValues)
+    }
+
     refreshSignatureValidation() {
         const signatureValues = this.studentExt3.fieldsObj
         signatureValues['release'] = this.release.fieldsObj
         this.signatureInformationValidation.validateAll(signatureValues)
     }
 
-    update() {
-        return StudentService.updateStudent(this.asJSON)
+    refreshValidation(validationTrigger) {
+        switch (validationTrigger) {
+            case 'student':
+                this.refreshStudentValidation()
+                break
+            case 'contacts':
+                this.refreshContactValidation()
+                break
+            case 'health':
+                this.refreshHealthValidation()
+                break
+            case 'release':
+                this.refreshReleaseValidation()
+                break
+            case 'signature':
+                this.refreshSignatureValidation()
+                break
+            default:
+                return false
+        }
+        return true
     }
 
-    processSubmissionErrors() {
-        this.errors = []
-        if (this.rootStore.contactsStore.contacts.length > 0) {
-            for (const contact of this.rootStore.contactsStore.contacts) {
-                if (contact.contactAssociatedWithStudent([this.studentNumber]) && contact.errors.length > 0) {
-                    for (const error of contact.errors) {
-                        this.errors.push(error)
-                    }
+    addError(errorMessage) {
+        let message = ''
+        if (Array.isArray(errorMessage)) {
+            for (const error of errorMessage) {
+                if (typeof error === 'string') {
+                    message = error
+                } else {
+                    message = error.field ? error.field + ': ' : ''
+                    message += error.error_description ? error.error_description : ''
+                    this.errors.push(message)
                 }
             }
+        } else if (errorMessage && errorMessage.error_description) {
+            message = errorMessage.field ? errorMessage.field + ': ' : ''
+            message += errorMessage.error_description ? errorMessage.error_description : ''
+            this.errors.push(message)
+        } else if (typeof errorMessage === 'string') {
+            message = errorMessage
+            this.errors.push(message)
         }
+    }
+
+    update() {
+        return StudentService.updateStudent(this.asJSON)
     }
 
     get submissionCompleted() {
@@ -251,6 +262,11 @@ class Student {
 
     get submissionErrors() {
         let errors = []
+        if (this.errors.length > 0) {
+            for (const error of this.errors) {
+                errors.push(error)
+            }
+        }
         if (this.rootStore.contactsStore.contacts.length > 0) {
             for (const contact of this.rootStore.contactsStore.contacts) {
                 if (contact.contactAssociatedWithStudent([this.studentNumber]) && contact.errors.length > 0) {
@@ -267,7 +283,12 @@ class Student {
         return errors
     }
 
-    get asJSON() {
+    get mailingAddressOnly() {
+        const { mailing } = this.addresses
+        return { mailing }
+    }
+
+    preprocessData() {
         const changeBooleanArray = ["mvtempliving", "mvtemplivinghardship", "mvlivingwithother"]
         for (const field of changeBooleanArray) {
             let fieldObj = this.studentExt2.getField(field)
@@ -277,11 +298,14 @@ class Student {
                 this.studentExt2.setFieldValue(field, 'No')
             }
         }
+    }
+
+    get asJSON() {
         return {
             "id": this.id,
             "action": "UPDATE",
             "client_uid": this.studentIndex,
-            "addresses": this.addresses,
+            "addresses": this.mailingAddressOnly,
             "phones": this.phones,
             "name": this.name,
             "demographics": this.demographics,
@@ -297,7 +321,13 @@ decorate(Student, {
     getField: action,
     refreshStudentValidation: action,
     refreshSignatureValidation: action,
+    refreshReleaseValidation: action,
+    refreshHealthValidation: action,
+    refreshContactValidation: action,
+    refreshValidation: action,
     processSubmissionErrors: action,
+    addError: action,
+    preprocessData: action,
     errors: observable,
     id: observable,
     studentNumber: observable,
@@ -319,6 +349,7 @@ decorate(Student, {
     asJSON: computed,
     mcKinneyLivingValue: computed,
     submissionErrors: computed,
-    submissionCompleted: computed
+    submissionCompleted: computed,
+    mailingAddressOnly: computed
 })
 export default Student

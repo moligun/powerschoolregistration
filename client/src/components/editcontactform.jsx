@@ -4,6 +4,7 @@ import ContactPhone from './contactphone'
 import Select from './select'
 import Validation from './validation'
 import NestedRadio from './nestedradio'
+import Formatter from '../stores/formatter'
 class EditContactForm extends React.Component {
     constructor(props) {
         super(props)
@@ -17,19 +18,22 @@ class EditContactForm extends React.Component {
     }
 
     handleChange = (event) => {
-       const { contactEditorStore } = this.props
-       const { name, type } = event.target
-       const { collection } = event.currentTarget.closest('[data-collection]').dataset
-       const { index } = event.currentTarget.dataset
-       let value
-       if (type === "checkbox") {
-           value = event.target.checked ? true : false
-       } else if (type === "radio") {
-           value = parseInt(event.target.value)
-       } else {
-           value = event.target.value
-       }
-       contactEditorStore.setValue(collection, name, value, index)
+        const { contactEditorStore } = this.props
+        const { name, type } = event.target
+        const { collection } = event.currentTarget.closest('[data-collection]').dataset
+        const { index } = event.currentTarget.dataset
+        let value
+        if (type === "checkbox") {
+            value = event.target.checked ? true : false
+        } else {
+            value = event.target.value
+        }
+        let format = event.currentTarget.dataset.format
+        if (format) {
+            value = Formatter[format](value) 
+        }
+        console.log(value)
+        contactEditorStore.setValue(collection, name, value, index)
     }
 
     handleSubmit = (event) => {
@@ -90,6 +94,10 @@ class EditContactForm extends React.Component {
                             <input type="text" value={contactDemographics.lastName} className={`form-control ${lastNameValidation.validated === false ? 'border-danger' : ''}`} name="lastName" onChange={this.handleChange} />
                             <Validation validation={lastNameValidation} />
                         </div>
+                        <div className="form-group col-md-6 col-sm-12">
+                            <label className="font-weight-bold">Employer</label>
+                            <input type="text" value={contactDemographics.employer} className={`form-control ${lastNameValidation.validated === false ? 'border-danger' : ''}`} name="employer" onChange={this.handleChange} />
+                        </div>
                         <div className="form-group col-md-6 col-sm-12" data-collection="email">
                             <label className="font-weight-bold">Email</label>
                             <input type="text" value={email.address} className="form-control" name="address" onChange={this.handleChange} />
@@ -106,24 +114,28 @@ class EditContactForm extends React.Component {
                             <div className="col-sm-12 col-md-6">
                                 <NestedRadio 
                                     field={{"name": "emergency", "value": activeContactStudent.studentDetails.emergency}} 
+                                    options={[{"label": "Yes", "value": true}, {"label": "No", "value": false}]}
                                     label="Emergency Contact?" onChange={this.handleChange}
                                     validation={validation.getValidation('activeContactStudent.emergency')} />
                             </div>
                             <div className="col-sm-12 col-md-6">
                                 <NestedRadio 
                                     field={{"name": "custodial", "value": activeContactStudent.studentDetails.custodial}} 
+                                    options={[{"label": "Yes", "value": true}, {"label": "No", "value": false}]}
                                     label="Has Custody?" onChange={this.handleChange}
                                     validation={validation.getValidation('activeContactStudent.custodial')} />
                             </div>
                             <div className="col-sm-12 col-md-6">
                                 <NestedRadio 
                                     field={{"name": "schoolPickup", "value": activeContactStudent.studentDetails.schoolPickup}} 
+                                    options={[{"label": "Yes", "value": true}, {"label": "No", "value": false}]}
                                     label="Can pick up student?" onChange={this.handleChange}
                                     validation={validation.getValidation('activeContactStudent.schoolPickup')} />
                             </div>
                             <div className="col-sm-12 col-md-6">
                                 <NestedRadio 
                                     field={{"name": "livesWith", "value": activeContactStudent.studentDetails.livesWith}} 
+                                    options={[{"label": "Yes", "value": true}, {"label": "No", "value": false}]}
                                     label="Lives with student?" onChange={this.handleChange} 
                                     validation={validation.getValidation('activeContactStudent.livesWith')} />
                             </div>

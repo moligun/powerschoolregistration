@@ -195,11 +195,11 @@ class ContactStudent {
 
     get detailChangesMade() {
         const studentDetails = [
-            "custodial",
             "emergency",
+            "custodial",
+            "schoolPickup",
             "livesWith",
-            "relationship",
-            "schoolPickup"
+            "relationship"
         ]
         const detailsMatch = (detail) => this.studentDetails[detail] !== this.detailData[detail]
         return studentDetails.some(detailsMatch)

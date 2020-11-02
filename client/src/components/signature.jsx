@@ -66,27 +66,27 @@ class Signature extends React.Component {
                         <p className="font-weight-bold font-italic">I affirm that all the information provided is true and correct to the best of my knowledge.</p>
                     </div>
                     <div className="form-row">
-                        <Select field={studentExt3.getField('lsc_useragreementsigned')} className="col-sm-12" extension="studentExt3" 
+                        <Select field={studentExt3.getOrCreateField('lsc_useragreementsigned')} className="col-sm-12" extension="studentExt3" 
                             validation={signatureInformationValidation.getValidation('lsc_useragreementsigned')}
                             label="I Agree" onChange={this.handleChange} options={[{"label": "Yes", "value": "1"}]} />
                         <Input type="text" name="disclaimer_1_name" className="col-sm-12" 
                             validation={signatureInformationValidation.getValidation('release.disclaimer_1_name')}
                             label="Signature" subLabel="Type Name of Parent/Guardian" extension="release" 
-                            value={release.getField('disclaimer_1_name')['value']} onChange={this.handleChange} />
+                            value={release.getOrCreateField('disclaimer_1_name')['value']} onChange={this.handleChange} />
                         <Input type="date" name="signature_date" className="col-sm-12" 
                             validation={signatureInformationValidation.getValidation('release.signature_date')}
                             label="Date" extension="release" 
-                            value={release.getField('signature_date')['value']} onChange={this.handleDateChange} />
+                            value={release.getOrCreateField('signature_date')['value']} onChange={this.handleDateChange} />
                     </div>
                     <div className="form-row">
                         <input type="hidden" name="disclaimer_2_name" 
-                            value={release.getField('disclaimer_2_name')['value']} />
+                            value={release.getOrCreateField('disclaimer_2_name')['value']} />
                         <input type="hidden" name="disclaimer_3_name" 
-                            value={release.getField('disclaimer_3_name')['value']} />
+                            value={release.getOrCreateField('disclaimer_3_name')['value']} />
                         <input type="hidden" name="disclaimer_4_name" 
-                            value={release.getField('disclaimer_4_name')['value']} />
+                            value={release.getOrCreateField('disclaimer_4_name')['value']} />
                         <input type="hidden" name="disclaimer_5_name" 
-                            value={release.getField('disclaimer_5_name')['value']} />
+                            value={release.getOrCreateField('disclaimer_5_name')['value']} />
 
                     </div>
                 </fieldset>

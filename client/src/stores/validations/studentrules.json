@@ -1,0 +1,24 @@
+
+[
+    {"name": "phones.main.number", "rules": ["phone", "required"]},
+    {"name": "studentExt2.student_cell", "rules": ["phone"]},
+    {"name": "addresses.mailing.street", "rules": ["address", "required"]},
+    {"name": "addresses.mailing.city", "rules": ["address", "required"]},
+    {"name": "addresses.mailing.state_province", "rules": ["address", "required"]},
+    {"name": "addresses.mailing.postal_code", "rules": ["required", "address"]},
+    {"name": "studentExt2.mvtempliving", "rules": ["required"]},
+    {"name": "studentExt2.mvtemplivinghardship", "rules": ["required"]},
+    {"name": "studentExt2.mvlivingwithother", "rules": ["required"]},
+    {"name": "studentExt2.mvmotelhotelname", "rules": ["required"], 
+        "validateIf":[
+            {"field": "mcKinneyExtras", "value": true}, 
+            {"field": "mcKinneyLivingValue", "value": "mvmotelhotel"}
+        ]
+    },
+    {"name": "studentExt2.mvtransportation", "rules": ["required"], 
+        "validateIf":[
+            {"field": "mcKinneyExtras", "value": true}
+        ]
+    },
+    {"name": "mcKinneyLivingValue", "rules": ["required"], "validateIf":[{"field": "mcKinneyExtras", "value": true}]}
+]

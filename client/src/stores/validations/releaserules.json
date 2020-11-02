@@ -1,0 +1,11 @@
+
+[
+    {"name": "military_release", "rules": ["required"]},
+    {"name": "chrip_release", "rules": ["required"]},
+    {"name": "he_shared", "rules": ["required"]},
+    {"name": "field_trip_release", "rules": ["required"]},
+    {"name": "information_release", "rules": ["required"]},
+    {"name": "fees_agreement", "rules": ["required"]},
+    {"name": "internet_agreement", "rules": ["required"]},
+    {"name": "internet_access", "rules": ["required"]}
+]

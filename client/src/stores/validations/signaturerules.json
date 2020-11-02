@@ -1,0 +1,5 @@
+[
+    {"name": "lsc_useragreementsigned", "rules": ["required"]},
+    {"name": "release.signature_date", "rules": ["required"]},
+    {"name": "release.disclaimer_1_name", "rules": ["required"]}
+]

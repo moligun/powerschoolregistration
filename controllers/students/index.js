@@ -2,7 +2,7 @@ const express = require('express')
 	, auth = require('../../middleware/auth')
 	, router = express.Router()
 	, psApi = require('../../services/powerschoolapi')
-router.get('/', auth.getAccessToken, async (req, res) => {
+router.get('/', auth.requireAuthentication, auth.getAccessToken, async (req, res) => {
 	try {
 		if (req.session.powerschool.profile && req.session.powerschool.profile.studentids) {
 			const accessToken = req.session.token.access_token
@@ -59,6 +59,7 @@ router.post('/', auth.getAccessToken, async (req, res) => {
 			if (updateStudent && updateStudent.results && updateStudent.results.result.warning_message) {
 				console.log(JSON.stringify(updateStudent.results))
 			}
+			console.log(updateStudent.results.result)
 			res.send(updateStudent)
 			return
 		 } catch(error) {

@@ -3,7 +3,7 @@ const express = require('express')
 	, router = express.Router()
 	, psApi = require('../../services/powerschoolapi')
 	, fetch = require('node-fetch')
-router.get('/', auth.getAccessToken, async (req, res) => {
+router.get('/', auth.requireAuthentication, auth.getAccessToken, async (req, res) => {
 	try {
 		if (req.session.powerschool.profile && req.session.powerschool.profile.studentids) {
 			const accessToken = req.session.token.access_token

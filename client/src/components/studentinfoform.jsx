@@ -8,6 +8,13 @@ import StudentInformation from './studentinformation'
 import SubmissionPage from './submissionpage'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 class StudentInfoForm extends React.Component {
+    componentDidUpdate() {
+        const { formStore } = this.props
+        if (formStore.student) {
+            formStore.refreshActiveSectionValidation()
+        }
+    }
+
     handleNext = (event) => {
         event.preventDefault()
         const { formStore } = this.props
@@ -76,7 +83,7 @@ class StudentInfoForm extends React.Component {
                     </ul>
                 </nav>
                 {activeSection}
-                <div className="w-100 d-flex justify-content-between align-items-start">
+                <div className="w-100 d-flex justify-content-between align-items-start mt-5">
                     <button onClick={this.handlePrevious} className="btn btn-secondary" disabled={contactEditor.display}>Previous</button>
                     <div className="button-group d-flex flex-column align-items-end">
                         <button onClick={this.handleNext} className="btn btn-primary" disabled={contactEditor.display || (student[activeValidation] && student[activeValidation].allValidated === false)}>Next</button>

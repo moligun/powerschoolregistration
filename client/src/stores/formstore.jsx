@@ -12,11 +12,11 @@ class FormStore {
     displayForm = false
     activeStudentIndex
     formSections = [
-        {"name": "Student Info", "validation": "studentInformationValidation"}, 
-        {"name": "Contacts", "validation": "contactInformationValidation"},
-        {"name": "Health Information", "validation": "healthInformationValidation"},
-        {"name": "Agreements", "validation": "releaseInformationValidation"},
-        {"name": "Signature", "validation": "signatureInformationValidation"},
+        {"name": "Student Info", "validation": "studentInformationValidation", "triggerAlias": "student"}, 
+        {"name": "Contacts", "validation": "contactInformationValidation", "triggerAlias": "contacts"},
+        {"name": "Health Information", "validation": "healthInformationValidation", "triggerAlias": "health"},
+        {"name": "Agreements", "validation": "releaseInformationValidation", "triggerAlias": "release"},
+        {"name": "Signature", "validation": "signatureInformationValidation", "triggerAlias": "signature"}
     ]
     activeSectionId = 0
     submitState = false
@@ -41,8 +41,26 @@ class FormStore {
         return undefined
     }
 
+    get activeFormSection() {
+        if (this.activeSectionId !== undefined) {
+            const activeSection = this.formSections[this.activeSectionId] ? this.formSections[this.activeSectionId] : undefined
+            return activeSection
+        }
+        return undefined
+    }
+
     setActiveIndex(id) {
         this.activeStudentIndex = id
+    }
+
+    refreshActiveSectionValidation() {
+        console.log('Validation Refresh Trigger')
+        if (this.student && this.activeFormSection && this.activeFormSection['triggerAlias']) {
+            const validationTrigger = this.activeFormSection['triggerAlias']
+            this.student.refreshValidation(validationTrigger)
+            return true
+        }
+        return false
     }
 
     changeSection(changeBy) {
@@ -55,7 +73,7 @@ class FormStore {
                 this.activeStudentIndex++
             } else {
                 this.submitState = true
-                this.activeSectionId = maxSectionIndex + 1
+                this.activeSectionId = maxSectionIndex
                 this.activeStudentIndex = this.studentsCount - 1
             }
         } else if (newSectionValue < 0) {
@@ -105,6 +123,7 @@ class FormStore {
         }
         let activeStudentNumbers = []
         for (const studentIndex of studentStore.validatedStudentIndexes) {
+            studentStore.students[studentIndex].preprocessData()
             studentPayload.students.student.push(studentStore.students[studentIndex].asJSON)
             activeStudentNumbers.push(studentStore.students[studentIndex].studentNumber)
         }
@@ -165,13 +184,29 @@ class FormStore {
             if (Array.isArray(studentResultsObject)) {
                 for (const student of studentResultsObject) {
                     let indexId = student.client_uid
-                    console.log(indexId)
-                    studentStore.students[indexId].submissionSuccess = true
+                    if (indexId !== undefined && indexId !== '') {
+                        if (student.status === 'SUCCESS') {
+                            studentStore.students[indexId].submissionSuccess = true
+                            studentStore.students[indexId].errors = []
+                        } else if (student.status === 'ERROR') {
+                            studentStore.students[indexId].submissionSuccess = false
+                            let errorMessage = student.error_message ? student.error_message.error : 'Generic Student Error'
+                            studentStore.students[indexId].addError(errorMessage)
+                        }
+                    }
                 }
-            } else if (typeof studentResultsObject === 'object') {
-                let indexId = studentResultsObject.client_uid !== undefined ? studentResultsObject.client_uid : undefined
+            } else if (studentResultsObject) {
+                let student = studentResultsObject
+                let indexId = student.client_uid !== undefined ? student.client_uid : undefined
                 if (indexId !== undefined) {
-                    studentStore.students[indexId].submissionSuccess = true
+                    if (student.status === 'SUCCESS') {
+                        studentStore.students[indexId].submissionSuccess = true
+                        studentStore.students[indexId].errors = []
+                    } else if (student.status === 'ERROR') {
+                        studentStore.students[indexId].submissionSuccess = false
+                        let errorMessage = student.error_message ? student.error_message.error : 'Generic Student Error'
+                        studentStore.students[indexId].addError(errorMessage)
+                    }
                 }
             }
             
@@ -192,9 +227,11 @@ decorate(FormStore, {
     submitting: observable,
     student: computed,
     studentsCount: computed,
+    activeFormSection: computed,
     setActiveIndex: action,
     changeSection: action,
     processSubmissions: action,
-    removeUnvalidatedContacts: action
+    removeUnvalidatedContacts: action,
+    refreshActiveSectionValidation: action
 })
 export default FormStore

@@ -1,0 +1,3 @@
+[
+    {"name": "count", "rules":["atLeast"], "comparisonValue": 3, "label": "Contacts with Required Fields Completed."}
+]

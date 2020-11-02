@@ -2,13 +2,6 @@ import React from 'react'
 import { observer, inject } from 'mobx-react'
 import Select from './select'
 class Agreements extends React.Component {
-    componentDidMount() {
-        const { release, releaseInformationValidation, healthInformation } = this.props.student
-        let data = release.fieldsObj
-        let healthObj = healthInformation.getField('he_shared')
-        data[healthObj.name] = healthObj.value
-        releaseInformationValidation.validateAll(data)
-    }
     handleChange = (event) => {
         const { student } = this.props
         const { release, releaseInformationValidation, healthInformation } = student
@@ -33,7 +26,7 @@ class Agreements extends React.Component {
         }
         extObj.setFieldValue(name, value)
         let data = release.fieldsObj
-        let healthObj = healthInformation.getField('he_shared')
+        let healthObj = healthInformation.getOrCreateField('he_shared')
         data[healthObj.name] = healthObj.value
         releaseInformationValidation.validateAll(data)
     }
@@ -59,8 +52,9 @@ class Agreements extends React.Component {
                     </div>
                     <div className="form-row">
                         <Select className="col-sm-12" label="I Agree" 
-                            field={release.getField('chrip_release')} 
+                            field={release.getOrCreateField('chrip_release')} 
                             onChange={this.handleChange} extension="release" 
+                            stringOnly
                             validation={releaseInformationValidation.getValidation('chrip_release')}
                             options={[{"label": "Yes", "value": "Yes"}, {"label": "No", "value": "No"}]} />
                     </div>
@@ -75,44 +69,10 @@ class Agreements extends React.Component {
                     </div>
                     <div className="form-row">
                         <Select className="col-sm-12" label="I Agree" 
-                            field={healthInformation.getField('he_shared')} 
+                            field={healthInformation.getOrCreateField('he_shared')} 
                             onChange={this.handleChange} extension="healthInformation" 
                             validation={releaseInformationValidation.getValidation('he_shared')}
-                            options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <legend>Student Athlete</legend>
-                    <div>
-                        <p>
-                            As a student/student athlete, I have received and read both of the fact sheets regarding concussion and sudden cardiac arrest. 
-                            I understand the nature and risk of concussion and head injury to students/student athletes, including the risks of continuing to 
-                            participate/play after concussion or head injury, and the symptoms of sudden cardiac arrest. 
-                            I, as the parent or legal guardian of the student registering, 
-                            I have received and read both of the fact sheets regarding concussion and sudden cardiac arrest. 
-                            I understand the nature and risk of concussion and head injury to students/student athletes, 
-                            including the risks of continuing to participate/play after concussion or head injury, and the symptoms of sudden cardiac arrest.
-                        </p>
-                        <p>
-                            Click <a href="https://secure.infosnap.com/resources/1520/files/Heads_Up__-_A_Fact_Sheet_for_Athletes.pdf" target="_blank" rel="noopener noreferrer">here</a>  
-                            &nbsp;to view the complete Heads Up Fact Sheet for Student Athletes.
-                        </p>
-                        <p>
-                            Click <a href="https://secure.infosnap.com/resources/1520/files/Heads_Up__-_A_Fact_Sheet_for_Parents.pdf" target="_blank" rel="noopener noreferrer">here</a> 
-                            &nbsp;to view the complete Heads Up Fact Sheet for Parents.
-                        </p>
-                        <p>
-                            Click <a href="https://secure.infosnap.com/resources/1520/files/sudden-cardiac-arrest-fact-sheet-student-athletes.pdf" target="_blank" rel="noopener noreferrer">here</a> 
-                            &nbsp;to view the complete Sudden Cardiac Arrest Fact Sheet for Student Athletes.
-                        </p>
-                        <p>
-                            Click <a href="https://secure.infosnap.com/resources/1520/files/sudden-cardiac-arrest-fact-sheet-parents.pdf" target="_blank" rel="noopener noreferrer">here</a> 
-                            &nbsp;to view the complete Sudden Cardiac Arrest Fact Sheet for Parents.
-                        </p>
-                        <p>
-                            Click <a href="https://secure.infosnap.com/resources/1520/files/parent-and-student-athlete-acknowledgement-and-signature-form.pdf" target="_blank" rel="noopener noreferrer">here</a> 
-                            &nbsp;to view the complete Parent and Student Athlete Acknowledgement and Signature Form.
-                        </p>
+                            options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
                     </div>
                 </fieldset>
                 <h2>Other</h2>
@@ -131,10 +91,10 @@ class Agreements extends React.Component {
                     </div>
                     <div className="form-row">
                         <Select className="col-sm-12" label="I Agree" 
-                            field={release.getField('field_trip_release')} 
+                            field={release.getOrCreateField('field_trip_release')} 
                             onChange={this.handleChange} extension="release" 
                             validation={releaseInformationValidation.getValidation('field_trip_release')}
-                            options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
+                            options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
                     </div>
                 </fieldset>
                 <fieldset>
@@ -147,10 +107,10 @@ class Agreements extends React.Component {
                     </div>
                     <div className="form-row">
                         <Select className="col-sm-12" label="I Agree" 
-                            field={release.getField('information_release')} 
+                            field={release.getOrCreateField('information_release')} 
                             onChange={this.handleChange} extension="release" 
                             validation={releaseInformationValidation.getValidation('information_release')}
-                            options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
+                            options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
                     </div>
                 </fieldset>
                 <fieldset>
@@ -165,10 +125,10 @@ class Agreements extends React.Component {
                     </div>
                     <div className="form-row">
                         <Select className="col-sm-12" label="I Agree" 
-                            field={release.getField('fees_agreement')} 
+                            field={release.getOrCreateField('fees_agreement')} 
                             onChange={this.handleChange} extension="release" 
                             validation={releaseInformationValidation.getValidation('fees_agreement')}
-                            options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
+                            options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
                     </div>
                 </fieldset>
                 <h2>High School Only - Military Release</h2>
@@ -183,10 +143,10 @@ class Agreements extends React.Component {
                     </div>
                     <div className="form-row">
                         <Select className="col-sm-12" label="I Agree" 
-                            field={release.getField('military_release')} 
+                            field={release.getOrCreateField('military_release')} 
                             onChange={this.handleChange} extension="release" 
                             validation={releaseInformationValidation.getValidation('military_release')}
-                            options={[{"label": "Yes", "value": 0}, {"label": "No", "value": 1}]} />
+                            options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
                     </div>
                 </fieldset>
                 <h2>Technology Information</h2>
@@ -204,17 +164,17 @@ class Agreements extends React.Component {
                     </div>
                     <div className="form-row">
                         <Select className="col-sm-12" label="I Agree" 
-                            field={release.getField('internet_agreement')} 
+                            field={release.getOrCreateField('internet_agreement')} 
                             onChange={this.handleChange} extension="release" 
                             validation={releaseInformationValidation.getValidation('internet_agreement')}
-                            options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
+                            options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
                     </div>
                     <div className="form-row">
                         <Select className="col-sm-12" label="Does your child have Internet access at your home?" 
-                            field={release.getField('internet_access')} 
+                            field={release.getOrCreateField('internet_access')} 
                             onChange={this.handleChange} extension="release" 
                             validation={releaseInformationValidation.getValidation('internet_access')}
-                            options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
+                            options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
                     </div>
                 </fieldset>
             </React.Fragment>

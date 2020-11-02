@@ -12,8 +12,9 @@ class Contact extends React.Component {
 
     handleRemove = (event) => {
         event.preventDefault()
-        const { contact } = this.props
+        const { contact, formStore } = this.props
         contact.removeActiveStudent()
+        formStore.refreshActiveSectionValidation()
     }
 
     render() {
@@ -23,16 +24,16 @@ class Contact extends React.Component {
         const studentDetails = []
         const studentDetailLabels = {
             "emergency": "Emergency Contact?",
-            "schoolPickup": "Can pick up student?",
             "custodial": "Has Custody?",
-            "livesWith": "Lives with student?",
+            "schoolPickup": "Can pick up student?",
+            "livesWith": "Lives with student?"
         }
 
         for (const key in studentDetailLabels) {
             studentDetails.push(
                 <div className="col-md-6 col-sm-12 d-flex justify-content-between align-items-center" key={`contact-${this.props.index}-${key}`}>
                     <span className="font-weight-bold">{studentDetailLabels[key]}</span> 
-                    {activeContactStudent.studentDetails[key] ? <span className="badge badge-success">Yes</span> : <span className="badge badge-danger">No</span>}
+                    {activeContactStudent.studentDetails[key].toString() === 'true' ? <span className="badge badge-success">Yes</span> : <span className="badge badge-danger">No</span>}
                 </div>
             )
         }
@@ -85,6 +86,14 @@ class Contact extends React.Component {
                                 </div>
                                 <div className="contact-information">
                                     {contact.email.address}
+                                </div>
+                            </div>
+                            <div className="contact-item col-sm-12 col-md-6 p-0">
+                                <div className="contact-label font-weight-bold">
+                                    Employer
+                                </div>
+                                <div className="contact-information">
+                                    {contact.contactDemographics.employer}
                                 </div>
                             </div>
                             <div className="contact-item row col-sm-12 mt-2 p-0">
@@ -140,5 +149,6 @@ class Contact extends React.Component {
     }
 }
 export default inject(stores => ({
-    contactEditorStore: stores.rootStore.contactEditorStore
+    contactEditorStore: stores.rootStore.contactEditorStore,
+    formStore: stores.rootStore.formStore
 }))(observer(Contact))

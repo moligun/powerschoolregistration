@@ -18,7 +18,7 @@ router.get('/login', (req, res, next) => {
 		powerSchoolSSO.authWithServer(req, res);
 		return;
 	}
-	res.send('Cannot process.');
+	res.status('403').send('Cannot process.');
 	return;
 });
 

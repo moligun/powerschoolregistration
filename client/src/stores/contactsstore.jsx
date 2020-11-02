@@ -113,7 +113,10 @@ class ContactsStore {
         let studentContacts = []
         if (this.contacts) {
             for (const contact of this.contacts) {
-                if (contact.activeContactStudent && contact.validation.allValidated) {
+                if (contact.activeContactStudent && 
+                    contact.validation.allValidated &&
+                    contact.activeContactStudent.deleted === false &&
+                    contact.activeContactStudent.markedForDeletion === false) {
                     studentContacts.push(contact)
                 }
             }

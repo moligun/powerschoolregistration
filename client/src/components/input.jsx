@@ -12,16 +12,20 @@ function Input(props) {
         case 'textarea':
             inputField = <textarea name={props.name} className={inputClassValues}
                 placeholder={props.placeholder ? `${props.placeholder}` : ''} 
-                id={props.name} value={props.value} onChange={props.onChange} data-ext={props.extension} />
+                id={props.name} value={props.value} onChange={props.onChange} 
+                data-ext={props.extension}
+                data-format={props.format} />
             break
         case 'date':
-            inputField = <DatePicker selected={props.value ? new Date(props.value) : ''} 
+            const parsedDate = new Date(props.value)
+            inputField = <DatePicker selected={props.value  && !isNaN(parsedDate.getTime()) ? parsedDate : ''} 
                 onChange={date => props.onChange(date, props)} className={inputClassValues} wrapperClassName="w-100" />
             break
         default:
             inputField = <input type={props.type} name={props.name}
                 className={inputClassValues} 
                 data-ext={props.extension}
+                data-format={props.format}
                 placeholder={props.placeholder ? `${props.placeholder}` : ''} 
                 id={props.name} value={props.value} onChange={props.onChange}  readOnly={props.readOnly ? true : false} />
             break

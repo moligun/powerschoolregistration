@@ -22,7 +22,7 @@ function ContactPhone(props) {
             </div>
             <div className="d-flex flex-column col-sm-12 col-md-6 col-lg-4">
                 <label className="font-weight-bold">Phone Number</label>
-                <input type="text" className={`form-control ${phoneNumberValidation.validated ? '' : 'border-danger'}`} data-index={ index } name="phoneNumber" key={"phone-" + index} value={phone.phoneNumber} onChange={props.handleChange} />
+                <input type="text" data-format="phoneFormat" className={`form-control ${phoneNumberValidation.validated ? '' : 'border-danger'}`} data-index={ index } name="phoneNumber" key={"phone-" + index} value={phone.phoneNumber} onChange={props.handleChange} />
                 <Validation validation={phoneNumberValidation} />
             </div>
             <div className="d-flex flex-column col-sm-12 col-md-6 col-lg-4 justify-content-end mt-2">

@@ -2,15 +2,13 @@ const psApi = require('../services/powerschoolapi')
 module.exports = {
 	requireAuthentication: (req, res, next) => {
 		if (req.session.powerschool && req.session.powerschool.profile) {
-			console.log(req.session.powerschool);
-			console.log('success');
 			return next();
 		} else {
-			req.session.powerschool = {"profile": {"studentids": [51, 21981]}}
-			console.log(req.session.powerschool);
-			console.log('redirected');
-			//res.redirect('/auth/login');
+			req.session.powerschool = {"profile": {"dcid": 1072550, "studentids": [51, 21981, 94519]}}
 			return next();
+			console.log('redirected');
+			res.redirect('/auth/login');
+			return;
 		}
 	},
 	getAccessToken: async (req, res, next) => {

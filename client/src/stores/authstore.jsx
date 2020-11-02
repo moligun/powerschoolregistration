@@ -9,7 +9,7 @@ import {
     } from "mobx"
 import StudentService from "../services/studentservice"
 class AuthStore {
-    userInfo
+    userInfo = undefined
     interval
     loading = true
     constructor(root) {
@@ -31,7 +31,7 @@ class AuthStore {
         if (this.userInfo && parseInt(this.userInfo.dcid) > 0) {
             return true
         }
-        return true
+        return false
     }
 
     loadUserInfo = flow(function * () {

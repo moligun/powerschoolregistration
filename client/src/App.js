@@ -1,6 +1,6 @@
-import { observer, inject } from 'mobx-react';
-import React from 'react';
-import './App.css';
+import { observer, inject } from 'mobx-react'
+import React from 'react'
+import './App.css'
 import GuestPortal from './components/guestportal'
 import Loading from './components/loading'
 
