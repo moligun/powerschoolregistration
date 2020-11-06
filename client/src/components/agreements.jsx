@@ -4,7 +4,6 @@ import Select from './select'
 class Agreements extends React.Component {
     handleChange = (event) => {
         const { student } = this.props
-        const { release, releaseInformationValidation, healthInformation } = student
         const type = event.currentTarget.type
         const name = event.currentTarget.name
         let ext = event.currentTarget.dataset.ext
@@ -25,14 +24,17 @@ class Agreements extends React.Component {
             value = event.currentTarget.value
         }
         extObj.setFieldValue(name, value)
-        let data = release.fieldsObj
-        let healthObj = healthInformation.getOrCreateField('he_shared')
-        data[healthObj.name] = healthObj.value
-        releaseInformationValidation.validateAll(data)
+        student.refreshReleaseValidation()
     }
 
     render() {
-        const { release, releaseInformationValidation, healthInformation } = this.props.student
+        const { 
+            release, releaseInformationValidation, 
+            healthInformation, schoolEnrollment,
+            internetAccessTypeOptions, internetAccessPerformanceOptions
+        } = this.props.student
+        const gradeLevel = schoolEnrollment.grade_level ? schoolEnrollment.grade_level : 0
+        const highSchoolLevel = gradeLevel >= 9
         return (
             <React.Fragment>
                 <h2>Health Information</h2>
@@ -131,24 +133,28 @@ class Agreements extends React.Component {
                             options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
                     </div>
                 </fieldset>
-                <h2>High School Only - Military Release</h2>
-                <fieldset>
-                    <div className="form-row">
-                        <p>
-                            The No Child Left Behind of 2001 states that schools must comply with a request by a military recruiter or an institute of 
-                            higher education for secondary students' names, addresses and phone numbers, unless the parent denies this request in writing. 
-                            Non-compliance from the school may result in loss of federal funds. 
-                            I grant permission for the school to release information to a military recruiter or an institute of higher education.
-                        </p>
-                    </div>
-                    <div className="form-row">
-                        <Select className="col-sm-12" label="I Agree" 
-                            field={release.getOrCreateField('military_release')} 
-                            onChange={this.handleChange} extension="release" 
-                            validation={releaseInformationValidation.getValidation('military_release')}
-                            options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
-                    </div>
-                </fieldset>
+                {highSchoolLevel && 
+                    <React.Fragment>
+                        <h2>High School Only - Military Release</h2>
+                        <fieldset>
+                            <div className="form-row">
+                                <p>
+                                    The No Child Left Behind of 2001 states that schools must comply with a request by a military recruiter or an institute of 
+                                    higher education for secondary students' names, addresses and phone numbers, unless the parent denies this request in writing. 
+                                    Non-compliance from the school may result in loss of federal funds. 
+                                    I grant permission for the school to release information to a military recruiter or an institute of higher education.
+                                </p>
+                            </div>
+                            <div className="form-row">
+                                <Select className="col-sm-12" label="I Agree" 
+                                    field={release.getOrCreateField('military_release')} 
+                                    onChange={this.handleChange} extension="release" 
+                                    validation={releaseInformationValidation.getValidation('military_release')}
+                                    options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
+                            </div>
+                        </fieldset>
+                    </React.Fragment>
+                }
                 <h2>Technology Information</h2>
                 <fieldset>
                     <legend>Electronic Information Source Agreement / Internet</legend>
@@ -174,7 +180,20 @@ class Agreements extends React.Component {
                             field={release.getOrCreateField('internet_access')} 
                             onChange={this.handleChange} extension="release" 
                             validation={releaseInformationValidation.getValidation('internet_access')}
-                            options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]} />
+                            childrenTrigger={1}
+                            options={[{"label": "Yes", "value": "1"}, {"label": "No", "value": "0"}]}>
+                            <Select className="col-sm-12" label="What type of Internet is primarily used at home?" 
+                                field={release.getOrCreateField('internet_access_type')} 
+                                onChange={this.handleChange} extension="release" 
+                                validation={releaseInformationValidation.getValidation('internet_access_type')}
+                                options={internetAccessTypeOptions} />
+                            <Select className="col-sm-12" label="Can your student stream a video on their primary device without interruption?" 
+                                field={release.getOrCreateField('internet_access_performance')} 
+                                onChange={this.handleChange} extension="release" 
+                                validation={releaseInformationValidation.getValidation('internet_access_performance')}
+                                options={internetAccessPerformanceOptions} />
+
+                        </Select>
                     </div>
                 </fieldset>
             </React.Fragment>

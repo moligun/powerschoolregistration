@@ -1,11 +1,13 @@
 
 [
-    {"name": "military_release", "rules": ["required"]},
+    {"name": "military_release", "rules": ["required"], "validateIf":[{"field": "grade_level", "operator": ">=", "value": 9}]},
     {"name": "chrip_release", "rules": ["required"]},
     {"name": "he_shared", "rules": ["required"]},
     {"name": "field_trip_release", "rules": ["required"]},
     {"name": "information_release", "rules": ["required"]},
     {"name": "fees_agreement", "rules": ["required"]},
     {"name": "internet_agreement", "rules": ["required"]},
-    {"name": "internet_access", "rules": ["required"]}
+    {"name": "internet_access", "rules": ["required"]},
+    {"name": "internet_access_type", "rules": ["required"], "validateIf":[{"field": "internet_access", "value": 1}]},
+    {"name": "internet_access_performance", "rules": ["required"], "validateIf":[{"field": "internet_access", "value": 1}]}
 ]

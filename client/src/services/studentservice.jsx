@@ -25,6 +25,14 @@ class StudentService {
         return axios(config)
     }
 
+    loadSchools() {
+        const config = {
+            method: "GET",
+            url: "/students/schools"
+        }
+        return axios(config)
+    }
+
     loadContacts() {
         const config = {
             method: "GET",

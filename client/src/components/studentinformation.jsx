@@ -88,8 +88,8 @@ class StudentInfoForm extends React.Component {
 
     render() {
         const { student } = this.props.formStore
-        const { districts } = this.props.studentStore
-        const { studentExt, studentExt2, name, phones, schoolEnrollment, demographics } = student
+        const { districts, schools } = this.props.studentStore
+        const { studentExt, studentExt2, name, phones, schoolEnrollment, demographics, schoolGradeOptions } = student
         const studentDob = demographics.birth_date ? new Date(demographics.birth_date).toLocaleDateString('en-US') : ''
         return (
             <div>
@@ -109,11 +109,20 @@ class StudentInfoForm extends React.Component {
                             value={studentDob} readOnly />
                     </div>
                     <div className="form-row">
+                        <Input type="text" className="col-sm-12 col-md-6" label="Entering Grade" 
+                            value={schoolGradeOptions[schoolEnrollment.grade_level]} 
+                            readOnly />
+                        <Input type="text" className="col-sm-12 col-md-6" label="School" 
+                            value={schools[schoolEnrollment.school_number]} 
+                            readOnly />
+
+                    </div>
+                    <div className="form-row">
                         <Input type="tel" name="phones.main.number" label="Home Phone" 
                             validation={student.studentInformationValidation.getValidation('phones.main.number')} 
                             value={phones.main.number} format="phoneFormat" onChange={this.handleChange} />
                         <Input type="tel" name="student_cell" 
-                            label="Cell Phone" value={studentExt2.getOrCreateField('student_cell').value}
+                            label="Student Cell Phone" value={studentExt2.getOrCreateField('student_cell').value}
                             validation={student.studentInformationValidation.getValidation('studentExt2.student_cell')} 
                             extension="studentExt2"
                             format="phoneFormat" 
@@ -121,7 +130,7 @@ class StudentInfoForm extends React.Component {
                     </div>
                 </fieldset>
                 <fieldset>
-                    <legend>Physical Address</legend>
+                    <legend>Primary Residence Address</legend>
                     <div className="form-row">
                         <Input type="text" label="Street" name="addresses.physical.street" 
                             value={student.addresses.physical.street} readOnly />

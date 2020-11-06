@@ -48,6 +48,7 @@ class ContactsList extends React.Component {
         const { contactEditorStore } = this.props
         contactEditorStore.setContactId(-1)
         contactEditorStore.display = true
+        contactEditorStore.loadContactInfo()
     }
 
     handleAddExisting = (event) => {

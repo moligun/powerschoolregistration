@@ -94,6 +94,11 @@ const getDistricts = (token) => {
 	return createQuery(token, query, {method: 'GET'})
 }
 
+const getSchools = (token) => {
+	let query = 'schema/table/schools?projection=name,school_number'
+	return createQuery(token, query, {method: 'GET'})
+}
+
 const getContact = (token, contactId) => {
 	let query = `contacts/contact/${contactId}`
 	return createQuery(token, query, {method: 'GET'})
@@ -103,7 +108,7 @@ const getContacts = (token, studentIds) => {
 	let contactPromises = [];
 	if (studentIds && studentIds.length > 0) {
 		studentIds.forEach(id => {
-			let query = `contacts/student/${id}`
+			let query = `contacts/student/${id}?extensions=personcorefields`
 			contactPromises.push(createQuery(token, query, {method: 'GET'}))
 		});
 		return Promise.all(contactPromises)
@@ -215,6 +220,7 @@ module.exports = {
 	getAccessToken,
 	getStudents,
 	getDistricts,
+	getSchools,
 	deleteContactAssociation,
 	getContact,
 	getContacts,

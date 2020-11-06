@@ -47,10 +47,31 @@ router.get('/districts', auth.getAccessToken, async (req, res) => {
 		return
 	}
 	res.send([])
+})
+
+router.get('/schools', auth.getAccessToken, async (req, res) => {
+	let schoolObject = {}
+	try {
+		const accessToken = req.session.token.access_token
+		const schools = await psApi.getSchools(accessToken)
+		if (schools.record && schools.record.length > 0) {
+			for (const school of schools.record) {
+				let { name, school_number} = school.tables.schools
+				schoolObject[school_number] = name
+			}
+		}
+		res.send(schoolObject)
+		return
+	} catch(error) {
+		console.log(error)
+		res.send(error)
+		return
+	}
+	res.send([])
 
 })
 
-router.post('/', auth.getAccessToken, async (req, res) => {
+router.post('/', auth.requireAuthentication, auth.getAccessToken, async (req, res) => {
 	const data = req.body
 	if (data) {
 		try {

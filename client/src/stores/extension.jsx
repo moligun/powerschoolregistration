@@ -16,10 +16,7 @@ class Extension {
         this.fieldOptions = fieldOptions
         if (data['_field'] && Array.isArray(data['_field'])) {
             data['_field'].forEach(field => {
-                if (field.type && field.type === "Boolean") {
-                    field.value = field.value ? 1 : 0
-                }
-
+                field.value = this.convertValueByType(field)
                 if (fieldOptions && field.name in fieldOptions) {
                     if (fieldOptions[field.name]['value'] !== undefined) {
                         field.value = fieldOptions[field.name]['value']
@@ -32,10 +29,7 @@ class Extension {
             }) 
         } else if (data['_field'] && data['_field'].value) {
             let field = data['_field']
-            if (field.type && field.type === "Boolean") {
-                field.value = field.value ? 1 : 0
-            }
-
+            field.value = this.convertValueByType(field)
             if (fieldOptions && field.name in fieldOptions) {
                 if (fieldOptions[field.name]['value'] !== undefined) {
                     field.value = fieldOptions[field.name]['value']
@@ -51,14 +45,25 @@ class Extension {
     setFieldValue(name, value) {
         let fieldObj = this.fields.get(name)
         fieldObj.value = value
+        fieldObj.value = this.convertValueByType(fieldObj)
         this.fields.set(name, fieldObj)
     }
 
-    getOrCreateField(name) {
+    getOrCreateField(name, type = "text") {
         if (!this.fields.get(name)) {
-            this.fields.set(name, {"name": name, "type": "text", "value": ""})
+            this.fields.set(name, {"name": name, type, "value": ""})
         }
         return this.fields.get(name)
+    }
+
+    convertValueByType(field) {
+        let value = field.value
+
+        const falseValues = ['0', 'false']
+        if (field.type && field.type === "Boolean") {
+            value = value && falseValues.includes(value) === false ? 1 : 0
+        }
+        return value
     }
 
     getField(name) {

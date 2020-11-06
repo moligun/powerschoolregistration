@@ -83,10 +83,13 @@ class Validation {
                         let operatorValue = operator ? operator : "="
                         switch (operatorValue) {
                             case "=":
-                                validateIfResults.push(parentFields[field] === value)
+                                validateIfResults.push(parentFields[field].toString() === value.toString())
                                 break
                             case "!=":
-                                validateIfResults.push(parentFields[field] !== value)
+                                validateIfResults.push(parentFields[field].toString() !== value.toString())
+                                break
+                            case ">=":
+                                validateIfResults.push(parentFields[field] >= value)
                                 break
                             default:
                                 break

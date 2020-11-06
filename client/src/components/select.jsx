@@ -25,7 +25,7 @@ function Select(props) {
                 {props.options.map((option) => <option key={props.field.name + "-" + option.value} value={option.value}>{option.label}</option>)}
             </select>
             {props.validation ? <Validation validation={props.validation} /> : null}
-            {props.childrenTrigger && props.childrenTrigger === fieldValue && props.children ? <div className="ml-5 border border-info px-3 py-2">{props.children}</div> : '' }
+            {props.childrenTrigger && props.childrenTrigger.toString() === fieldValue.toString() && props.children ? <div className="ml-5 border border-info px-3 py-2">{props.children}</div> : '' }
         </div>
     )
 }

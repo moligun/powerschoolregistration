@@ -14,12 +14,12 @@ import signatureRules from './validations/signaturerules.json'
 import studentRules from './validations/studentrules.json'
 class Student {
     submissionSuccess = false
-    healthInformation = new Extension('u_health')
-    studentExt = new Extension('s_in_stu_x')
-    studentExt2 = new Extension('u_demo')
-    studentExt3 = new Extension('u_lsc')
-    release = new Extension('u_release')
-    validations = new Validation()
+    healthInformation
+    studentExt
+    studentExt2
+    studentExt3
+    release
+    validations
     studentInformationValidation
     contactInformationValidation
     healthInformationValidation
@@ -50,6 +50,38 @@ class Student {
         {"label": "In a Location Not Designed for Sleeping Accommodations such as Car, Park, or Campsite", "value": "mvcarparkcampsite"},
         {"label": "Moving from Place to Place", "value": "mvplacetoplace"}
     ]
+
+    schoolGradeOptions = {
+        "0": "K",
+        "1": "1",
+        "2": "2",
+        "3": "3",
+        "4": "4",
+        "5": "5",
+        "6": "6",
+        "7": "7",
+        "8": "8",
+        "9": "9",
+        "10": "10",
+        "11": "11",
+        "12": "12"
+    }
+
+    internetAccessTypeOptions = [
+        {"label": "Broadband (DSL, Cable, Fiber)", "value": "broadband"},
+        {"label": "Cellular Network", "value": "cellular"},
+        {"label": "School-provided hotspot", "value": "school_hotspot"},
+        {"label": "Satellite", "value": "satellite"},
+        {"label": "Dial-up", "value": "dialup"},
+        {"label": "Don't Know", "value": "unknown"}
+    ]
+
+    internetAccessPerformanceOptions = [
+        {"label": "Yes, with no issues", "value": 2},
+        {"label": "Yes, but not with consistent quality", "value": 1},
+        {"label": "No", "value": 0}
+    ]
+
     uDemoWhiteList = [
         "mvtempliving", "mvtemplivinghardship", 
         "mvlivingwithother", "mvmotelhotel",
@@ -69,6 +101,12 @@ class Student {
         this.healthInformationValidation = new Validation(healthRules, "Health Information")
         this.releaseInformationValidation = new Validation(releaseRules, "Agreements")
         this.signatureInformationValidation = new Validation(signatureRules, "Signature")
+        this.healthInformation = new Extension('u_health')
+        this.studentExt = new Extension('s_in_stu_x')
+        this.studentExt2 = new Extension('u_demo')
+        this.studentExt3 = new Extension('u_lsc')
+        this.release = new Extension('u_release')
+        this.validations = new Validation()
         this.validationAreas = [
             this.studentInformationValidation, 
             this.contactInformationValidation, 
@@ -125,8 +163,8 @@ class Student {
             }
             this.name = Object.assign(this.name, this.studentData['name'])
             this.demographics = Object.assign(this.demographics, this.studentData['demographics'])
-            if (this.studentData['school_enrollment'] && this.studentData['school_enrollment']['district_of_residence']) {
-                this.schoolEnrollment["district_of_residence"] = this.studentData["school_enrollment"]["district_of_residence"]
+            if (this.studentData['school_enrollment']) {
+                this.schoolEnrollment = Object.assign(this.schoolEnrollment, this.studentData["school_enrollment"])
             }
             if (this.studentData && this.studentData['_extension_data'] && this.studentData['_extension_data']['_table_extension']) {
                 for (const extension of this.studentData['_extension_data']['_table_extension']) {
@@ -195,6 +233,7 @@ class Student {
         let releaseValues = this.release.fieldsObj
         const sharedHealth = this.healthInformation.getOrCreateField('he_shared')
         releaseValues[sharedHealth.name] = sharedHealth.value
+        releaseValues['grade_level'] = this.schoolEnrollment.grade_level ? this.schoolEnrollment.grade_level : 0
         this.releaseInformationValidation.validateAll(releaseValues)
     }
 
@@ -309,9 +348,13 @@ class Student {
             "phones": this.phones,
             "name": this.name,
             "demographics": this.demographics,
-            "school_enrollment": this.schoolEnrollment,
             "@extensions": "u_health, s_in_stu_x",
-            "_extension_data": {"_table_extension": [this.healthInformation.asJSON, this.studentExt.asJSON, this.studentExt2.asJSON, this.release.asJSON, this.studentExt3.asJSON]}
+            "_extension_data": {
+                "_table_extension": [
+                    this.healthInformation.asJSON, this.studentExt.asJSON, 
+                    this.studentExt2.asJSON, this.release.asJSON, this.studentExt3.asJSON
+                ]
+            }
         }
     }
 }

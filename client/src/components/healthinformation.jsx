@@ -486,7 +486,7 @@ class HealthInformation extends React.Component {
                     </NestedRadio>
                 </div>
                 <div className="form-row">
-                    <NestedRadio field={healthInformation.getOrCreateField('he_tb_contact')} label="TB/TB Contact?" onChange={this.handleChange}
+                    <NestedRadio field={healthInformation.getOrCreateField('he_tb_contact')} label="Has Tuberculous (TB) / Been in Contact with TB?" onChange={this.handleChange}
                         validation={healthInformationValidation.getValidation('he_tb_contact')} />
                 </div>
                 <div className="form-row">
@@ -521,7 +521,7 @@ class HealthInformation extends React.Component {
                                     onChange={this.handleChange} />
                                 <Select className="col-sm-12" field={healthInformation.getOrCreateField('he_med_1_sc')} 
                                     validation={healthInformationValidation.getValidation('he_med_1_sc')} 
-                                    label="Taken at school?" onChange={this.handleChange} options={[{"label": "Yes", "value": "yes"}, {"label": "No", "value": "no"}]} />
+                                    label="Taken at school?" onChange={this.handleChange} options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
                             </div>
                             <div className="form-row">
                                 <legend>Medication 2</legend>
@@ -537,7 +537,7 @@ class HealthInformation extends React.Component {
                                     onChange={this.handleChange} />
                                 <Select className="col-sm-12" field={healthInformation.getOrCreateField('he_med_2_sc')} 
                                     validation={healthInformationValidation.getValidation('he_med_2_sc')} 
-                                    label="Taken at school?" onChange={this.handleChange} options={[{"label": "Yes", "value": "yes"}, {"label": "No", "value": "no"}]} />
+                                    label="Taken at school?" onChange={this.handleChange} options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
                             </div>
                             <div className="form-row">
                                 <legend>Medication 3</legend>
@@ -553,7 +553,7 @@ class HealthInformation extends React.Component {
                                     onChange={this.handleChange} />
                                 <Select className="col-sm-12" field={healthInformation.getOrCreateField('he_med_3_sc')} 
                                     validation={healthInformationValidation.getValidation('he_med_3_sc')} 
-                                    label="Taken at school?" onChange={this.handleChange} options={[{"label": "Yes", "value": "yes"}, {"label": "No", "value": "no"}]} />
+                                    label="Taken at school?" onChange={this.handleChange} options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
                             </div>
                             <div className="form-row">
                                 <legend>Medication 4</legend>
@@ -569,7 +569,7 @@ class HealthInformation extends React.Component {
                                     onChange={this.handleChange} />
                                 <Select className="col-sm-12" field={healthInformation.getOrCreateField('he_med_4_sc')} 
                                     validation={healthInformationValidation.getValidation('he_med_4_sc')} 
-                                    label="Taken at school?" onChange={this.handleChange} options={[{"label": "Yes", "value": "yes"}, {"label": "No", "value": "no"}]} />
+                                    label="Taken at school?" onChange={this.handleChange} options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]} />
                             </div>
                     </NestedRadio>
                 </div>
@@ -585,7 +585,6 @@ class HealthInformation extends React.Component {
                         label="I agree that the information provided is accurate to the best of my knowledge" onChange={this.handleChange} options={[{"label": "Yes", "value": "Yes"}]} />
 
                 </div>
-                {JSON.stringify(healthInformation.asJSON)}
             </fieldset>
         )
     }

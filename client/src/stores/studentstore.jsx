@@ -12,6 +12,7 @@ import Student from "./student"
 class StudentStore {
     students = []
     districts = []
+    schools = {}
     loading = true
     constructor(root) {
         this.rootStore = root
@@ -46,8 +47,12 @@ class StudentStore {
         try {
             const students = yield this.studentService.loadStudents()
             const districts = yield this.studentService.loadDistricts()
+            const schools = yield this.studentService.loadSchools()
             if (districts.data) {
                 this.districts = districts.data
+            }
+            if (schools.data) {
+                this.schools = schools.data
             }
             if (students.data && students.data.length > 0) {
                 for (let index in students.data) {
@@ -77,6 +82,7 @@ decorate(StudentStore, {
     students: observable,
     loading: observable,
     districts: observable,
+    schools: observable,
     loadStudents: action,
     asJSON: computed,
     validatedStudentIndexes: computed

@@ -6,12 +6,6 @@ import Validation from './validation'
 import NestedRadio from './nestedradio'
 import Formatter from '../stores/formatter'
 class EditContactForm extends React.Component {
-    constructor(props) {
-        super(props)
-        const { contactEditorStore } = this.props
-        contactEditorStore.loadContactInfo()
-    }
-
     componentDidUpdate() {
         const { validation, validatedPhones } = this.props.contactEditorStore
         validation.validate("phoneCount", validatedPhones.length)
@@ -32,7 +26,6 @@ class EditContactForm extends React.Component {
         if (format) {
             value = Formatter[format](value) 
         }
-        console.log(value)
         contactEditorStore.setValue(collection, name, value, index)
     }
 
@@ -68,13 +61,14 @@ class EditContactForm extends React.Component {
         const { contactEditorStore } = this.props
         event.preventDefault()
         contactEditorStore.display = false
+        contactEditorStore.resetDefault()
 
     }
 
     render() {
         const { validation, activeContactStudent, phones,
-                contactDemographics, relationshipOptions, 
-                email } = this.props.contactEditorStore
+                contactExtension, contactDemographics, relationshipOptions, 
+                titleOptions, email } = this.props.contactEditorStore
         const firstNameValidation = validation.getValidation('contactDemographics.firstName')
         const lastNameValidation = validation.getValidation('contactDemographics.lastName')
         const phoneCountValidation = validation.getValidation('phoneCount')
@@ -84,12 +78,15 @@ class EditContactForm extends React.Component {
                 <fieldset data-collection="contactDemographics">
                     <legend>Contact Information</legend>
                     <div className="form-row">
-                        <div className="form-group col-md-6 col-sm-12">
+                        <Select 
+                        field={{"name": "prefix", "value": contactDemographics.prefix}} 
+                            label="Title" options={titleOptions} onChange={this.handleChange} />
+                        <div className="form-group col-md-4 col-sm-12">
                             <label className="font-weight-bold">First Name</label>
                             <input type="text" value={contactDemographics.firstName} className={`form-control ${firstNameValidation.validated === false ? 'border-danger' : ''}`} name="firstName" onChange={this.handleChange} />
                             <Validation validation={firstNameValidation} />
                         </div>
-                        <div className="form-group col-md-6 col-sm-12">
+                        <div className="form-group col-md-4 col-sm-12">
                             <label className="font-weight-bold">Last Name</label>
                             <input type="text" value={contactDemographics.lastName} className={`form-control ${lastNameValidation.validated === false ? 'border-danger' : ''}`} name="lastName" onChange={this.handleChange} />
                             <Validation validation={lastNameValidation} />
@@ -102,6 +99,16 @@ class EditContactForm extends React.Component {
                             <label className="font-weight-bold">Email</label>
                             <input type="text" value={email.address} className="form-control" name="address" onChange={this.handleChange} />
                         </div>
+                    </div>
+                </fieldset>
+                <fieldset data-collection="contactExtension">
+                    <div className="form-row">
+                        <NestedRadio 
+                            field={contactExtension.getOrCreateField('needsinterpreterassist', 'Boolean')} 
+                            options={[{"label": "Yes", "value": 1}, {"label": "No", "value": 0}]}
+                            className="col-sm-12 col-md-6"
+                            label="Needs a Translator?" onChange={this.handleChange}
+                            validation={validation.getValidation('contactExtension.needsinterpreterassist')} />
                     </div>
                 </fieldset>
                 <fieldset data-collection="activeContactStudent">

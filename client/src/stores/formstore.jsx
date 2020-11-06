@@ -54,7 +54,6 @@ class FormStore {
     }
 
     refreshActiveSectionValidation() {
-        console.log('Validation Refresh Trigger')
         if (this.student && this.activeFormSection && this.activeFormSection['triggerAlias']) {
             const validationTrigger = this.activeFormSection['triggerAlias']
             this.student.refreshValidation(validationTrigger)

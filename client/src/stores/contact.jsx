@@ -36,7 +36,11 @@ class Contact {
     }
 
     refreshValidation() {
-        this.validation.validateAll({ "contactDemographics": this.contactDemographics, "phoneCount": this.validatedPhones.length})
+        this.validation.validateAll({
+            "contactDemographics": this.contactDemographics, 
+            "phoneCount": this.validatedPhones.length,
+            "contactExtension": {"needsinterpreterassist": this.contactDemographics.contactExtension.getField('needsinterpreterassist').value}
+        })
     }
   
     loadContactData(existingStudentOrder) {
@@ -44,7 +48,7 @@ class Contact {
         this.contactStudents = observable.array()
         const { contactData } = this
         this.contactId = contactData && contactData.contactId ? contactData.contactId : 0
-        this.contactDemographics = new ContactDemographics(contactData)
+        this.contactDemographics = new ContactDemographics(contactData, this)
         this.contactDemographics.contactId = this.contactId
         if (contactData && contactData.emails && contactData.emails.length > 0) {
             this.email = new ContactEmail(contactData.emails[0])
@@ -97,6 +101,7 @@ class Contact {
             this.activeContactStudent.markedForDeletion = true
         }
     }
+
 
     get loggedInUser() {
         const { userInfo } =this.rootStore.authStore
@@ -237,7 +242,9 @@ class Contact {
             "firstName": this.contactDemographics.firstName,
             "lastName": this.contactDemographics.lastName,
             phones,
-            contactStudents
+            contactStudents,
+            "@extensions": "personcorefields",
+            "_extension_data": {"_table_extension": [this.contactExtension.asJSON]}
         }
 
         if (email.address) {

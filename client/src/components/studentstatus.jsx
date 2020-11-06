@@ -24,9 +24,12 @@ function StudentStatus(props) {
             <h4>Section Checklist</h4>
             <ul className="list-group">
                 {student.validationAreas.map((validation, index) => 
-                    <li key={`student.${studentIndex}-section-${index}`} className={`list-group-item ${validation.allValidated ? 'list-group-item-success' : 'list-group-item-danger'}`}>
-                        { validation.allValidated ? <FaCheck className="mr-2" /> : <FaTimes className="mr-2" /> }
-                        {`${validation.title} ${validation.allValidated ? 'Completed' : 'Needs Attention'}`}
+                    <li key={`student.${studentIndex}-section-${index}`} className={`list-group-item ${validation.allValidated ? 'list-group-item-success' : 'list-group-item-danger'} d-flex align-items-baseline justify-content-between`}>
+                        <div>
+                            { validation.allValidated ? <FaCheck className="mr-2" /> : <FaTimes className="mr-2" /> }
+                            {`${validation.title} ${validation.allValidated ? 'Completed' : 'Needs Attention'}`}
+                        </div>
+                        <button className="btn btn-sm btn-info" onClick={event => props.onButtonClick(event, studentIndex, index)}>Go to Section</button>
                     </li>
                 )}
             </ul>

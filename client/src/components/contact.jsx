@@ -8,6 +8,8 @@ class Contact extends React.Component {
         contactEditorStore.setContactId(contact.indexId)
         contactEditorStore.display = true
         contactEditorStore.editValid = true
+        contactEditorStore.loadContactInfo()
+        window.scrollTo(0, 0)
     }
 
     handleRemove = (event) => {
@@ -19,7 +21,7 @@ class Contact extends React.Component {
 
     render() {
         const { contact } = this.props
-        const { activeContactStudent } = contact
+        const { activeContactStudent, contactDemographics } = contact
         const validationElement = contact.validation.allValidated ? null : <div className="alert alert-danger"><small>Missing Required Fields. Click Edit to Fix.</small></div>
         const studentDetails = []
         const studentDetailLabels = {
@@ -42,7 +44,7 @@ class Contact extends React.Component {
                 {validationElement}
                 <div className="d-flex justify-content-between mb-2">
                     <div><span className="font-weight-bold">Priority #:</span> {this.props.index + 1}</div>
-                    {contact.loggedInUser && <div>Belongs To Logged in </div>}
+                    {contact.loggedInUser && <div><span className="badge badge-info badge-pill">Your Account (Cannot be removed) </span></div>}
                     <div className="button-group">
                         <button className="btn btn-sm btn-primary mr-1" onClick={this.handleEdit}>Edit</button>
                         <button className="btn btn-sm btn-danger" onClick={this.handleRemove} disabled={contact.loggedInUser}>Remove</button>
@@ -69,7 +71,7 @@ class Contact extends React.Component {
                                     Name
                                 </div>
                                 <div className="contact-information">
-                                    {contact.contactDemographics.firstName + ' ' + contact.contactDemographics.lastName}
+                                    {`${contactDemographics.prefix ? contactDemographics.prefix + ' ' : ''}${contactDemographics.firstName} ${contactDemographics.lastName}`}
                                 </div>
                             </div>
                             <div className="contact-item col-sm-12 col-md-6 p-0">
@@ -85,7 +87,7 @@ class Contact extends React.Component {
                                     Email
                                 </div>
                                 <div className="contact-information">
-                                    {contact.email.address}
+                                    {contact.email.address ? contact.email.address : '<Not Specified>'}
                                 </div>
                             </div>
                             <div className="contact-item col-sm-12 col-md-6 p-0">
@@ -93,7 +95,15 @@ class Contact extends React.Component {
                                     Employer
                                 </div>
                                 <div className="contact-information">
-                                    {contact.contactDemographics.employer}
+                                    {contact.contactDemographics.employer ? contact.contactDemographics.employer : '<Not Specified>'}
+                                </div>
+                            </div>
+                            <div className="contact-item row col-sm-12 mt-2 p-0">
+                                <div className="col-md-6 col-sm-12 d-flex justify-content-between align-items-center">
+                                    <span className="font-weight-bold">Needs a Translator?</span> 
+                                    {contactDemographics.contactExtension.getField('needsinterpreterassist').value === 1 ? 
+                                        <span className="badge badge-success">Yes</span> : <span className="badge badge-danger">No</span>
+                                    }
                                 </div>
                             </div>
                             <div className="contact-item row col-sm-12 mt-2 p-0">

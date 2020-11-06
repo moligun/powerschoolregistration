@@ -8,6 +8,15 @@ class SubmissionPage extends React.Component {
         formStore.processSubmissions()
     }
 
+    handleSectionClick = (event, studentId, sectionId) => {
+        event.preventDefault()
+        const { formStore } = this.props
+        formStore.setActiveIndex(studentId)
+        formStore.activeSectionId = sectionId
+        formStore.submitState = false
+        window.scrollTo(0, 0)
+    }
+
     handlePrevious = (event) => {
         event.preventDefault()
         const { formStore } = this.props
@@ -23,7 +32,7 @@ class SubmissionPage extends React.Component {
                     <h2>Overview Summary</h2>
                     <ul className="list-group">
                         {studentStore.students.map((student, studentIndex) => 
-                            <StudentStatus key={`student-${studentIndex}`} student={student} studentIndex={studentIndex} />
+                            <StudentStatus key={`student-${studentIndex}`} student={student} studentIndex={studentIndex} onButtonClick={this.handleSectionClick}/>
                         )}
                     </ul>
                 </div>

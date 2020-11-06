@@ -3,8 +3,11 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://plugin.powerschool.pearson.com plugin.xsd"
         name="LSC Registration"
-        version="1.03"
+        version="1.04"
         description="Custom LSC Student Registration">
+    <publisher name="Patrick Mulligan">
+        <contact email="pmulligan@lsc.k12.in.us"/>
+    </publisher>
 	<oauth />
     <openid host="34-48552.lsc.k12.in.us" port="3000">
         <links>
@@ -24,7 +27,7 @@
         <field table="Person" field="ID" access="FullAccess" />
         <field table="Person" field="DCID" access="FullAccess" />
         <field table="Person" field="ExcludeFromStateReporting" access="FullAccess" />
-        <field table="Person" field="prefixcodesetid" access="ViewOnly" />
+        <field table="Person" field="prefixcodesetid" access="FullAccess" />
         <field table="Personaddress" field="street" access="ViewOnly" />
         <field table="personemailaddressassoc" field="personemailaddressassocid" access="FullAccess" />
         <field table="Emailaddress" field="emailaddressid" access="ViewOnly" />
@@ -60,13 +63,11 @@
         <field table="studentcontactdetail" field="receivesmailflg" access="FullAccess" />
         <field table="studentcontactdetail" field="relationshiptypecodesetid" access="FullAccess" />
         <field table="studentcontactdetail" field="studentcontactdetailid" access="FullAccess" />
+        <field table="schools" field="school_number" access="ViewOnly" />
+        <field table="schools" field="name" access="ViewOnly" />
         <field table="students" field="dcid" access="FullAccess" />
         <field table="students" field="districtofresidence" access="FullAccess" />
         <field table="students" field="Student_Number" access="FullAccess" />
         <field table="students" field="schoolid" access="ViewOnly" />
 	</access_request>
- 
-    <publisher name="Patrick Mulligan">
-        <contact email="pmulligan@lsc.k12.in.us"/>
-    </publisher>
 </plugin>
