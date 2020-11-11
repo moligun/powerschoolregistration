@@ -13,3 +13,7 @@
 main.container {
 	height: 75vh;
 }
+
+.contactsList li {
+	cursor: grab;
+}

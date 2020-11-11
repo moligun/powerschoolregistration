@@ -5,9 +5,9 @@ import Contact from './contact'
 import Validation from './validation'
 import Loading from './loading'
 class ContactsList extends React.Component {
-    handleUp = (event) => {
+    handleUp = (event, index) => {
         event.preventDefault()
-        const currentIndex = parseInt(event.currentTarget.closest('li').dataset.index)
+        const currentIndex = index
         const nextIndex = currentIndex - 1
         if (currentIndex === 0) {
             return
@@ -21,26 +21,64 @@ class ContactsList extends React.Component {
         nextContact.activeContactStudent.sequence = currentContactSequence
     }
 
-    handleDropdown = (event) => {
+    handleDropdown = (event, index) => {
         const buttonGroup = event.currentTarget.closest('.btn-group')
         buttonGroup.querySelector('.dropdown-menu').classList.toggle('show')
     }
 
-    handleDown = (event) => {
+    handleDown = (event, index) => {
         event.preventDefault()
-        const currentIndex = parseInt(event.currentTarget.closest('li').dataset.index)
-        const nextIndex = currentIndex + 1
+        const currentIndex = index
+        let nextIndex = currentIndex + 1
         const { activeStudentContacts } = this.props.contactsStore
         const itemCount = activeStudentContacts.length
         if (itemCount === (currentIndex + 1)) {
+            console.log('stopped')
             return
         }
+
+        if (nextIndex >= itemCount) {
+            nextIndex = itemCount - 1
+        }
+
         const currentContact = activeStudentContacts[currentIndex]
         const nextContact = activeStudentContacts[nextIndex]
         const currentContactSequence = currentContact.activeContactStudent.sequence
-        const replaceContactSequence = currentContactSequence + 1 
+        const replaceContactSequence = currentContactSequence + 1
         currentContact.activeContactStudent.sequence = replaceContactSequence
         nextContact.activeContactStudent.sequence = currentContactSequence
+    }
+
+    handleDragStart = (event) => {
+        const currentIndex = parseInt(event.currentTarget.dataset.index)
+        const { formStore } = this.props
+        if (formStore.draggedItem !== currentIndex) {
+            formStore.draggedItem = currentIndex
+        }
+    }
+
+    handleDragOver = (event) => {
+        const currentIndex = parseInt(event.currentTarget.dataset.index)
+        const { formStore } = this.props
+        if (formStore.draggedOverItem !== currentIndex) {
+            formStore.draggedOverItem = currentIndex
+        }
+    }
+
+    handleDragEnd = (event) => {
+        const { formStore } = this.props
+        console.log(formStore.draggedItem + " " + formStore.draggedOverItem)
+        const { activeStudentContacts } = this.props.contactsStore
+        if (formStore.draggedItem !== formStore.draggedOverItem) {
+            const currentContact = activeStudentContacts[formStore.draggedItem]
+            const nextContact = activeStudentContacts[formStore.draggedOverItem]
+            const currentContactSequence = currentContact.activeContactStudent.sequence
+            const replaceContactSequence = nextContact.activeContactStudent.sequence
+            currentContact.activeContactStudent.sequence = replaceContactSequence
+            nextContact.activeContactStudent.sequence = currentContactSequence
+            formStore.draggedItem = 0
+            formStore.draggedOverItem = 0
+        }
     }
 
     handleAdd = (event) => {
@@ -50,6 +88,7 @@ class ContactsList extends React.Component {
         contactEditorStore.display = true
         contactEditorStore.loadContactInfo()
     }
+
 
     handleAddExisting = (event) => {
         event.preventDefault()
@@ -82,18 +121,20 @@ class ContactsList extends React.Component {
                         <div className="dropdown-menu p-2" aria-labelledby="btnGroupDrop1">
                             <button className="btn btn-primary w-100" onClick={this.handleAdd}>Add New</button>
                             {unusedStudentContacts.map((contact) => <button key={`existing-contact-${contact.indexId}`} onClick={this.handleAddExisting} className="btn btn-link w-100" data-index={contact.indexId}>{contact.contactDemographics.lastName + ', ' + contact.contactDemographics.firstName}</button>)}
-
                         </div>
                     </div>
                 </div>
                 <div>
                     <Validation validation={contactInformationValidation.getValidation("count")} className="alert alert-danger" />
                     {activeStudentContacts.length > 0 && 
-                        <ul className="list-group">
+                        <ul className="list-group contactsList">
                             {activeStudentContacts.map((contact, index) => 
                                 <Contact contact={contact} key={`contact-${index}`} 
                                     handleClick={this.handleClick} index={ index } 
-                                    handleUp={ this.handleUp } handleDown ={ this.handleDown } itemCount={ itemCount } />
+                                    handleUp={ this.handleUp } handleDown ={ this.handleDown } 
+                                    handleDragStart={this.handleDragStart} 
+                                    handleDragOver={this.handleDragOver}
+                                    handleDragEnd={this.handleDragEnd} itemCount={ itemCount } />
                             )}
                         </ul>
                     }

@@ -1,7 +1,15 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
 import { FaSortUp, FaSortDown } from 'react-icons/fa'
+import Select from './select'
 class Contact extends React.Component {
+    state = {
+        order: 0
+    }
+    componentDidMount() {
+        this.setState({order: this.props.index + 1})
+    }
+
     handleEdit = (event) => {
         const { contactEditorStore, contact } = this.props
         event.preventDefault()
@@ -19,6 +27,20 @@ class Contact extends React.Component {
         formStore.refreshActiveSectionValidation()
     }
 
+    handleOrderChange = (event) => {
+        const { activeStudentContacts } = this.props.contactsStore
+        const currentIndex = this.props.index
+        const nextIndex = event.currentTarget.value - 1
+        if (currentIndex !== undefined && nextIndex !== undefined && (currentIndex !== nextIndex)) {
+            const currentContact = activeStudentContacts[currentIndex]
+            const nextContact = activeStudentContacts[nextIndex]
+            const currentContactSequence = currentContact.activeContactStudent.sequence
+            const replaceContactSequence = nextContact.activeContactStudent.sequence
+            currentContact.activeContactStudent.sequence = replaceContactSequence
+            nextContact.activeContactStudent.sequence = currentContactSequence
+        }
+    }
+
     render() {
         const { contact } = this.props
         const { activeContactStudent, contactDemographics } = contact
@@ -30,6 +52,11 @@ class Contact extends React.Component {
             "schoolPickup": "Can pick up student?",
             "livesWith": "Lives with student?"
         }
+        const priorityOptions = [...Array(this.props.itemCount).keys()].map(
+            (id) => {
+                return {"label": id + 1, "value": id + 1}
+            }
+        )
 
         for (const key in studentDetailLabels) {
             studentDetails.push(
@@ -40,10 +67,15 @@ class Contact extends React.Component {
             )
         }
         return (
-            <li key={'contact-' + this.props.index} className="list-group-item" data-id={contact.id} data-index={ this.props.index }>
+            <li draggable="true" id={`contact-${this.props.index}`} key={'contact-' + this.props.index} className="list-group-item" data-id={contact.id} data-index={ this.props.index } 
+                onDragStart={this.props.handleDragStart} onDragOver={this.props.handleDragOver} onDragEnd={this.props.handleDragEnd}>
                 {validationElement}
                 <div className="d-flex justify-content-between mb-2">
-                    <div><span className="font-weight-bold">Priority #:</span> {this.props.index + 1}</div>
+                    <div className="d-flex align-items-baseline">
+                        <span className="font-weight-bold">Priority #</span>
+                        <Select options={priorityOptions} noBlank={true} field={{"name": `contact-${this.props.index}`, "value": this.state.order}} 
+                            onChange={this.handleOrderChange} />
+                    </div>
                     {contact.loggedInUser && <div><span className="badge badge-info badge-pill">Your Account (Cannot be removed) </span></div>}
                     <div className="button-group">
                         <button className="btn btn-sm btn-primary mr-1" onClick={this.handleEdit}>Edit</button>
@@ -52,14 +84,14 @@ class Contact extends React.Component {
                 </div>
                 <div className="d-flex align-items-top">
                     <div className="button-group d-flex flex-column mr-3">
-                        {this.props.index !== 0 ? 
-                            <button className="btn btn-link p-0" onClick={this.props.handleUp}><FaSortUp size="2em" /></button> 
+                        {this.props.index ? 
+                            <button className="btn btn-link p-0" onClick={event => this.props.handleUp(event, this.props.index)}><FaSortUp size="2em" /></button> 
                             :
                             null 
                         }
 
                         {this.props.index < (this.props.itemCount - 1) ?
-                            <button className="btn btn-link p-0" onClick={this.props.handleDown}><FaSortDown size="2em" /></button>
+                            <button className="btn btn-link p-0" onClick={event => this.props.handleDown(event, this.props.index)}><FaSortDown size="2em" /></button>
                             :
                             null
                         }
@@ -160,5 +192,6 @@ class Contact extends React.Component {
 }
 export default inject(stores => ({
     contactEditorStore: stores.rootStore.contactEditorStore,
-    formStore: stores.rootStore.formStore
+    formStore: stores.rootStore.formStore,
+    contactsStore: stores.rootStore.contactsStore
 }))(observer(Contact))

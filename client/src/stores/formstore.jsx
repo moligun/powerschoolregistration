@@ -11,6 +11,8 @@ import StudentService from "../services/studentservice"
 class FormStore {
     displayForm = false
     activeStudentIndex
+    draggedItem = 0
+    draggedOverItem = 0
     formSections = [
         {"name": "Student Info", "validation": "studentInformationValidation", "triggerAlias": "student"}, 
         {"name": "Contacts", "validation": "contactInformationValidation", "triggerAlias": "contacts"},
@@ -224,6 +226,8 @@ decorate(FormStore, {
     activeSectionId: observable,
     submitState: observable,
     submitting: observable,
+    draggedItem: observable,
+    draggedOverItem: observable,
     student: computed,
     studentsCount: computed,
     activeFormSection: computed,
